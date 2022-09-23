@@ -1,0 +1,158 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Исходные файлы">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Файлы заголовков">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Файлы ресурсов">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Файлы заголовков\Shaders">
+      <UniqueIdentifier>{5d898ab5-6b90-4de5-8ab8-a9543a6655c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Terrain">
+      <UniqueIdentifier>{bbe10043-2630-4494-a8a0-1032d25b981e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Terrain">
+      <UniqueIdentifier>{abee49da-8791-42b4-8193-aedb584fa5ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Shaders">
+      <UniqueIdentifier>{e19a64a0-fd8e-41dc-81e6-d7dd4d20ee56}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Terrain\UserInterface">
+      <UniqueIdentifier>{ba675269-23f0-48e9-9cc2-e3138f394aaf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Terrain\UserInterface">
+      <UniqueIdentifier>{4804ce2e-8ca3-4e2a-b6e8-b54c7150097e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Resource.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="system.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="application.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="input.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dclass.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="fps.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="timer.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="shaderManager.h">
+      <Filter>Файлы заголовков\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="zone.h">
+      <Filter>Файлы заголовков\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="terrain.h">
+      <Filter>Файлы заголовков\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="position.h">
+      <Filter>Файлы заголовков\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>Файлы заголовков\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="colorShader.h">
+      <Filter>Файлы заголовков\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="fontShader.h">
+      <Filter>Файлы заголовков\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="userInterface.h">
+      <Filter>Файлы заголовков\Terrain\UserInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="text.h">
+      <Filter>Файлы заголовков\Terrain\UserInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="font.h">
+      <Filter>Файлы заголовков\Terrain\UserInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>Файлы заголовков\Terrain\UserInterface</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="directx.ico">
+      <Filter>Файлы ресурсов</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="system.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="application.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="input.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="d3dclass.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="camera.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="fps.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="zone.cpp">
+      <Filter>Исходные файлы\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="terrain.cpp">
+      <Filter>Исходные файлы\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="timer.cpp">
+      <Filter>Исходные файлы\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="position.cpp">
+      <Filter>Исходные файлы\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="shaderManager.cpp">
+      <Filter>Исходные файлы\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="colorShader.cpp">
+      <Filter>Исходные файлы\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="fontShader.cpp">
+      <Filter>Исходные файлы\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="userInterface.cpp">
+      <Filter>Исходные файлы\Terrain\UserInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="text.cpp">
+      <Filter>Исходные файлы\Terrain\UserInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="font.cpp">
+      <Filter>Исходные файлы\Terrain\UserInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="texture.cpp">
+      <Filter>Исходные файлы\Terrain\UserInterface</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="ColorVertexShader.hlsl" />
+    <FxCompile Include="ColorPixelShader.hlsl" />
+    <FxCompile Include="FontVertexShader.hlsl" />
+    <FxCompile Include="FontPixelShader.hlsl" />
+  </ItemGroup>
+</Project>
