@@ -14,7 +14,7 @@ class System
 {
 public:
     // constructors
-    System() { m_Application = 0; };
+    System() { m_Application = nullptr; };
     System(const System& other) {};
 
     // destructor 

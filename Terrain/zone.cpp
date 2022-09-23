@@ -42,7 +42,7 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
         return false;
 
     // Set the initial position and rotation.
-    m_Position->SetPosition(128.0f, 5.0f, -10.0f);
+    m_Position->SetPosition(128.0f, 10.0f, -10.0f);
     m_Position->SetRotation(0.0f, 0.0f, 0.0f);
 
     // Create the terrain object.
@@ -51,7 +51,7 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
         return false;
 
     // Initialize the terrain object.
-    result = m_Terrain->Initialize(Direct3D->GetDevice());
+    result = m_Terrain->Initialize(Direct3D->GetDevice(), "data/setup.txt");
     if (!result) {
         MessageBox(hwnd, L"Could not initialize the terrain object.", L"Error", MB_OK);
         return false;
@@ -59,6 +59,7 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
 
     // Set the UI to display by default.
     m_displayUI = true;
+    m_wireFrame = true;
 
     return true;
 
@@ -168,6 +169,10 @@ void Zone::HandleMovementInput(Input * Input, float frameTime) {
     if (Input->IsF1Toggled())
         m_displayUI = !m_displayUI;
 
+    // Determine if the terrain should be rendered in wireframe or not.
+    if (Input->IsF2Toggled())
+        m_wireFrame = !m_wireFrame;
+
 }
 
 // Render function
@@ -189,11 +194,19 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager) {
     // Clear the buffers to begin the scene.
     Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 
+    // Determine if the terrain should be rendered in wireframe or not.
+    if (m_wireFrame)
+        Direct3D->EnableWireframe();
+
     // Render the terrain grid using the color shader.
     m_Terrain->Render(Direct3D->GetDeviceContext());
     result = ShaderManager->RenderColorShader(Direct3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
     if (!result)
         return false;
+
+    // Determine if the terrain should be rendered in wireframe or not.
+    if (m_wireFrame)
+        Direct3D->DisableWireframe();
 
     // Render the user interface.
     if (m_displayUI) {

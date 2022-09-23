@@ -57,9 +57,6 @@
     <ClInclude Include="shaderManager.h">
       <Filter>Файлы заголовков\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="zone.h">
-      <Filter>Файлы заголовков\Terrain</Filter>
-    </ClInclude>
     <ClInclude Include="terrain.h">
       <Filter>Файлы заголовков\Terrain</Filter>
     </ClInclude>
@@ -86,6 +83,9 @@
     </ClInclude>
     <ClInclude Include="texture.h">
       <Filter>Файлы заголовков\Terrain\UserInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="zone.h">
+      <Filter>Файлы заголовков\Terrain</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

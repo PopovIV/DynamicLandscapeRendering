@@ -40,7 +40,7 @@ private:
     Camera* m_Camera;
     Position* m_Position;
     Terrain* m_Terrain;
-    bool m_displayUI;
+    bool m_displayUI, m_wireFrame;
 };
 
 #endif

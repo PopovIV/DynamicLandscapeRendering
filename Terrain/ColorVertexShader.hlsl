@@ -15,6 +15,7 @@ struct VS_INPUT
 struct PS_INPUT
 {
     float4 position : SV_POSITION;
+    float4 worldPosition : POSITION;
     float4 color : COLOR;
 };
 
@@ -31,6 +32,7 @@ PS_INPUT main(VS_INPUT input)
 
     // Calculate the position of the vertex against the world, view, and projection matrices.
     output.position = mul(input.position, worldMatrix);
+    output.worldPosition = output.position;
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
 
