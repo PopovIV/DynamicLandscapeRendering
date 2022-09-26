@@ -170,6 +170,8 @@
     <ClInclude Include="terrain.h" />
     <ClInclude Include="text.h" />
     <ClInclude Include="texture.h" />
+    <ClInclude Include="textureManager.h" />
+    <ClInclude Include="textureShader.h" />
     <ClInclude Include="timer.h" />
     <ClInclude Include="userInterface.h" />
     <ClInclude Include="zone.h" />
@@ -193,6 +195,8 @@
     <ClCompile Include="terrain.cpp" />
     <ClCompile Include="text.cpp" />
     <ClCompile Include="texture.cpp" />
+    <ClCompile Include="textureManager.cpp" />
+    <ClCompile Include="textureShader.cpp" />
     <ClCompile Include="timer.cpp" />
     <ClCompile Include="userInterface.cpp" />
     <ClCompile Include="zone.cpp" />
@@ -222,6 +226,8 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
     </FxCompile>
+    <FxCompile Include="TexturePixelShader.hlsl" />
+    <FxCompile Include="TextureVertexShader.hlsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

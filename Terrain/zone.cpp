@@ -51,7 +51,7 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
         return false;
 
     // Initialize the terrain object.
-    result = m_Terrain->Initialize(Direct3D->GetDevice(), "data/setup.txt");
+    result = m_Terrain->Initialize(Direct3D->GetDevice(), (char*)"data/setup.txt");
     if (!result) {
         MessageBox(hwnd, L"Could not initialize the terrain object.", L"Error", MB_OK);
         return false;
@@ -97,7 +97,7 @@ void Zone::Shutdown() {
 }
 
 // Function to update frame each second
-bool Zone::Frame(D3DClass* Direct3D, Input * Input, ShaderManager * ShaderManager, float frameTime, int fps) {
+bool Zone::Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager, TextureManager* TextureManager, float frameTime, int fps) {
 
     bool result;
     float posX, posY, posZ, rotX, rotY, rotZ;
@@ -115,7 +115,7 @@ bool Zone::Frame(D3DClass* Direct3D, Input * Input, ShaderManager * ShaderManage
         return false;
 
     // Render the graphics.
-    result = Render(Direct3D, ShaderManager);
+    result = Render(Direct3D, ShaderManager, TextureManager);
     if (!result)
         return false;
 
@@ -176,7 +176,7 @@ void Zone::HandleMovementInput(Input * Input, float frameTime) {
 }
 
 // Render function
-bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager) {
+bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManager* TextureManager) {
 
     XMMATRIX worldMatrix, viewMatrix, projectionMatrix, baseViewMatrix, orthoMatrix;
     bool result;
@@ -200,7 +200,7 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager) {
 
     // Render the terrain grid using the color shader.
     m_Terrain->Render(Direct3D->GetDeviceContext());
-    result = ShaderManager->RenderColorShader(Direct3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
+    result = ShaderManager->RenderTextureShader(Direct3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, TextureManager->GetTexture(1));
     if (!result)
         return false;
 

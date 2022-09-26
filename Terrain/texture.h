@@ -21,7 +21,9 @@ public:
     // destructor
     ~Texture() {};
 
+    // Function to initialize texture
     bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* filename);
+    // Function to realese texture
     void Shutdown();
 
     ID3D11ShaderResourceView* GetTexture() { return m_textureView; };

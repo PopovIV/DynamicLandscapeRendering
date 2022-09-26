@@ -16,7 +16,7 @@ private:
 
     struct VertexType {
         XMFLOAT3 position;
-        XMFLOAT4 color;
+        XMFLOAT2 texture;
     };
 
     struct HeightMapType {
@@ -25,6 +25,7 @@ private:
 
     struct ModelType {
         float x, y, z;
+        float tu, tv;
     };
 
 public:

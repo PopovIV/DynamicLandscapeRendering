@@ -2,12 +2,13 @@
 
 Texture::Texture() {
 
-    m_targaData = 0;
-    m_texture = 0;
-    m_textureView = 0;
+    m_targaData = nullptr;
+    m_texture = nullptr;
+    m_textureView = nullptr;
 
 }
 
+// Function to initialize texture
 bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* filename) {
 
     bool result;
@@ -68,24 +69,25 @@ bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
 
 }
 
+// Function to realese texture
 void Texture::Shutdown() {
 
     // Release the texture view resource.
     if (m_textureView) {
         m_textureView->Release();
-        m_textureView = 0;
+        m_textureView = nullptr;
     }
 
     // Release the texture.
     if (m_texture) {
         m_texture->Release();
-        m_texture = 0;
+        m_texture = nullptr;
     }
 
     // Release the targa data.
     if (m_targaData) {
        delete[] m_targaData;
-       m_targaData = 0;
+       m_targaData = nullptr;
     }
 
 }

@@ -87,6 +87,12 @@
     <ClInclude Include="zone.h">
       <Filter>Файлы заголовков\Terrain</Filter>
     </ClInclude>
+    <ClInclude Include="textureManager.h">
+      <Filter>Файлы заголовков\Terrain\UserInterface</Filter>
+    </ClInclude>
+    <ClInclude Include="textureShader.h">
+      <Filter>Файлы заголовков\Shaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="directx.ico">
@@ -148,11 +154,19 @@
     <ClCompile Include="texture.cpp">
       <Filter>Исходные файлы\Terrain\UserInterface</Filter>
     </ClCompile>
+    <ClCompile Include="textureManager.cpp">
+      <Filter>Исходные файлы\Terrain\UserInterface</Filter>
+    </ClCompile>
+    <ClCompile Include="textureShader.cpp">
+      <Filter>Исходные файлы\Shaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="ColorVertexShader.hlsl" />
     <FxCompile Include="ColorPixelShader.hlsl" />
     <FxCompile Include="FontVertexShader.hlsl" />
     <FxCompile Include="FontPixelShader.hlsl" />
+    <FxCompile Include="TexturePixelShader.hlsl" />
+    <FxCompile Include="TextureVertexShader.hlsl" />
   </ItemGroup>
 </Project>
