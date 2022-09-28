@@ -4,6 +4,7 @@ ShaderManager::ShaderManager() {
 
     m_ColorShader = nullptr;
     m_TextureShader = nullptr;
+    m_LightShader = nullptr;
     m_FontShader = nullptr;
 
 }
@@ -33,6 +34,15 @@ bool ShaderManager::Initialize(ID3D11Device* device, HWND hwnd) {
     if (!result)
         return false;
 
+    // Create the light shader object.
+    m_LightShader = new LightShader;
+    if (!m_LightShader)
+        return false;
+
+    // Initialize the light shader object.
+    result = m_LightShader->Initialize(device, hwnd);
+    if (!result)
+        return false;
 
     // Create the font shader object.
     m_FontShader = new FontShader;
@@ -56,6 +66,13 @@ void ShaderManager::Shutdown() {
     m_FontShader->Shutdown();
         delete m_FontShader;
         m_FontShader = nullptr;
+    }
+
+    // Release the light shader object.
+    if (m_LightShader) {
+        m_LightShader->Shutdown();
+        delete m_LightShader;
+        m_LightShader = nullptr;
     }
 
     // Release the texture shader object.
@@ -82,6 +99,11 @@ bool ShaderManager::RenderColorShader(ID3D11DeviceContext* deviceContext, int in
 // Function to render for Texture shader
 bool ShaderManager::RenderTextureShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix,  XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture) {
     return m_TextureShader->Render(deviceContext, indexCount, worldMatrix, viewMatrix, projectionMatrix, texture);
+}
+
+// Function to render for Light shader
+bool ShaderManager::RenderLightShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix,XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor) {
+    return m_LightShader->Render(deviceContext, indexCount, worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection, diffuseColor);
 }
 
 // Function to render for Font shader

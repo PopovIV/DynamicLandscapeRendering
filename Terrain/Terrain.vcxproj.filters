@@ -33,9 +33,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Resource.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="system.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
@@ -93,11 +90,12 @@
     <ClInclude Include="textureShader.h">
       <Filter>Файлы заголовков\Shaders</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="directx.ico">
-      <Filter>Файлы ресурсов</Filter>
-    </Image>
+    <ClInclude Include="light.h">
+      <Filter>Файлы заголовков\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="lightShader.h">
+      <Filter>Файлы заголовков\Shaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -160,13 +158,19 @@
     <ClCompile Include="textureShader.cpp">
       <Filter>Исходные файлы\Shaders</Filter>
     </ClCompile>
+    <ClCompile Include="light.cpp">
+      <Filter>Исходные файлы\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="lightShader.cpp">
+      <Filter>Исходные файлы\Shaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="ColorVertexShader.hlsl" />
-    <FxCompile Include="ColorPixelShader.hlsl" />
     <FxCompile Include="FontVertexShader.hlsl" />
     <FxCompile Include="FontPixelShader.hlsl" />
     <FxCompile Include="TexturePixelShader.hlsl" />
     <FxCompile Include="TextureVertexShader.hlsl" />
+    <FxCompile Include="LightVertexShader.hlsl" />
+    <FxCompile Include="LightPixelShader.hlsl" />
   </ItemGroup>
 </Project>

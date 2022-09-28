@@ -4,6 +4,7 @@ Zone::Zone() {
 
     m_UserInterface = nullptr;
     m_Camera = nullptr;
+    m_Light = nullptr;
     m_Position = nullptr;
     m_Terrain = nullptr;
 
@@ -35,6 +36,15 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
     m_Camera->Render();
     m_Camera->RenderBaseViewMatrix();
+
+    // Create the light object.
+    m_Light = new Light;
+    if (!m_Light)
+        return false;
+
+    // Initialize the light object.
+    m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+    m_Light->SetDirection(-0.5f, -1.0f, -0.5f);
 
     // Create the position object.
     m_Position = new Position;
@@ -79,6 +89,12 @@ void Zone::Shutdown() {
     if (m_Position) {
         delete m_Position;
         m_Position = nullptr;
+    }
+
+    // Release the light object.
+    if (m_Light) {
+        delete m_Light;
+        m_Light = nullptr;
     }
 
     // Release the camera object.
@@ -200,7 +216,9 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
 
     // Render the terrain grid using the color shader.
     m_Terrain->Render(Direct3D->GetDeviceContext());
-    result = ShaderManager->RenderTextureShader(Direct3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, TextureManager->GetTexture(1));
+    result = ShaderManager->RenderLightShader(Direct3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, viewMatrix,
+        projectionMatrix, TextureManager->GetTexture(1), m_Light->GetDirection(),
+        m_Light->GetDiffuseColor());
     if (!result)
         return false;
 

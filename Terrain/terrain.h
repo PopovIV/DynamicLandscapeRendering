@@ -17,15 +17,23 @@ private:
     struct VertexType {
         XMFLOAT3 position;
         XMFLOAT2 texture;
+        XMFLOAT3 normal;
     };
 
     struct HeightMapType {
         float x, y, z;
+        float nx, ny, nz;
     };
 
     struct ModelType {
         float x, y, z;
         float tu, tv;
+        float nx, ny, nz;
+    };
+
+    // Used for calculating normal vectors
+    struct VectorType {
+        float x, y, z;
     };
 
 public:
@@ -55,6 +63,8 @@ private:
     void ShutdownHeightMap();
     // Function to set x and z coords of terrain
     void SetTerrainCoordinates();
+    // Function to calculate normals from our height map
+    bool calculateNormals();
     // function to create model of terrain
     bool BuildTerrainModel();
     // Release the terrain model

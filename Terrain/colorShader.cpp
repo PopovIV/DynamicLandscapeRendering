@@ -2,10 +2,10 @@
 
 ColorShader::ColorShader() {
 
-    m_vertexShader = 0;
-    m_pixelShader = 0;
-    m_layout = 0;
-    m_matrixBuffer = 0;
+    m_vertexShader = nullptr;
+    m_pixelShader = nullptr;
+    m_layout = nullptr;
+    m_matrixBuffer = nullptr;
 
 }
 
