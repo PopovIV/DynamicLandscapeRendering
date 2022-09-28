@@ -149,8 +149,8 @@ void System::InitializeWindows(int& screenWidth, int& screenHeight) {
     }
     else {
         // If windowed then set it to 800x600 resolution.
-        screenWidth = 800;
-        screenHeight = 600;
+        screenWidth = 1920;
+        screenHeight = 1080;
 
         // Place the window in the middle of the screen.
         posX = (GetSystemMetrics(SM_CXSCREEN) - screenWidth) / 2;
@@ -159,8 +159,8 @@ void System::InitializeWindows(int& screenWidth, int& screenHeight) {
 
     // Create the window with the screen settings and get the handle to it.
     m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_applicationName, m_applicationName,
-    WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
-    posX, posY, screenWidth, screenHeight, NULL, NULL, m_hinstance, NULL);
+        WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
+        posX, posY, screenWidth, screenHeight, NULL, NULL, m_hinstance, NULL);
 
     // Bring the window up on the screen and set it as main focus.
     ShowWindow(m_hwnd, SW_SHOW);
