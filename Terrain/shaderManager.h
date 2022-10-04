@@ -9,7 +9,7 @@
 #include "textureshader.h"
 #include "lightshader.h"
 #include "fontshader.h"
-
+#include "terrainshader.h"
 
 class ShaderManager {
 public:
@@ -32,12 +32,15 @@ public:
     bool RenderLightShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor);
     // Function to render for Font shader
     bool RenderFontShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, XMFLOAT4 color);
+    // Function to render for Terrain shader
+    bool RenderTerrainShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor);
 
 private:
     ColorShader* m_ColorShader;
     TextureShader* m_TextureShader;
     LightShader* m_LightShader;
     FontShader* m_FontShader;
+    TerrainShader* m_TerrainShader;
 
 };
 

@@ -96,6 +96,9 @@
     <ClInclude Include="lightShader.h">
       <Filter>Файлы заголовков\Shaders</Filter>
     </ClInclude>
+    <ClInclude Include="terrainShader.h">
+      <Filter>Файлы заголовков\Shaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -164,6 +167,9 @@
     <ClCompile Include="lightShader.cpp">
       <Filter>Исходные файлы\Shaders</Filter>
     </ClCompile>
+    <ClCompile Include="terrainShader.cpp">
+      <Filter>Исходные файлы\Shaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="FontVertexShader.hlsl" />
@@ -172,5 +178,7 @@
     <FxCompile Include="TextureVertexShader.hlsl" />
     <FxCompile Include="LightVertexShader.hlsl" />
     <FxCompile Include="LightPixelShader.hlsl" />
+    <FxCompile Include="TerrainVertexShader.hlsl" />
+    <FxCompile Include="TerrainPixelShader.hlsl" />
   </ItemGroup>
 </Project>

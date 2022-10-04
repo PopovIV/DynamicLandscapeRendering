@@ -18,17 +18,20 @@ private:
         XMFLOAT3 position;
         XMFLOAT2 texture;
         XMFLOAT3 normal;
+        XMFLOAT3 color;
     };
 
     struct HeightMapType {
         float x, y, z;
         float nx, ny, nz;
+        float r, g, b;
     };
 
     struct ModelType {
         float x, y, z;
         float tu, tv;
         float nx, ny, nz;
+        float r, g, b;
     };
 
     // Used for calculating normal vectors
@@ -64,7 +67,9 @@ private:
     // Function to set x and z coords of terrain
     void SetTerrainCoordinates();
     // Function to calculate normals from our height map
-    bool calculateNormals();
+    bool CalculateNormals();
+    // Function to load color bitmap
+    bool LoadColorMap();
     // function to create model of terrain
     bool BuildTerrainModel();
     // Release the terrain model
@@ -84,6 +89,7 @@ private:
     int m_terrainHeight, m_terrainWidth;
     float m_heightScale;
     char* m_terrainFilename;
+    char * m_colorMapFilename;
     HeightMapType* m_heightMap;
     ModelType* m_terrainModel;
 
