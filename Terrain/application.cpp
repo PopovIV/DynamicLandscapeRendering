@@ -64,11 +64,11 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
     }
 
     // Load textures into the texture manager.
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/Terrain_diffuse.dds", 0, Texture::DDS);
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/gr_diffuse.dds", 0, Texture::DDS);
     if (!result)
         return false;
 
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/Terrain_normal.dds", 1, Texture::DDS);
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/gr_normal.dds", 1, Texture::DDS);
     if (!result)
         return false;
 

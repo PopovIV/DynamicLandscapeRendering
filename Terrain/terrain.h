@@ -73,6 +73,8 @@ private:
     bool LoadSetupFile(char* filename);
     // Function to load height map
     bool LoadBitmapHeightMap();
+    // Function to load raw height map
+    bool LoadRawHeightMap();
     // Release the height map.
     void ShutdownHeightMap();
     // Function to set x and z coords of terrain

@@ -32,7 +32,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     // Sample the pixel color from the texture using the sampler at this texture coordinate location.
     textureColor = shaderTexture.Sample(SampleType, input.tex);
     // Combine the color map value into the texture color.
-    textureColor = saturate(textureColor * input.color * 3.0f);
+    textureColor = saturate(textureColor * input.color * 2.0f);
     // Invert the light direction for calculations.
     lightDir = -lightDirection;
     // Calculate the amount of light on this pixel using the normal map.
