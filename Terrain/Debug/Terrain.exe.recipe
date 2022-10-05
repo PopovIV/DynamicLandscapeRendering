@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ProjectOutputs>A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\Terrain.exe</ProjectOutputs>
+  <ContentFiles>A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\FontPixelShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\FontVertexShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\LightPixelShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\LightVertexShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\TerrainPixelShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\TerrainVertexShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\TexturePixelShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\TextureVertexShader.cso</ContentFiles>
+  <SatelliteDlls></SatelliteDlls>
+  <NonRecipeFileRefs></NonRecipeFileRefs>
+</Project>

@@ -7,6 +7,7 @@
 
 #include <directxmath.h>
 #include <fstream>
+#include "stringConverter.h"
 using namespace DirectX;
 using namespace std;
 
@@ -32,7 +33,7 @@ public:
     ~Font() {};
 
     // Function to initialize font class
-    bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* fontFilename, char* textureFilename, float fontHeight, int spaceSize);
+    bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* fontFilename, const wchar_t* textureFilename, float fontHeight, int spaceSize);
     // Function to realese font class
     void Shutdown();
 
@@ -43,11 +44,11 @@ public:
 
 private:
     // Function to load data for font
-    bool LoadFontData(char* filename);
+    bool LoadFontData(const wchar_t* filename);
     // Function to realese data from font
     void ReleaseFontData();
     // Texture loader function
-    bool LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* filename);
+    bool LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* filename);
     // Function to realse texture
     void ReleaseTexture();
 

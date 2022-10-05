@@ -3,6 +3,8 @@
 
 #include <d3d11.h>
 #include <stdio.h>
+#include "DDSTextureLoader.h"
+#include "stringConverter.h"
 
 class Texture {
 private:
@@ -15,6 +17,11 @@ private:
     };
 
 public:
+    enum TextureType {
+        Targa,
+        DDS,
+    };
+
     // constructors
     Texture();
     Texture(const Texture&) {};
@@ -22,14 +29,14 @@ public:
     ~Texture() {};
 
     // Function to initialize texture
-    bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* filename);
+    bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* filename, TextureType type);
     // Function to realese texture
     void Shutdown();
 
     ID3D11ShaderResourceView* GetTexture() { return m_textureView; };
 
 private:
-    bool LoadTarga(char* filename, int& height, int& width);
+    bool LoadTarga(const wchar_t* filename, int& height, int& width);
 
 private:
     unsigned char* m_targaData;

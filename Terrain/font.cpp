@@ -8,7 +8,7 @@ Font::Font() {
 }
 
 // Function to initialize font class
-bool Font::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* fontFilename, char* textureFilename, float fontHeight, int spaceSize) {
+bool Font::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* fontFilename, const wchar_t* textureFilename, float fontHeight, int spaceSize) {
 
     bool result;
 
@@ -45,7 +45,7 @@ void Font::Shutdown() {
 }
 
 // Function to load data for font
-bool Font::LoadFontData(char* filename) {
+bool Font::LoadFontData(const wchar_t* filename) {
 
     ifstream fin;
     int i;
@@ -92,7 +92,7 @@ void Font::ReleaseFontData() {
 }
 
 // Texture loader function
-bool Font::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* filename) {
+bool Font::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* filename) {
 
     bool result;
 
@@ -102,7 +102,7 @@ bool Font::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext,
         return false;
 
     // Initialize the texture object.
-    result = m_Texture->Initialize(device, deviceContext, filename);
+    result = m_Texture->Initialize(device, deviceContext, filename, Texture::Targa);
     if (!result)
         return false;
 

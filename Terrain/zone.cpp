@@ -61,7 +61,7 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
         return false;
 
     // Initialize the terrain object.
-    result = m_Terrain->Initialize(Direct3D->GetDevice(), (char*)"data/setup.txt");
+    result = m_Terrain->Initialize(Direct3D->GetDevice(), "data/setup.txt");
     if (!result) {
         MessageBox(hwnd, L"Could not initialize the terrain object.", L"Error", MB_OK);
         return false;

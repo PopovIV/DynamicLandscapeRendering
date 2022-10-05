@@ -28,10 +28,10 @@ void TextureManager::Shutdown() {
 }
 
 // Texture loader function
-bool TextureManager::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, char* filename, int location) {
+bool TextureManager::LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* filename, int location, Texture::TextureType type) {
 
     // Initialize the color texture object.
-    if (!m_TextureArray[location].Initialize(device, deviceContext, filename))
+    if (!m_TextureArray[location].Initialize(device, deviceContext, filename, type))
         return false;
 
     return true;

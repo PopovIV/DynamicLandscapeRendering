@@ -31,6 +31,12 @@
     <Filter Include="Исходные файлы\Terrain\UserInterface">
       <UniqueIdentifier>{4804ce2e-8ca3-4e2a-b6e8-b54c7150097e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\Utility">
+      <UniqueIdentifier>{72811792-4098-4c9a-8bd4-d8d1bdeadbe1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Utility">
+      <UniqueIdentifier>{fca19904-8ec1-40bf-9efe-0cb3885a9fdb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="system.h">
@@ -98,6 +104,12 @@
     </ClInclude>
     <ClInclude Include="terrainShader.h">
       <Filter>Файлы заголовков\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="DDSTextureLoader.h">
+      <Filter>Файлы заголовков\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="stringConverter.h">
+      <Filter>Файлы заголовков\Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -169,6 +181,12 @@
     </ClCompile>
     <ClCompile Include="terrainShader.cpp">
       <Filter>Исходные файлы\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="DDSTextureLoader.cpp">
+      <Filter>Исходные файлы\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="stringConverter.cpp">
+      <Filter>Исходные файлы\Utility</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

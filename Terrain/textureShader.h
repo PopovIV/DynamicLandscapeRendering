@@ -2,7 +2,7 @@
 // TextureShader  - class for texture terrain shader
 //--------------------------------------------------------------------------------------
 #ifndef _TEXTURESHADER_H_
-#define _TEXTURESHADE_H_
+#define _TEXTURESHADER_H_
 
 #include <d3d11.h>
 #include <d3dcompiler.h>

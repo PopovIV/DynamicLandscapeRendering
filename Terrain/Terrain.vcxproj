@@ -131,10 +131,12 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <FxCompile>
       <ShaderModel>4.0_level_9_3</ShaderModel>
@@ -168,6 +170,7 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="colorShader.h" />
     <ClInclude Include="d3dclass.h" />
+    <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="font.h" />
     <ClInclude Include="fontShader.h" />
     <ClInclude Include="fps.h" />
@@ -176,6 +179,7 @@
     <ClInclude Include="lightShader.h" />
     <ClInclude Include="position.h" />
     <ClInclude Include="shaderManager.h" />
+    <ClInclude Include="stringConverter.h" />
     <ClInclude Include="system.h" />
     <ClInclude Include="terrain.h" />
     <ClInclude Include="terrainShader.h" />
@@ -192,6 +196,7 @@
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="colorShader.cpp" />
     <ClCompile Include="d3dclass.cpp" />
+    <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="font.cpp" />
     <ClCompile Include="fontShader.cpp" />
     <ClCompile Include="fps.cpp" />
@@ -201,6 +206,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="position.cpp" />
     <ClCompile Include="shaderManager.cpp" />
+    <ClCompile Include="stringConverter.cpp" />
     <ClCompile Include="system.cpp" />
     <ClCompile Include="terrain.cpp" />
     <ClCompile Include="terrainShader.cpp" />
