@@ -8,20 +8,12 @@
 #include <directxmath.h>
 #include <fstream>
 #include <stdio.h>
+#include "terrainCell.h"
 using namespace std;
 using namespace DirectX;
 
 class Terrain {
 private:
-
-    struct VertexType {
-        XMFLOAT3 position;
-        XMFLOAT2 texture;
-        XMFLOAT3 normal;
-        XMFLOAT3 tangent;
-        XMFLOAT3 binormal;
-        XMFLOAT3 color;
-    };
 
     struct HeightMapType {
         float x, y, z;
@@ -61,14 +53,16 @@ public:
     bool Initialize(ID3D11Device* device, char* setupFilename);
     // Function to clear all data from vertex and index buffers
     void Shutdown();
-    // Render function
-    bool Render(ID3D11DeviceContext* deviceContex);
+    // Render cell function
+    bool RenderCell(ID3D11DeviceContext* deviceContext, int cellId);
+    // Render cell bounding box function
+    void RenderCellLines(ID3D11DeviceContext* deviceContext, int cellId) { m_TerrainCells[cellId].RenderLineBuffers(deviceContext); };
 
-    // Function to get nimber of indexes in the terrain grid
-    int GetIndexCount() { return m_indexCount; };
+    int GetCellIndexCount(int cellId) { return m_TerrainCells[cellId].GetIndexCount(); };
+    int GetCellLinesIndexCount(int cellId) { return m_TerrainCells[cellId].GetLineBuffersIndexCount(); };
+    int GetCellCount() { return m_cellCount; };
 
 private:
-
     // Function to read setup file
     bool LoadSetupFile(char* filename);
     // Function to load height map
@@ -93,23 +87,20 @@ private:
     // Function to calculate vertexes tangent and binormal
     void CalculateTangentBinormal(TempVertexType vertex1, TempVertexType vertex2, TempVertexType vertex3, VectorType& tangent, VectorType& binormal);
 
-    // Function to initialize buffers
-    bool InitializeBuffers(ID3D11Device* device);
-    // Function to realese data from buffers
-    void ShutdownBuffers();
-    // Function to put data on pipeline
-    void RenderBuffers(ID3D11DeviceContext* deviceContext);
+    // Function to create the array of cell objects
+    bool LoadTerrainCells(ID3D11Device* device);
+    // Function to release cell's data
+    void ShutdownTerrainCells();
 
 private:
-    ID3D11Buffer* m_vertexBuffer, * m_indexBuffer;
-    int m_vertexCount, m_indexCount;
-
-    int m_terrainHeight, m_terrainWidth;
+    int m_terrainHeight, m_terrainWidth, m_vertexCount;
     float m_heightScale;
-    char* m_terrainFilename;
-    char * m_colorMapFilename;
+    char* m_terrainFilename, * m_colorMapFilename;
     HeightMapType* m_heightMap;
     ModelType* m_terrainModel;
+
+    TerrainCell* m_TerrainCells;
+    int m_cellCount;
 
 };
 

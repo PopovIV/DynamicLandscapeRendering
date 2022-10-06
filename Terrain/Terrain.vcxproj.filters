@@ -111,6 +111,9 @@
     <ClInclude Include="stringConverter.h">
       <Filter>Файлы заголовков\Utility</Filter>
     </ClInclude>
+    <ClInclude Include="terrainCell.h">
+      <Filter>Файлы заголовков\Terrain</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -187,6 +190,9 @@
     </ClCompile>
     <ClCompile Include="stringConverter.cpp">
       <Filter>Исходные файлы\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="terrainCell.cpp">
+      <Filter>Исходные файлы\Terrain</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

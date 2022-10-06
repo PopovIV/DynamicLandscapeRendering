@@ -182,6 +182,7 @@
     <ClInclude Include="stringConverter.h" />
     <ClInclude Include="system.h" />
     <ClInclude Include="terrain.h" />
+    <ClInclude Include="terrainCell.h" />
     <ClInclude Include="terrainShader.h" />
     <ClInclude Include="text.h" />
     <ClInclude Include="texture.h" />
@@ -209,6 +210,7 @@
     <ClCompile Include="stringConverter.cpp" />
     <ClCompile Include="system.cpp" />
     <ClCompile Include="terrain.cpp" />
+    <ClCompile Include="terrainCell.cpp" />
     <ClCompile Include="terrainShader.cpp" />
     <ClCompile Include="text.cpp" />
     <ClCompile Include="texture.cpp" />

@@ -70,6 +70,8 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     // Set the UI to display by default.
     m_displayUI = true;
     m_wireFrame = true;
+    // Set the rendering of cell lines initially to enabled.
+    m_cellLines = true;
 
     return true;
 
@@ -189,6 +191,10 @@ void Zone::HandleMovementInput(Input * Input, float frameTime) {
     if (Input->IsF2Toggled())
         m_wireFrame = !m_wireFrame;
 
+    // Determine if we should render the lines around each terrain cell.
+    if (Input->IsF3Toggled())
+        m_cellLines = !m_cellLines;
+
 }
 
 // Render function
@@ -214,13 +220,28 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
     if (m_wireFrame)
         Direct3D->EnableWireframe();
 
-    // Render the terrain grid using the color shader.
-    m_Terrain->Render(Direct3D->GetDeviceContext());
-    result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, viewMatrix,
-        projectionMatrix, TextureManager->GetTexture(0), TextureManager->GetTexture(1),
-        m_Light->GetDirection(), m_Light->GetDiffuseColor());
-    if (!result)
-        return false;
+    // Render the terrain cells (and cell lines if needed).
+    for (int i = 0; i < m_Terrain->GetCellCount(); i++) {
+        // Put the terrain cell buffers on the pipeline.
+        result = m_Terrain->RenderCell(Direct3D->GetDeviceContext(), i);
+        if (!result)
+            return false;
+
+        // Render the cell buffers using the terrain shader.
+        result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetCellIndexCount(i), worldMatrix, viewMatrix,
+            projectionMatrix, TextureManager->GetTexture(0), TextureManager->GetTexture(1),
+            m_Light->GetDirection(), m_Light->GetDiffuseColor());
+        if (!result)
+            return false;
+
+        // If needed then render the bounding box around this terrain cell using the color shader. 
+        if (m_cellLines) {
+            m_Terrain->RenderCellLines(Direct3D->GetDeviceContext(), i);
+            ShaderManager->RenderColorShader(Direct3D->GetDeviceContext(), m_Terrain->GetCellLinesIndexCount(i), worldMatrix, viewMatrix, projectionMatrix);
+            if (!result)
+                return false;
+        }
+    }
 
     // Determine if the terrain should be rendered in wireframe or not.
     if (m_wireFrame)
