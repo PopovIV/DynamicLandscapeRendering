@@ -1,8 +1,8 @@
 //--------------------------------------------------------------------------------------
-// ColorShader  - class for main terrain
+// TerrainShader  - class for main terrain
 //--------------------------------------------------------------------------------------
-#ifndef _COLORSHADER_H_
-#define _COLORSHADER_H_
+#ifndef _TERRAINSHADER_H_
+#define _TERRAINSHADER_H_
 
 
 //////////////
@@ -15,7 +15,7 @@
 using namespace DirectX;
 using namespace std;
 
-class ColorShader {
+class TerrainShader {
 private:
     struct MatrixBufferType {
         XMMATRIX world;
@@ -25,10 +25,10 @@ private:
 
 public:
     // constructors
-    ColorShader();
-    ColorShader(const ColorShader& other) {};
+    TerrainShader();
+    TerrainShader(const TerrainShader& other) {};
     // destructor
-    ~ColorShader() {};
+    ~TerrainShader() {};
 
     // Function to initialize shader
     bool Initialize(ID3D11Device* device, HWND hwnd);
@@ -39,7 +39,7 @@ public:
 
 private:
     // Function to initialize shader
-    bool InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename);
+    bool InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename, WCHAR* hsFilename, WCHAR* dsFilename);
     // Function to release shader
     void ShutdownShader();
     // Function to print errors to file
@@ -50,10 +50,12 @@ private:
     void RenderShader(ID3D11DeviceContext* deviceContext, int indexCount);
 
 private:
-	ID3D11VertexShader* m_vertexShader;
-	ID3D11PixelShader* m_pixelShader;
-	ID3D11InputLayout* m_layout;
-	ID3D11Buffer* m_matrixBuffer;
+    ID3D11VertexShader* m_vertexShader;
+    ID3D11PixelShader* m_pixelShader;
+    ID3D11HullShader* m_hullShader;
+    ID3D11DomainShader* m_domainShader;
+    ID3D11InputLayout* m_layout;
+    ID3D11Buffer* m_matrixBuffer;
 };
 
 #endif

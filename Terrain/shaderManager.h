@@ -5,7 +5,7 @@
 #define _SHADERMANAGER_H_
 
 #include "d3dclass.h"
-#include "colorshader.h"
+#include "terrainshader.h"
 #include "fontshader.h"
 
 
@@ -22,13 +22,13 @@ public:
     // Function to realese all stuff in ShaderManager
     void Shutdown();
 
-    // Function to render for Color shader
-    bool RenderColorShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix);
+    // Function to render for Terrain shader
+    bool RenderTerrainShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix);
     // Function to render for Font shader
     bool RenderFontShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, XMFLOAT4 color);
 
 private:
-    ColorShader* m_ColorShader;
+    TerrainShader* m_TerrainShader;
     FontShader* m_FontShader;
 };
 

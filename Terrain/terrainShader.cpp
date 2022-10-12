@@ -1,21 +1,23 @@
-#include "colorshader.h"
+#include "terrainshader.h"
 
-ColorShader::ColorShader() {
+TerrainShader::TerrainShader() {
 
     m_vertexShader = 0;
     m_pixelShader = 0;
+    m_hullShader = 0;
+    m_domainShader = 0;
     m_layout = 0;
     m_matrixBuffer = 0;
 
 }
 
 // Function to initialize shader
-bool ColorShader::Initialize(ID3D11Device* device, HWND hwnd) {
+bool TerrainShader::Initialize(ID3D11Device* device, HWND hwnd) {
 
     bool result;
 
     // Initialize the vertex and pixel shaders.
-    result = InitializeShader(device, hwnd, L"ColorVertexShader.hlsl", L"ColorPixelShader.hlsl");
+    result = InitializeShader(device, hwnd, L"TerrainVertexShader.hlsl", L"TerrainPixelShader.hlsl", L"TerrainHullShader.hlsl", L"TerrainDomainShader.hlsl");
     if (!result)
         return false;
 
@@ -24,7 +26,7 @@ bool ColorShader::Initialize(ID3D11Device* device, HWND hwnd) {
 }
 
 // Render function
-bool ColorShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix) {
+bool TerrainShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix) {
 
     bool result;
 
@@ -41,11 +43,13 @@ bool ColorShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMM
 }
 
 // Function to initialize shader
-bool ColorShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename) {
+bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename, WCHAR* hsFilename, WCHAR* dsFilename) {
 
     HRESULT result;
     ID3D10Blob* errorMessage;
     ID3D10Blob* vertexShaderBuffer;
+    ID3D10Blob* hullShaderBuffer;
+    ID3D10Blob* domainShaderBuffer;
     ID3D10Blob* pixelShaderBuffer;
     D3D11_INPUT_ELEMENT_DESC polygonLayout[2];
     unsigned int numElements;
@@ -54,6 +58,8 @@ bool ColorShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFil
     // Initialize the pointers this function will use to null.
     errorMessage = 0;
     vertexShaderBuffer = 0;
+    hullShaderBuffer = 0;
+    domainShaderBuffer = 0;
     pixelShaderBuffer = 0;
 
     // Compile the vertex shader code.
@@ -65,6 +71,34 @@ bool ColorShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFil
         // If there was nothing in the error message then it simply could not find the shader file itself.
         else
             MessageBox(hwnd, vsFilename, L"Missing Shader File", MB_OK);
+
+        return false;
+    }
+
+    // Compile the hull shader code.
+    result = D3DCompileFromFile(hsFilename, NULL, NULL, "main", "hs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &hullShaderBuffer, &errorMessage);
+    if (FAILED(result)) {
+        // If the shader failed to compile it should have writen something to the error message.
+        if (errorMessage)
+            OutputShaderErrorMessage(errorMessage, hwnd, hsFilename);
+
+        // If there was nothing in the error message then it simply could not find the file itself.
+        else
+            MessageBox(hwnd, hsFilename, L"Missing Shader File", MB_OK);
+
+        return false;
+    }
+
+    // Compile the domain shader code.
+    result = D3DCompileFromFile(dsFilename, NULL, NULL, "main", "ds_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &domainShaderBuffer, &errorMessage);
+    if (FAILED(result)) {
+        // If the shader failed to compile it should have writen something to the error message.
+        if (errorMessage)
+            OutputShaderErrorMessage(errorMessage, hwnd, dsFilename);
+
+        // If there was nothing in the error message then it simply could not find the file itself.
+        else
+            MessageBox(hwnd, dsFilename, L"Missing Shader File", MB_OK);
 
         return false;
     }
@@ -85,6 +119,16 @@ bool ColorShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFil
 
     // Create the vertex shader from the buffer.
     result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader);
+    if (FAILED(result))
+        return false;
+
+    // Create the hull shader from the buffer.
+    result = device->CreateHullShader(hullShaderBuffer->GetBufferPointer(), hullShaderBuffer->GetBufferSize(), NULL, &m_hullShader);
+    if (FAILED(result))
+        return false;
+
+    // Create the domain shader from the buffer.
+    result = device->CreateDomainShader(domainShaderBuffer->GetBufferPointer(), domainShaderBuffer->GetBufferSize(), NULL, &m_domainShader);
     if (FAILED(result))
         return false;
 
@@ -123,6 +167,12 @@ bool ColorShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFil
     vertexShaderBuffer->Release();
     vertexShaderBuffer = 0;
 
+    hullShaderBuffer->Release();
+    hullShaderBuffer = 0;
+
+    domainShaderBuffer->Release();
+    domainShaderBuffer = 0;
+
     pixelShaderBuffer->Release();
     pixelShaderBuffer = 0;
 
@@ -144,7 +194,7 @@ bool ColorShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFil
 }
 
 // Function to release shader
-void ColorShader::ShutdownShader() {
+void TerrainShader::ShutdownShader() {
 
     // Release the matrix constant buffer.
     if (m_matrixBuffer) {
@@ -164,6 +214,18 @@ void ColorShader::ShutdownShader() {
         m_pixelShader = nullptr;
     }
 
+    // Release the domain shader.
+    if (m_domainShader) {
+        m_domainShader->Release();
+        m_domainShader = nullptr;
+    }
+
+    // Release the hull shader.
+    if (m_hullShader) {
+        m_hullShader->Release();
+        m_hullShader = nullptr;
+    }
+
     // Release the vertex shader.
     if (m_vertexShader) {
         m_vertexShader->Release();
@@ -173,7 +235,7 @@ void ColorShader::ShutdownShader() {
 }
 
 // Function to print errors to file
-void ColorShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename) {
+void TerrainShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename) {
 
     char* compileErrors;
     unsigned long long bufferSize, i;
@@ -206,7 +268,7 @@ void ColorShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, 
 }
 
 // Function to fill shader buffers and params
-bool ColorShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix) {
+bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix) {
 
     HRESULT result;
     D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -239,20 +301,23 @@ bool ColorShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATR
     bufferNumber = 0;
 
     // Finanly set the matrix constant buffer in the vertex shader with the updated values.
-    deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
+    //deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
+    deviceContext->DSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
     return true;
 
 }
 
 // Render function
-void ColorShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount) {
+void TerrainShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount) {
 
     // Set the vertex input layout.
     deviceContext->IASetInputLayout(m_layout);
 
     // Set the vertex and pixel shaders that will be used to do the rendering.
     deviceContext->VSSetShader(m_vertexShader, NULL, 0);
+    deviceContext->HSSetShader(m_hullShader, NULL, 0);
+    deviceContext->DSSetShader(m_domainShader, NULL, 0);
     deviceContext->PSSetShader(m_pixelShader, NULL, 0);
 
     // Render the data.
