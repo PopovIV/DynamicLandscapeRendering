@@ -1,0 +1,8 @@
+A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\FontPixelShader.cso
+A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\FontVertexShader.cso
+A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\Terrain.exe
+A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\Terrain.pdb
+A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\TerrainPixelShader.cso
+A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\TerrainVertexShader.cso
+A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\TerrainDomainShader.cso
+A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\TerrainHullShader.cso

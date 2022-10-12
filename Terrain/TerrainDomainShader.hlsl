@@ -1,10 +1,11 @@
 #define NUM_CONTROL_POINTS 3
 
-cbuffer MatrixBuffer
+cbuffer MatrixBuffer : register(b0)
 {
     matrix worldMatrix;
     matrix viewMatrix;
     matrix projectionMatrix;
+    float3 cameraPos;
 };
 
 struct PS_INPUT

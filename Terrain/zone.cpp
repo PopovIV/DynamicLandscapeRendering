@@ -198,9 +198,11 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager) {
     if (m_wireFrame)
         Direct3D->EnableWireframe();
 
+    float posX, posY, posZ;
+    m_Position->GetPosition(posX, posY, posZ);
     // Render the terrain grid using the color shader.
     m_Terrain->Render(Direct3D->GetDeviceContext());
-    result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
+    result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, XMFLOAT3(posX, posY, posZ));
     if (!result)
         return false;
 

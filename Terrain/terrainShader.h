@@ -21,6 +21,7 @@ private:
         XMMATRIX world;
         XMMATRIX view;
         XMMATRIX projection;
+        XMFLOAT3 cameraPos;
     };
 
 public:
@@ -35,7 +36,7 @@ public:
     // Function to release shader
     void Shutdown() { ShutdownShader(); };
     // Render function
-    bool Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix);
+    bool Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos);
 
 private:
     // Function to initialize shader
@@ -45,7 +46,7 @@ private:
     // Function to print errors to file
     void OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename);
     // Function to fill shader buffers and params
-    bool SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix);
+    bool SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos);
     // Render function
     void RenderShader(ID3D11DeviceContext* deviceContext, int indexCount);
 
