@@ -11,22 +11,20 @@ cbuffer MatrixBuffer : register(b0)
 struct HS_INPUT
 {
     float4 position : POSITION;
-    float4 color    : COLOR;
+    float2 tex : TEXCOORD0;
 };
 
 struct DS_INPUT
 {
     float4 position : POSITION;
-    float4 color    : COLOR;
+    float2 tex : TEXCOORD0;
 };
-
 
 struct HS_CONSTANT_DATA_OUTPUT
 {
     float EdgeFactors[3]         : SV_TessFactor;
     float InsideFactor           : SV_InsideTessFactor;
 };
-
 
 float calculateEdgeFactor(float4 p0, float4 p1)
 {
@@ -69,7 +67,7 @@ DS_INPUT main(InputPatch<HS_INPUT, NUM_CONTROL_POINTS> patch, uint patchID : SV_
 
     // Copy inputs to outputs
     output.position = patch[patchID].position;
-    output.color = patch[patchID].color;
+    output.tex = patch[patchID].tex;
 
     return output;
 }

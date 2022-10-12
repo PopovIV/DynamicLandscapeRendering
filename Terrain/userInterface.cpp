@@ -24,7 +24,7 @@ bool UserInterface::Initialize(D3DClass* Direct3D, int screenHeight, int screenW
         return false;
 
     // Initialize the first font object.
-    result = m_Font1->Initialize(Direct3D->GetDevice(), Direct3D->GetDeviceContext(), "data/font/font01.txt", "data/font/font01.tga", 32.0f, 3);
+    result = m_Font1->Initialize(Direct3D->GetDevice(), Direct3D->GetDeviceContext(), L"data/font/font01.txt", L"data/font/font01.tga", 32.0f, 3);
     if (!result)
         return false;
 

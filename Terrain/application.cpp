@@ -6,6 +6,7 @@ Application::Application() {
     m_Timer = nullptr;
     m_Fps = nullptr;
     m_ShaderManager = nullptr;
+    m_TextureManager = nullptr;
     m_Zone = nullptr;
 }
 
@@ -49,6 +50,23 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
         MessageBox(hwnd, L"Could not initialize the shader manager object.", L"Error", MB_OK);
         return false;
     }
+
+    // Create the texture manager object.
+    m_TextureManager = new TextureManager;
+    if (!m_TextureManager)
+        return false;
+
+    // Initialize the texture manager object.
+    result = m_TextureManager->Initialize(10);
+    if (!result) {
+        MessageBox(hwnd, L"Could not initialize the texture manager object.", L"Error", MB_OK);
+        return false;
+    }
+
+    // Load textures into the texture manager.
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/Terrain_diffuse.dds", 1, Texture::DDS);
+    if (!result)
+        return false;
 
     // Create the timer object.
     m_Timer = new Timer;
@@ -108,6 +126,13 @@ void Application::Shutdown() {
         m_Timer = nullptr;
     }
 
+    // Release the texture manager object.
+    if (m_TextureManager) {
+        m_TextureManager->Shutdown();
+        delete m_TextureManager;
+        m_TextureManager = nullptr;
+    }
+
     // Release the shader manager object.
     if (m_ShaderManager) {
         m_ShaderManager->Shutdown();
@@ -150,7 +175,7 @@ bool Application::Frame()
         return false;
 
     // Do the zone frame processing.
-    result = m_Zone->Frame(m_Direct3D, m_Input, m_ShaderManager, m_Timer->GetTime(), m_Fps->GetFps());
+    result = m_Zone->Frame(m_Direct3D, m_Input, m_ShaderManager, m_TextureManager, m_Timer->GetTime(), m_Fps->GetFps());
     if (!result)
         return false;
 

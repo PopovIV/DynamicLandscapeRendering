@@ -36,7 +36,7 @@ public:
     // Function to release shader
     void Shutdown() { ShutdownShader(); };
     // Render function
-    bool Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos);
+    bool Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* texture);
 
 private:
     // Function to initialize shader
@@ -46,7 +46,7 @@ private:
     // Function to print errors to file
     void OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename);
     // Function to fill shader buffers and params
-    bool SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos);
+    bool SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* texture);
     // Render function
     void RenderShader(ID3D11DeviceContext* deviceContext, int indexCount);
 
@@ -57,6 +57,7 @@ private:
     ID3D11DomainShader* m_domainShader;
     ID3D11InputLayout* m_layout;
     ID3D11Buffer* m_matrixBuffer;
+    ID3D11SamplerState* m_sampleState;
 };
 
 #endif

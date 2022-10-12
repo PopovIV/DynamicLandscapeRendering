@@ -2,12 +2,13 @@
 
 TerrainShader::TerrainShader() {
 
-    m_vertexShader = 0;
-    m_pixelShader = 0;
-    m_hullShader = 0;
-    m_domainShader = 0;
-    m_layout = 0;
-    m_matrixBuffer = 0;
+    m_vertexShader = nullptr;
+    m_pixelShader = nullptr;
+    m_hullShader = nullptr;
+    m_domainShader = nullptr;
+    m_layout = nullptr;
+    m_matrixBuffer = nullptr;
+    m_sampleState = nullptr;
 
 }
 
@@ -26,12 +27,12 @@ bool TerrainShader::Initialize(ID3D11Device* device, HWND hwnd) {
 }
 
 // Render function
-bool TerrainShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos) {
+bool TerrainShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* texture) {
 
     bool result;
 
     // Set the shader parameters that it will use for rendering.
-    result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, cameraPos);
+    result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, cameraPos, texture);
     if (!result)
         return false;
 
@@ -54,13 +55,14 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
     D3D11_INPUT_ELEMENT_DESC polygonLayout[2];
     unsigned int numElements;
     D3D11_BUFFER_DESC matrixBufferDesc; 
+    D3D11_SAMPLER_DESC samplerDesc;
 
     // Initialize the pointers this function will use to null.
-    errorMessage = 0;
-    vertexShaderBuffer = 0;
-    hullShaderBuffer = 0;
-    domainShaderBuffer = 0;
-    pixelShaderBuffer = 0;
+    errorMessage = nullptr;
+    vertexShaderBuffer = nullptr;
+    hullShaderBuffer = nullptr;
+    domainShaderBuffer = nullptr;
+    pixelShaderBuffer = nullptr;
 
     // Compile the vertex shader code.
     result = D3DCompileFromFile(vsFilename, NULL, NULL, "main", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage);
@@ -147,9 +149,9 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
     polygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
     polygonLayout[0].InstanceDataStepRate = 0;
 
-    polygonLayout[1].SemanticName = "COLOR";
+    polygonLayout[1].SemanticName = "TEXCOORD";
     polygonLayout[1].SemanticIndex = 0;
-    polygonLayout[1].Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    polygonLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
     polygonLayout[1].InputSlot = 0;
     polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
     polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
@@ -189,12 +191,38 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
     if (FAILED(result))
         return false;
 
+    // Create a texture sampler state description.
+    samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.MipLODBias = 0.0f;
+    samplerDesc.MaxAnisotropy = 1;
+    samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+    samplerDesc.BorderColor[0] = 0;
+    samplerDesc.BorderColor[1] = 0;
+    samplerDesc.BorderColor[2] = 0;
+    samplerDesc.BorderColor[3] = 0;
+    samplerDesc.MinLOD = 0;
+    samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+    // Create the texture sampler state.
+    result = device->CreateSamplerState(&samplerDesc, &m_sampleState);
+    if (FAILED(result))
+        return false;
+
     return true;
 
 }
 
 // Function to release shader
 void TerrainShader::ShutdownShader() {
+
+    // Release the sampler state.
+    if (m_sampleState) {
+        m_sampleState->Release();
+        m_sampleState = nullptr;
+    }
 
     // Release the matrix constant buffer.
     if (m_matrixBuffer) {
@@ -268,7 +296,7 @@ void TerrainShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd
 }
 
 // Function to fill shader buffers and params
-bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos) {
+bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* texture) {
 
     HRESULT result;
     D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -305,6 +333,7 @@ bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
     //deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
     deviceContext->DSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
     deviceContext->HSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
+    deviceContext->PSSetShaderResources(0, 1, &texture);
     return true;
 
 }
@@ -320,6 +349,9 @@ void TerrainShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCo
     deviceContext->HSSetShader(m_hullShader, NULL, 0);
     deviceContext->DSSetShader(m_domainShader, NULL, 0);
     deviceContext->PSSetShader(m_pixelShader, NULL, 0);
+
+    // Set the sampler state in the pixel shader.
+    deviceContext->PSSetSamplers(0, 1, &m_sampleState);
 
     // Render the data.
     deviceContext->DrawIndexed(indexCount, 0, 0);

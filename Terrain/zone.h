@@ -8,6 +8,7 @@
 #include "d3dclass.h"
 #include "input.h"
 #include "shadermanager.h"
+#include "texturemanager.h"
 #include "timer.h"
 #include "userinterface.h"
 #include "camera.h"
@@ -27,13 +28,13 @@ public:
     // Function to clear all stuff that was created in initialize function
     void Shutdown();
     // Function to update frame each second
-    bool Zone::Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager, float frameTime, int fps);
+    bool Zone::Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager, TextureManager* TextureManager, float frameTime, int fps);
 
 private:
     // Function to process all user's input
     void HandleMovementInput(Input* Input, float frameTime);
     // Render function
-    bool Render(D3DClass* Direct3D, ShaderManager* ShaderManager);
+    bool Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManager* TextureManager);
 
 private:
     UserInterface* m_UserInterface;

@@ -1,13 +1,13 @@
 struct VS_INPUT
 {
     float4 position : POSITION;
-    float4 color : COLOR;
+    float2 tex : TEXCOORD0;
 };
 
 struct HS_INPUT
 {
     float4 position : POSITION;
-    float4 color : COLOR;
+    float2 tex : TEXCOORD0;
 };
 
 
@@ -19,7 +19,7 @@ HS_INPUT main(VS_INPUT input)
     HS_INPUT output;
 
     output.position = input.position;
-    output.color = input.color;
+    output.tex = input.tex;
 
     return output;
 }
