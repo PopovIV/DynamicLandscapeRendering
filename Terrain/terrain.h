@@ -20,6 +20,8 @@ private:
         XMFLOAT3 position;
         XMFLOAT2 texture;
         XMFLOAT3 normal;
+        XMFLOAT3 tangent;
+        XMFLOAT3 binormal;
     };
 
     struct HeightMapType {
@@ -31,11 +33,20 @@ private:
         float x, y, z;
         float tu, tv;
         float nx, ny, nz;
+        float tx, ty, tz;
+        float bx, by, bz;
     };
 
     // Used for calculating normal vectors
     struct VectorType {
         float x, y, z;
+    };
+
+    // Used to calculate tangent and binormal vectors
+    struct TempVertexType {
+        float x, y, z;
+        float tu, tv;
+        float nx, ny, nz;
     };
 
 public:
@@ -71,6 +82,11 @@ private:
     bool BuildTerrainModel();
     // Release the terrain model
     void ShutdownTerrainModel();
+
+    // Function to calculate terrain vectors
+    void CalculateTerrainVectors();
+    // Function to calculate vertexes tangent and binormal
+    void CalculateTangentBinormal(TempVertexType vertex1, TempVertexType vertex2, TempVertexType vertex3, VectorType& tangent, VectorType& binormal);
 
     // Function to initialize buffers
     bool InitializeBuffers(ID3D11Device* device);

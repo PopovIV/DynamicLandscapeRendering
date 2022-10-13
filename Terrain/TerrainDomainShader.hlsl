@@ -13,6 +13,8 @@ struct PS_INPUT
     float4 position : SV_POSITION;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;
 };
 
 struct DS_INPUT
@@ -20,6 +22,9 @@ struct DS_INPUT
     float4 position : POSITION;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
+    float3 tangent : TANGENT;
+    float3 binormal : BINORMAL;
+
 };
 
 struct HS_CONSTANT_DATA_OUTPUT
@@ -34,18 +39,23 @@ PS_INPUT main(HS_CONSTANT_DATA_OUTPUT input, float3 uvwCoord : SV_DomainLocation
     float3 vertexPos;
     float2 vertexTex;
     float3 vertexNormal;
+    float3 vertexTangent;
+    float3 vertexBinormal;
     PS_INPUT output;
 
     // Find new vertex pos
     vertexPos = patch[0].position * uvwCoord.x + patch[1].position * uvwCoord.y + patch[2].position * uvwCoord.z;
     vertexTex = patch[0].tex * uvwCoord.x + patch[1].tex * uvwCoord.y + patch[2].tex * uvwCoord.z;
     vertexNormal = patch[0].normal * uvwCoord.x + patch[1].normal * uvwCoord.y + patch[2].normal * uvwCoord.z;
-
+    vertexTangent = patch[0].tangent * uvwCoord.x + patch[1].tangent * uvwCoord.y + patch[2].tangent * uvwCoord.z;
+    vertexBinormal = patch[0].binormal * uvwCoord.x + patch[1].binormal * uvwCoord.y + patch[2].binormal * uvwCoord.z;
     // To new coords
     output.position = mul(float4(vertexPos, 1.0f), worldMatrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
     output.normal = vertexNormal;
+    output.tangent = vertexTangent;
+    output.binormal = vertexBinormal;
     output.tex = vertexTex;
 
     return output;
