@@ -1,12 +1,12 @@
 #include "fontshader.h"
 
 FontShader::FontShader() {
-    m_vertexShader = 0;
-    m_pixelShader = 0;
-    m_layout = 0;
-    m_matrixBuffer = 0;
-    m_sampleState = 0;
-    m_pixelBuffer = 0;
+    m_vertexShader = nullptr;
+    m_pixelShader = nullptr;
+    m_layout = nullptr;
+    m_matrixBuffer = nullptr;
+    m_sampleState = nullptr;
+    m_pixelBuffer = nullptr;
 }
 
 // Function to initialize shader

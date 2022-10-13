@@ -12,6 +12,7 @@
 #include "timer.h"
 #include "userinterface.h"
 #include "camera.h"
+#include "light.h"
 #include "position.h"
 #include "terrain.h"
 
@@ -39,6 +40,7 @@ private:
 private:
     UserInterface* m_UserInterface;
     Camera* m_Camera;
+    Light* m_Light;
     Position* m_Position;
     Terrain* m_Terrain;
     bool m_displayUI, m_wireFrame;

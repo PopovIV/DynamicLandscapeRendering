@@ -158,6 +158,7 @@
     <ClInclude Include="application.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="DDSTextureLoader.h" />
+    <ClInclude Include="light.h" />
     <ClInclude Include="stringConverter.h" />
     <ClInclude Include="terrainShader.h" />
     <ClInclude Include="d3dclass.h" />
@@ -181,6 +182,7 @@
     <ClCompile Include="application.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="DDSTextureLoader.cpp" />
+    <ClCompile Include="light.cpp" />
     <ClCompile Include="stringConverter.cpp" />
     <ClCompile Include="terrainShader.cpp" />
     <ClCompile Include="d3dclass.cpp" />
