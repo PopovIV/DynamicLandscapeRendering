@@ -52,7 +52,7 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
         return false;
 
     // Set the initial position and rotation.
-    m_Position->SetPosition(512.0f, 30.0f, -10.0f);
+    m_Position->SetPosition(512.0f, 10.0f, 10.0f);
     m_Position->SetRotation(0.0f, 0.0f, 0.0f);
 
     // Create the terrain object.
@@ -229,7 +229,7 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
 
         // Render the cell buffers using the terrain shader.
         result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetCellIndexCount(i), worldMatrix, viewMatrix,
-            projectionMatrix, TextureManager->GetTexture(0), TextureManager->GetTexture(1),
+            projectionMatrix, TextureManager->GetTexture(0), TextureManager->GetTexture(1), TextureManager->GetTexture(2),
             m_Light->GetDirection(), m_Light->GetDiffuseColor());
         if (!result)
             return false;

@@ -1,7 +1,8 @@
 SamplerState SampleType;
 
-Texture2D shaderTexture : register(t0);
-Texture2D normalTexture : register(t1);
+Texture2D diffuseTexture1 : register(t0);
+Texture2D normalTexture1 : register(t1);
+Texture2D normalTexture2 : register(t2);
 
 cbuffer LightBuffer
 {
@@ -22,29 +23,47 @@ struct PS_INPUT
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
-    float4 textureColor;
+    float slope;
     float3 lightDir;
+    float4 textureColor1;
+    float4 textureColor2;
     float4 bumpMap;
     float3 bumpNormal;
     float lightIntensity;
+    float4 material1;
+    float4 material2;
+    float blendAmount;
     float4 color;
 
-    // Sample the pixel color from the texture using the sampler at this texture coordinate location.
-    textureColor = shaderTexture.Sample(SampleType, input.tex);
-    // Combine the color map value into the texture color.
-    textureColor = saturate(textureColor * input.color * 2.0f);
+    // Calculate the slope of this point.
+    slope = 1.0f - input.normal.y;
     // Invert the light direction for calculations.
     lightDir = -lightDirection;
-    // Calculate the amount of light on this pixel using the normal map.
-    bumpMap = normalTexture.Sample(SampleType, input.tex);
+    // Setup the first material.
+    textureColor1 = diffuseTexture1.Sample(SampleType, input.tex);
+    bumpMap = normalTexture1.Sample(SampleType, input.tex);
     bumpMap = (bumpMap * 2.0f) - 1.0f;
     bumpNormal = (bumpMap.x * input.tangent) + (bumpMap.y * input.binormal) + (bumpMap.z * input.normal);
     bumpNormal = normalize(bumpNormal);
     lightIntensity = saturate(dot(bumpNormal, lightDir));
-    // Determine the final amount of diffuse color based on the diffuse color combined with the light intensity.
-    color = saturate(diffuseColor * lightIntensity);
-    // Multiply the texture pixel and the final diffuse color to get the final pixel color result.
-    color = color * textureColor;
+    material1 = saturate(textureColor1 * lightIntensity);
+
+    // Setup the second material.
+    textureColor2 = float4(1.0f, 1.0f, 1.0f, 1.0f);  // Snow color.
+    bumpMap = normalTexture2.Sample(SampleType, input.tex);
+    bumpMap = (bumpMap * 2.0f) - 1.0f;
+    bumpNormal = (bumpMap.x * input.tangent) + (bumpMap.y * input.binormal) + (bumpMap.z * input.normal);
+    bumpNormal = normalize(bumpNormal);
+    lightIntensity = saturate(dot(bumpNormal, lightDir));
+    material2 = saturate(textureColor2 * lightIntensity);
+
+    // Determine which material to use based on slope.
+    if (slope < 0.1) {
+        blendAmount = slope / 0.2f;
+        color = lerp(material2, material1, blendAmount);
+    }
+    if (slope >= 0.2)
+        color = material1;
 
     return color;
 }
