@@ -57,14 +57,14 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
         return false;
 
     // Initialize the texture manager object.
-    result = m_TextureManager->Initialize(10);
+    result = m_TextureManager->Initialize(15);
     if (!result) {
         MessageBox(hwnd, L"Could not initialize the texture manager object.", L"Error", MB_OK);
         return false;
     }
 
     // Load textures into the texture manager.
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/grass_diffuse.dds", 0, Texture::DDS);
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/grass.png", 0, Texture::ANY);
     if (!result)
         return false;
 
@@ -72,7 +72,24 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
     if (!result)
         return false;
 
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/snow01n.tga", 2, Texture::Targa);
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/snow_diffuse.dds", 2, Texture::DDS);
+    if (!result)
+        return false;
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/snow_normal.dds", 3, Texture::DDS);
+    if (!result)
+        return false;
+
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/rock_diffuse.dds", 4, Texture::DDS);
+    if (!result)
+        return false;
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/rock_normal.dds", 5, Texture::DDS);
+    if (!result)
+        return false;
+
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/slope_diffuse.dds", 6, Texture::DDS);
+    if (!result)
+        return false;
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/slope_normal.dds", 7, Texture::DDS);
     if (!result)
         return false;
 

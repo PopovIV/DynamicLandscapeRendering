@@ -226,10 +226,11 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
         result = m_Terrain->RenderCell(Direct3D->GetDeviceContext(), i);
         if (!result)
             return false;
-
+        ID3D11ShaderResourceView* textures[] = { TextureManager->GetTexture(0) , TextureManager->GetTexture(2) , TextureManager->GetTexture(4), TextureManager->GetTexture(6) };
+        ID3D11ShaderResourceView* normalMaps[] = { TextureManager->GetTexture(1) , TextureManager->GetTexture(3) , TextureManager->GetTexture(5), TextureManager->GetTexture(7) };
         // Render the cell buffers using the terrain shader.
         result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetCellIndexCount(i), worldMatrix, viewMatrix,
-            projectionMatrix, TextureManager->GetTexture(0), TextureManager->GetTexture(1), TextureManager->GetTexture(2),
+            projectionMatrix, textures, normalMaps,
             m_Light->GetDirection(), m_Light->GetDiffuseColor());
         if (!result)
             return false;

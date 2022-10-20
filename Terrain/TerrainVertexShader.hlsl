@@ -23,6 +23,7 @@ struct PS_INPUT
     float3 tangent : TANGENT;
     float3 binormal : BINORMAL;
     float4 color : COLOR;
+    float  pixelHeight : POSITION;
 };
 
 
@@ -52,6 +53,6 @@ PS_INPUT main(VS_INPUT input)
     output.binormal = normalize(output.binormal);
     // Store the input color for the pixel shader to use.
     output.color = float4(input.color, 1.0f);
-
+    output.pixelHeight = mul(input.position, worldMatrix).y;
     return output;
 }
