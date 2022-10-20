@@ -58,7 +58,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     material2 = saturate(textureColor2 * lightIntensity);
 
     // Determine which material to use based on slope.
-    if (slope < 0.1) {
+    if (slope < 0.2) {
         blendAmount = slope / 0.2f;
         color = lerp(material2, material1, blendAmount);
     }

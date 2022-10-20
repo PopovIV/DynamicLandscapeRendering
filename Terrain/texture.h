@@ -6,6 +6,8 @@
 #include "DDSTextureLoader.h"
 #include "stringConverter.h"
 
+#include "stb_image.h"
+
 class Texture {
 private:
     struct TargaHeader {
@@ -20,6 +22,7 @@ public:
     enum TextureType {
         Targa,
         DDS,
+        ANY,
     };
 
     // constructors

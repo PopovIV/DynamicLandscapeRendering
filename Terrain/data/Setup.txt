@@ -1,5 +1,5 @@
-Terrain Filename: data/heightmap.r16
+Terrain Filename: data/MyHeightMap.r16
 Terrain Height: 1025
 Terrain Width: 1025
 Terrain Scaling: 200.0
-Color Map Filename: data/colormap.bmp
+Color Map Filename: data/MyColorMap.bmp

@@ -17,6 +17,7 @@ bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
     HRESULT hResult;
     unsigned int rowPitch;
     D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+    memset(&srvDesc, 0, sizeof(srvDesc));
     // Load the targa image data into memory.
     switch (type) {
       case Texture::Targa:
@@ -77,7 +78,41 @@ bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
 
         return true;
       default:
-        return false;
+        int comp, width, height;
+        unsigned char* image = stbi_load(StringConverter::wstr2str(filename).c_str(), &width, &height, &comp, 0);
+        D3D11_SUBRESOURCE_DATA initData = { 0 };
+        initData.pSysMem = (const void*)image;
+        initData.SysMemPitch = width * 4;
+        initData.SysMemSlicePitch = height * width * 4;
+
+        D3D11_TEXTURE2D_DESC desc;
+        desc.Width = width;
+        desc.Height = height;
+        desc.MipLevels = 0;
+        desc.ArraySize = 1;
+        desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+        desc.SampleDesc.Count = 1;
+        desc.SampleDesc.Quality = 0;
+        desc.Usage = D3D11_USAGE_DEFAULT;
+        desc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+        desc.CPUAccessFlags = 0;
+        desc.MiscFlags = 0;
+
+        hResult = device->CreateTexture2D(&desc, &initData, &m_texture);
+        if (FAILED(hResult))
+            return false;
+
+        srvDesc.Format = desc.Format;
+        srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+        srvDesc.Texture2D.MipLevels = 1;
+
+        hResult = device->CreateShaderResourceView(m_texture, &srvDesc, &m_textureView);
+        if (FAILED(hResult))
+          return false;
+        // Generate mipmaps for this texture.
+        deviceContext->GenerateMips(m_textureView);
+
+        return true;
     }
     
 }
