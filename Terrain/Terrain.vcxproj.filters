@@ -114,6 +114,9 @@
     <ClInclude Include="terrainCell.h">
       <Filter>Файлы заголовков\Terrain</Filter>
     </ClInclude>
+    <ClInclude Include="stb_image.h">
+      <Filter>Файлы заголовков\Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -193,6 +196,9 @@
     </ClCompile>
     <ClCompile Include="terrainCell.cpp">
       <Filter>Исходные файлы\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="std_image.cpp">
+      <Filter>Исходные файлы\Utility</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

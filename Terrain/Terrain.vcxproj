@@ -179,6 +179,7 @@
     <ClInclude Include="lightShader.h" />
     <ClInclude Include="position.h" />
     <ClInclude Include="shaderManager.h" />
+    <ClInclude Include="stb_image.h" />
     <ClInclude Include="stringConverter.h" />
     <ClInclude Include="system.h" />
     <ClInclude Include="terrain.h" />
@@ -207,6 +208,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="position.cpp" />
     <ClCompile Include="shaderManager.cpp" />
+    <ClCompile Include="std_image.cpp" />
     <ClCompile Include="stringConverter.cpp" />
     <ClCompile Include="system.cpp" />
     <ClCompile Include="terrain.cpp" />
