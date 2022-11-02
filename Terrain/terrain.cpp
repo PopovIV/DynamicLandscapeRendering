@@ -2,11 +2,11 @@
 
 Terrain::Terrain() {
 
+    m_vertexBuffer = nullptr;
+    m_indexBuffer = nullptr;
     m_terrainFilename = nullptr;
-    m_colorMapFilename = nullptr;
     m_heightMap = nullptr;
     m_terrainModel = nullptr;
-    m_TerrainCells = nullptr;
 
 }
 
@@ -25,21 +25,11 @@ bool Terrain::Initialize(ID3D11Device * device, char* setupFilename) {
      if (!result)
          return false;
 
-     // Initialize the terrain height map with the data from the raw file.
-     //result = LoadBitmapHeightMap();
-     //if (!result)
-     //    return false;
-
     // Setup the X and Z coordinates for the height map as well as scale the terrain height by the height scale value.
     SetTerrainCoordinates();
 
     // Calculate the normals for the terrain data.
     result = CalculateNormals();
-    if (!result)
-        return false;
-
-    // Load in the color map for the terrain.
-    result = LoadColorMap();
     if (!result)
         return false;
 
@@ -54,8 +44,8 @@ bool Terrain::Initialize(ID3D11Device * device, char* setupFilename) {
     // We can now release the height map since it is no longer needed in memory once the 3D terrain model has been built.
     ShutdownHeightMap();
 
-    // Create and load the cells with the terrain data.
-    result = LoadTerrainCells(device);
+    // Load the rendering buffers with the terrain data.
+    result = InitializeBuffers(device);
     if (!result)
         return false;
 
@@ -69,11 +59,21 @@ bool Terrain::Initialize(ID3D11Device * device, char* setupFilename) {
 void Terrain::Shutdown() {
 
     // Release the rendering buffers.
-    ShutdownTerrainCells();
+    ShutdownBuffers();
     // Release the terrain model.
     ShutdownTerrainModel();
     // Release the height map.
     ShutdownHeightMap();
+
+}
+
+// Render function
+bool Terrain::Render(ID3D11DeviceContext* deviceContext) {
+
+    // Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
+    RenderBuffers(deviceContext);
+
+    return true;
 
 }
 
@@ -90,9 +90,9 @@ bool Terrain::LoadSetupFile(char* filename) {
     if (!m_terrainFilename)
         return false;
 
-    m_colorMapFilename = new char[stringLength];
-    if (!m_colorMapFilename)
-        return false;
+    //m_colorMapFilename = new char[stringLength];
+    //if (!m_colorMapFilename)
+    //    return false;
 
     // Open the setup file.  If it could not open the file then exit.
     fin.open(filename);
@@ -130,14 +130,6 @@ bool Terrain::LoadSetupFile(char* filename) {
 
     // Read in the terrain height scaling.
     fin >> m_heightScale;
-
-    // Read up to the color map file name.
-    fin.get(input);
-    while (input != ':')
-        fin.get(input);
-
-    // Read in the color map file name.
-    fin >> m_colorMapFilename;
 
     // Close the setup file.
     fin.close();
@@ -202,97 +194,6 @@ bool Terrain::LoadRawHeightMap() {
 
 }
 
-// Function to load height map
-bool Terrain::LoadBitmapHeightMap() {
-
-    int error, imageSize, i, j, k, index;
-    FILE* filePtr;
-    unsigned long long count;
-    BITMAPFILEHEADER bitmapFileHeader;
-    BITMAPINFOHEADER bitmapInfoHeader;
-    unsigned char* bitmapImage;
-    unsigned char height;
-
-
-    // Start by creating the array structure to hold the height map data.
-    m_heightMap = new HeightMapType[m_terrainWidth * m_terrainHeight];
-    if (!m_heightMap)
-        return false;
-
-    // Open the bitmap map file in binary.
-    error = fopen_s(&filePtr, m_terrainFilename, "rb");
-    if (error != 0)
-        return false;
-
-    // Read in the bitmap file header.
-    count = fread(&bitmapFileHeader, sizeof(BITMAPFILEHEADER), 1, filePtr);
-    if (count != 1)
-        return false;
-
-    // Read in the bitmap info header.
-    count = fread(&bitmapInfoHeader, sizeof(BITMAPINFOHEADER), 1, filePtr);
-    if (count != 1)
-        return false;
-
-    // Make sure the height map dimensions are the same as the terrain dimensions for easy 1 to 1 mapping.
-    if ((bitmapInfoHeader.biHeight != m_terrainHeight) || (bitmapInfoHeader.biWidth != m_terrainWidth))
-        return false;
-
-    // Calculate the size of the bitmap image data.  
-    // Since we use non-divide by 2 dimensions (eg. 257x257) we need to add an extra byte to each line.
-    imageSize = m_terrainHeight * ((m_terrainWidth * 3) + 1);
-
-    // Allocate memory for the bitmap image data.
-    bitmapImage = new unsigned char[imageSize];
-    if (!bitmapImage)
-        return false;
-
-    // Move to the beginning of the bitmap data.
-    fseek(filePtr, bitmapFileHeader.bfOffBits, SEEK_SET);
-
-    // Read in the bitmap image data.
-    count = fread(bitmapImage, 1, imageSize, filePtr);
-    if (count != imageSize)
-        return false;
-
-    // Close the file.
-    error = fclose(filePtr);
-    if (error != 0)
-        return false;
-
-    // Initialize the position in the image data buffer.
-    k = 0;
-
-    // Read the image data into the height map array.
-    for (j = 0; j < m_terrainHeight; j++) {
-        for (i = 0; i < m_terrainWidth; i++) {
-            // Bitmaps are upside down so load bottom to top into the height map array.
-            index = (m_terrainWidth * (m_terrainHeight - 1 - j)) + i;
-
-            // Get the grey scale pixel value from the bitmap image data at this location.
-            height = bitmapImage[k];
-
-            // Store the pixel value as the height at this point in the height map array.
-            m_heightMap[index].y = (float)height;
-
-            // Increment the bitmap image data index.
-            k += 3;
-        }
-        // Compensate for the extra byte at end of each line in non-divide by 2 bitmaps (eg. 257x257).
-        k++;
-    }
-
-    // Release the bitmap image data now that the height map array has been loaded.
-    delete[] bitmapImage;
-    bitmapImage = 0;
-
-    // Release the terrain filename now that is has been read in.
-    delete[] m_terrainFilename;
-    m_terrainFilename = 0;
-
-    return true;
-}
-
 // Release the terrain model
 void Terrain::ShutdownTerrainModel() {
 
@@ -304,57 +205,106 @@ void Terrain::ShutdownTerrainModel() {
 
 }
 
-// Function to create the array of cell objects
-bool Terrain::LoadTerrainCells(ID3D11Device* device) {
+// Function to initialize buffers
+bool Terrain::InitializeBuffers(ID3D11Device* device) {
 
-    int cellHeight, cellWidth, cellRowCount, i, j, index;
-    bool result;
+    VertexType* vertices;
+    unsigned long* indices;
+    D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
+    D3D11_SUBRESOURCE_DATA vertexData, indexData;
+    HRESULT result;
+    int i, j, terrainWidth, terrainHeight, index;
+    XMFLOAT4 color;
+    float positionX, positionZ;
 
-    // Set the height and width of each terrain cell to a fixed 33x33 vertex array.
-    cellHeight = 33;
-    cellWidth = 33;
 
-    // Calculate the number of cells needed to store the terrain data.
-    cellRowCount = (m_terrainWidth - 1) / (cellWidth - 1);
-    m_cellCount = cellRowCount * cellRowCount;
+    // Calculate the number of vertices in the terrain.
+    m_vertexCount = (m_terrainWidth - 1) * (m_terrainHeight - 1) * 6;
 
-    // Create the terrain cell array.
-    m_TerrainCells = new TerrainCell[m_cellCount];
-    if (!m_TerrainCells)
+    // Set the index count to the same as the vertex count.
+    m_indexCount = m_vertexCount;
+
+    // Create the vertex array.
+    vertices = new VertexType[m_vertexCount];
+    if (!vertices)
         return false;
 
-    // Loop through and initialize all the terrain cells.
-    for (j = 0; j < cellRowCount; j++) {
-        for (i = 0; i < cellRowCount; i++) {
-            index = (cellRowCount * j) + i;
-            result = m_TerrainCells[index].Initialize(device, m_terrainModel, i, j, cellHeight, cellWidth, m_terrainWidth);
-            if (!result)
-                return false;
-        }
+    // Create the index array.
+    indices = new unsigned long[m_indexCount];
+    if (!indices)
+        return false;
+
+    // Load the vertex array and index array with 3D terrain model data.
+    for (i = 0; i < m_vertexCount; i++) {
+        vertices[i].position = XMFLOAT3(m_terrainModel[i].x, m_terrainModel[i].y, m_terrainModel[i].z);
+        vertices[i].texture = XMFLOAT2(m_terrainModel[i].tu, m_terrainModel[i].tv);
+        vertices[i].normal = XMFLOAT3(m_terrainModel[i].nx, m_terrainModel[i].ny, m_terrainModel[i].nz);
+        vertices[i].tangent = XMFLOAT3(m_terrainModel[i].tx, m_terrainModel[i].ty, m_terrainModel[i].tz);
+        vertices[i].binormal = XMFLOAT3(m_terrainModel[i].bx, m_terrainModel[i].by, m_terrainModel[i].bz);
+        indices[i] = i;
     }
 
+
+    // Set up the description of the static vertex buffer.
+    vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+    vertexBufferDesc.ByteWidth = sizeof(VertexType) * m_vertexCount;
+    vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+    vertexBufferDesc.CPUAccessFlags = 0;
+    vertexBufferDesc.MiscFlags = 0;
+    vertexBufferDesc.StructureByteStride = 0;
+
+    // Give the subresource structure a pointer to the vertex data.
+    vertexData.pSysMem = vertices;
+    vertexData.SysMemPitch = 0;
+    vertexData.SysMemSlicePitch = 0;
+
+    // Now create the vertex buffer.
+    result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer);
+    if (FAILED(result))
+        return false;
+
+    // Set up the description of the static index buffer.
+    indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+    indexBufferDesc.ByteWidth = sizeof(unsigned long) * m_indexCount;
+    indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+    indexBufferDesc.CPUAccessFlags = 0;
+    indexBufferDesc.MiscFlags = 0;
+    indexBufferDesc.StructureByteStride = 0;
+
+    // Give the subresource structure a pointer to the index data.
+    indexData.pSysMem = indices;
+    indexData.SysMemPitch = 0;
+    indexData.SysMemSlicePitch = 0;
+
+    // Create the index buffer.
+    result = device->CreateBuffer(&indexBufferDesc, &indexData, &m_indexBuffer);
+    if (FAILED(result))
+        return false;
+
+    // Release the arrays now that the buffers have been created and loaded.
+    delete[] vertices;
+    vertices = nullptr;
+
+    delete[] indices;
+    indices = nullptr;
+
     return true;
 
 }
 
-// Render cell function
-bool Terrain::RenderCell(ID3D11DeviceContext* deviceContext, int cellId) {
+// Function to realese data from buffers
+void Terrain::ShutdownBuffers() {
 
-    m_TerrainCells[cellId].Render(deviceContext);
-    return true;
+    // Release the index buffer.
+    if (m_indexBuffer) {
+        m_indexBuffer->Release();
+        m_indexBuffer = nullptr;
+    }
 
-}
-
-
-// Function to release cell's data
-void Terrain::ShutdownTerrainCells() {
-
-    // Release the terrain cell array.
-    if (m_TerrainCells) {
-        for (int i = 0; i < m_cellCount; i++)
-            m_TerrainCells[i].Shutdown();
-        delete[] m_TerrainCells;
-        m_TerrainCells = 0;
+    // Release the vertex buffer.
+    if (m_vertexBuffer) {
+        m_vertexBuffer->Release();
+        m_vertexBuffer = nullptr;
     }
 
 }
@@ -390,88 +340,6 @@ void Terrain::SetTerrainCoordinates() {
             m_heightMap[index].y /= m_heightScale;
         }
     }
-
-}
-
-// Function to load color map
-bool Terrain::LoadColorMap() {
-
-    int error, imageSize, i, j, k, index;
-    FILE* filePtr;
-    unsigned long long count;
-    BITMAPFILEHEADER bitmapFileHeader;
-    BITMAPINFOHEADER bitmapInfoHeader;
-    unsigned char* bitmapImage;
-
-
-    // Open the color map file in binary.
-    error = fopen_s(&filePtr, m_colorMapFilename, "rb");
-    if (error != 0)
-        return false;
-
-    // Read in the file header.
-    count = fread(&bitmapFileHeader, sizeof(BITMAPFILEHEADER), 1, filePtr);
-    if (count != 1)
-        return false;
-
-    // Read in the bitmap info header.
-    count = fread(&bitmapInfoHeader, sizeof(BITMAPINFOHEADER), 1, filePtr);
-    if (count != 1)
-        return false;
-
-    // Make sure the color map dimensions are the same as the terrain dimensions for easy 1 to 1 mapping.
-    if ((bitmapInfoHeader.biWidth != m_terrainWidth) || (bitmapInfoHeader.biHeight != m_terrainHeight))
-        return false;
-
-    // Calculate the size of the bitmap image data.  Since this is non-divide by 2 dimensions (eg. 257x257) need to add extra byte to each line.
-    imageSize = m_terrainHeight * ((m_terrainWidth * 3) + 1);
-
-    // Allocate memory for the bitmap image data.
-    bitmapImage = new unsigned char[imageSize];
-    if (!bitmapImage)
-        return false;
-
-    // Move to the beginning of the bitmap data.
-    fseek(filePtr, bitmapFileHeader.bfOffBits, SEEK_SET);
-
-    // Read in the bitmap image data.
-    count = fread(bitmapImage, 1, imageSize, filePtr);
-    if (count != imageSize)
-        return false;
-
-    // Close the file.
-    error = fclose(filePtr);
-    if (error != 0)
-        return false;
-
-    // Initialize the position in the image data buffer.
-    k = 0;
-
-    // Read the image data into the color map portion of the height map structure.
-    for (j = 0; j < m_terrainHeight; j++)  {
-        for (i = 0; i < m_terrainWidth; i++) {
-            // Bitmaps are upside down so load bottom to top into the array.
-            index = (m_terrainWidth * (m_terrainHeight - 1 - j)) + i;
-
-            m_heightMap[index].b = (float)bitmapImage[k] / 255.0f;
-            m_heightMap[index].g = (float)bitmapImage[k + 1] / 255.0f;
-            m_heightMap[index].r = (float)bitmapImage[k + 2] / 255.0f;
-
-            k += 3;
-        }
-        // Compensate for extra byte at end of each line in non-divide by 2 bitmaps (eg. 257x257).
-        k++;
-    }
-
-    // Release the bitmap image data.
-    delete[] bitmapImage;
-    bitmapImage = 0;
-
-    // Release the color map filename now that is has been read in.
-    delete[] m_colorMapFilename;
-    m_colorMapFilename = 0;
-
-    return true;
 
 }
 
@@ -511,9 +379,6 @@ bool Terrain::BuildTerrainModel() {
             m_terrainModel[index].nx = m_heightMap[index1].nx;
             m_terrainModel[index].ny = m_heightMap[index1].ny;
             m_terrainModel[index].nz = m_heightMap[index1].nz;
-            m_terrainModel[index].r = m_heightMap[index1].r;
-            m_terrainModel[index].g = m_heightMap[index1].g;
-            m_terrainModel[index].b = m_heightMap[index1].b;
             index++;
 
             // Triangle 1 - Upper right.
@@ -525,9 +390,6 @@ bool Terrain::BuildTerrainModel() {
             m_terrainModel[index].nx = m_heightMap[index2].nx;
             m_terrainModel[index].ny = m_heightMap[index2].ny;
             m_terrainModel[index].nz = m_heightMap[index2].nz;
-            m_terrainModel[index].r = m_heightMap[index2].r;
-            m_terrainModel[index].g = m_heightMap[index2].g;
-            m_terrainModel[index].b = m_heightMap[index2].b;
             index++;
 
             // Triangle 1 - Bottom left.
@@ -539,9 +401,6 @@ bool Terrain::BuildTerrainModel() {
             m_terrainModel[index].nx = m_heightMap[index3].nx;
             m_terrainModel[index].ny = m_heightMap[index3].ny;
             m_terrainModel[index].nz = m_heightMap[index3].nz;
-            m_terrainModel[index].r = m_heightMap[index3].r;
-            m_terrainModel[index].g = m_heightMap[index3].g;
-            m_terrainModel[index].b = m_heightMap[index3].b;
             index++;
 
             // Triangle 2 - Bottom left.
@@ -553,9 +412,6 @@ bool Terrain::BuildTerrainModel() {
             m_terrainModel[index].nx = m_heightMap[index3].nx;
             m_terrainModel[index].ny = m_heightMap[index3].ny;
             m_terrainModel[index].nz = m_heightMap[index3].nz;
-            m_terrainModel[index].r = m_heightMap[index3].r;
-            m_terrainModel[index].g = m_heightMap[index3].g;
-            m_terrainModel[index].b = m_heightMap[index3].b;
             index++;
 
             // Triangle 2 - Upper right.
@@ -568,9 +424,6 @@ bool Terrain::BuildTerrainModel() {
             m_terrainModel[index].ny = m_heightMap[index2].ny;
             m_terrainModel[index].nz = m_heightMap[index2].nz;
             m_terrainModel[index].nz = m_heightMap[index2].nz;
-            m_terrainModel[index].r = m_heightMap[index2].r;
-            m_terrainModel[index].g = m_heightMap[index2].g;
-            m_terrainModel[index].b = m_heightMap[index2].b;
             index++;
 
             // Triangle 2 - Bottom right.
@@ -582,9 +435,6 @@ bool Terrain::BuildTerrainModel() {
             m_terrainModel[index].nx = m_heightMap[index4].nx;
             m_terrainModel[index].ny = m_heightMap[index4].ny;
             m_terrainModel[index].nz = m_heightMap[index4].nz;
-            m_terrainModel[index].r = m_heightMap[index4].r;
-            m_terrainModel[index].g = m_heightMap[index4].g;
-            m_terrainModel[index].b = m_heightMap[index4].b;
             index++;
         }
     }
@@ -847,5 +697,26 @@ void Terrain::CalculateTangentBinormal(TempVertexType vertex1, TempVertexType ve
     binormal.x = binormal.x / length;
     binormal.y = binormal.y / length;
     binormal.z = binormal.z / length;
+
+}
+
+// Function to put data on pipeline
+void Terrain::RenderBuffers(ID3D11DeviceContext* deviceContext) {
+
+    unsigned int stride;
+    unsigned int offset;
+
+    // Set vertex buffer stride and offset.
+    stride = sizeof(VertexType);
+    offset = 0;
+
+    // Set the vertex buffer to active in the input assembler so it can be rendered.
+    deviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
+
+    // Set the index buffer to active in the input assembler so it can be rendered.
+    deviceContext->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+    // Set the type of primitive that should be rendered from this vertex buffer, in this case lines.
+    deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
 
 }

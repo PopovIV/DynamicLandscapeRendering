@@ -8,17 +8,24 @@
 #include <directxmath.h>
 #include <fstream>
 #include <stdio.h>
-#include "terrainCell.h"
+
 using namespace std;
 using namespace DirectX;
 
 class Terrain {
 private:
 
+    struct VertexType {
+        XMFLOAT3 position;
+        XMFLOAT2 texture;
+        XMFLOAT3 normal;
+        XMFLOAT3 tangent;
+        XMFLOAT3 binormal;
+    };
+
     struct HeightMapType {
         float x, y, z;
         float nx, ny, nz;
-        float r, g, b;
     };
 
     struct ModelType {
@@ -27,7 +34,6 @@ private:
         float nx, ny, nz;
         float tx, ty, tz;
         float bx, by, bz;
-        float r, g, b;
     };
 
     // Used for calculating normal vectors
@@ -53,20 +59,15 @@ public:
     bool Initialize(ID3D11Device* device, char* setupFilename);
     // Function to clear all data from vertex and index buffers
     void Shutdown();
-    // Render cell function
-    bool RenderCell(ID3D11DeviceContext* deviceContext, int cellId);
-    // Render cell bounding box function
-    void RenderCellLines(ID3D11DeviceContext* deviceContext, int cellId) { m_TerrainCells[cellId].RenderLineBuffers(deviceContext); };
-
-    int GetCellIndexCount(int cellId) { return m_TerrainCells[cellId].GetIndexCount(); };
-    int GetCellLinesIndexCount(int cellId) { return m_TerrainCells[cellId].GetLineBuffersIndexCount(); };
-    int GetCellCount() { return m_cellCount; };
+    // Render function
+    bool Render(ID3D11DeviceContext* deviceContex);
+    // Function to get nimber of indexes in the terrain grid
+    int GetIndexCount() { return m_indexCount; };
 
 private:
     // Function to read setup file
     bool LoadSetupFile(char* filename);
-    // Function to load height map
-    bool LoadBitmapHeightMap();
+
     // Function to load raw height map
     bool LoadRawHeightMap();
     // Release the height map.
@@ -75,8 +76,6 @@ private:
     void SetTerrainCoordinates();
     // Function to calculate normals from our height map
     bool CalculateNormals();
-    // Function to load color bitmap
-    bool LoadColorMap();
     // function to create model of terrain
     bool BuildTerrainModel();
     // Release the terrain model
@@ -87,20 +86,22 @@ private:
     // Function to calculate vertexes tangent and binormal
     void CalculateTangentBinormal(TempVertexType vertex1, TempVertexType vertex2, TempVertexType vertex3, VectorType& tangent, VectorType& binormal);
 
-    // Function to create the array of cell objects
-    bool LoadTerrainCells(ID3D11Device* device);
-    // Function to release cell's data
-    void ShutdownTerrainCells();
+    // Function to initialize buffers
+    bool InitializeBuffers(ID3D11Device* device);
+    // Function to realese data from buffers
+    void ShutdownBuffers();
+    // Function to put data on pipeline
+    void RenderBuffers(ID3D11DeviceContext* deviceContext);
 
 private:
-    int m_terrainHeight, m_terrainWidth, m_vertexCount;
+    ID3D11Buffer* m_vertexBuffer, * m_indexBuffer;
+    int m_vertexCount, m_indexCount;
+
+    int m_terrainHeight, m_terrainWidth;
     float m_heightScale;
-    char* m_terrainFilename, * m_colorMapFilename;
+    char* m_terrainFilename;
     HeightMapType* m_heightMap;
     ModelType* m_terrainModel;
-
-    TerrainCell* m_TerrainCells;
-    int m_cellCount;
 
 };
 

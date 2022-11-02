@@ -175,7 +175,6 @@ void Font::BuildVertexArray(void* vertices, char* sentence, float drawX, float d
         }
     }
 
-
 }
 
 

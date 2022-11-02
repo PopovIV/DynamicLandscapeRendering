@@ -1,5 +1,4 @@
 #include "zone.h"
-
 Zone::Zone() {
 
     m_UserInterface = nullptr;
@@ -12,7 +11,6 @@ Zone::Zone() {
 
 // Function to initialize user interface, camera, position and grid
 bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screenHeight, float screenDepth) {
-
     bool result;
 
     // Create the user interface object.
@@ -52,15 +50,15 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
         return false;
 
     // Set the initial position and rotation.
-    m_Position->SetPosition(512.0f, 10.0f, 10.0f);
+    m_Position->SetPosition(512.0f, 30.0f, -10.0f);
     m_Position->SetRotation(0.0f, 0.0f, 0.0f);
 
     // Create the terrain object.
     m_Terrain = new Terrain;
     if (!m_Terrain)
         return false;
-
     // Initialize the terrain object.
+
     result = m_Terrain->Initialize(Direct3D->GetDevice(), "data/setup.txt");
     if (!result) {
         MessageBox(hwnd, L"Could not initialize the terrain object.", L"Error", MB_OK);
@@ -70,13 +68,10 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     // Set the UI to display by default.
     m_displayUI = true;
     m_wireFrame = true;
-    // Set the rendering of cell lines initially to enabled.
-    m_cellLines = true;
 
     return true;
 
 }
-
 // Function to clear all stuff that was created in initialize function
 void Zone::Shutdown() {
 
@@ -113,7 +108,6 @@ void Zone::Shutdown() {
     }
 
 }
-
 // Function to update frame each second
 bool Zone::Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager, TextureManager* TextureManager, float frameTime, int fps) {
 
@@ -140,9 +134,8 @@ bool Zone::Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager,
     return true;
 
 }
-
 // Function to handle user input from keyboard/mouse
-void Zone::HandleMovementInput(Input * Input, float frameTime) {
+void Zone::HandleMovementInput(Input* Input, float frameTime) {
 
     bool keyDown;
     float posX, posY, posZ, rotX, rotY, rotZ;
@@ -153,25 +146,18 @@ void Zone::HandleMovementInput(Input * Input, float frameTime) {
     // Handle the input.
     keyDown = Input->IsLeftPressed();
     m_Position->TurnLeft(keyDown);
-
     keyDown = Input->IsRightPressed();
     m_Position->TurnRight(keyDown);
-
     keyDown = Input->IsUpPressed();
     m_Position->MoveForward(keyDown);
-
     keyDown = Input->IsDownPressed();
     m_Position->MoveBackward(keyDown);
-
     keyDown = Input->IsAPressed();
     m_Position->MoveUpward(keyDown);
-
     keyDown = Input->IsZPressed();
     m_Position->MoveDownward(keyDown);
-
     keyDown = Input->IsPgUpPressed();
     m_Position->LookUpward(keyDown);
-
     keyDown = Input->IsPgDownPressed();
     m_Position->LookDownward(keyDown);
 
@@ -190,10 +176,6 @@ void Zone::HandleMovementInput(Input * Input, float frameTime) {
     // Determine if the terrain should be rendered in wireframe or not.
     if (Input->IsF2Toggled())
         m_wireFrame = !m_wireFrame;
-
-    // Determine if we should render the lines around each terrain cell.
-    if (Input->IsF3Toggled())
-        m_cellLines = !m_cellLines;
 
 }
 
@@ -220,29 +202,19 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
     if (m_wireFrame)
         Direct3D->EnableWireframe();
 
-    // Render the terrain cells (and cell lines if needed).
-    for (int i = 0; i < m_Terrain->GetCellCount(); i++) {
-        // Put the terrain cell buffers on the pipeline.
-        result = m_Terrain->RenderCell(Direct3D->GetDeviceContext(), i);
-        if (!result)
-            return false;
-        ID3D11ShaderResourceView* textures[] = { TextureManager->GetTexture(0) , TextureManager->GetTexture(2) , TextureManager->GetTexture(4), TextureManager->GetTexture(6) };
-        ID3D11ShaderResourceView* normalMaps[] = { TextureManager->GetTexture(1) , TextureManager->GetTexture(3) , TextureManager->GetTexture(5), TextureManager->GetTexture(7) };
-        // Render the cell buffers using the terrain shader.
-        result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetCellIndexCount(i), worldMatrix, viewMatrix,
-            projectionMatrix, textures, normalMaps,
-            m_Light->GetDirection(), m_Light->GetDiffuseColor());
-        if (!result)
-            return false;
+    // Render the terrain grid using the color shader.
+    float posX, posY, posZ;
+    m_Position->GetPosition(posX, posY, posZ);
+    m_Terrain->Render(Direct3D->GetDeviceContext());
+    ID3D11ShaderResourceView* textures[] = { TextureManager->GetTexture(0) , TextureManager->GetTexture(2) , TextureManager->GetTexture(4), TextureManager->GetTexture(6) };
+    ID3D11ShaderResourceView* normalMaps[] = { TextureManager->GetTexture(1) , TextureManager->GetTexture(3) , TextureManager->GetTexture(5), TextureManager->GetTexture(7) };
 
-        // If needed then render the bounding box around this terrain cell using the color shader. 
-        if (m_cellLines) {
-            m_Terrain->RenderCellLines(Direct3D->GetDeviceContext(), i);
-            ShaderManager->RenderColorShader(Direct3D->GetDeviceContext(), m_Terrain->GetCellLinesIndexCount(i), worldMatrix, viewMatrix, projectionMatrix);
-            if (!result)
-                return false;
-        }
-    }
+    // Render the cell buffers using the terrain shader.
+    result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, viewMatrix,
+        projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps,
+        m_Light->GetDirection(), m_Light->GetDiffuseColor());
+    if (!result)
+        return false;
 
     // Determine if the terrain should be rendered in wireframe or not.
     if (m_wireFrame)

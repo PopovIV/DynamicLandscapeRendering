@@ -43,7 +43,7 @@ private:
     Light* m_Light;
     Position* m_Position;
     Terrain* m_Terrain;
-    bool m_displayUI, m_wireFrame, m_cellLines;
+    bool m_displayUI, m_wireFrame;
 };
 
 #endif

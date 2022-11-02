@@ -111,9 +111,6 @@
     <ClInclude Include="stringConverter.h">
       <Filter>Файлы заголовков\Utility</Filter>
     </ClInclude>
-    <ClInclude Include="terrainCell.h">
-      <Filter>Файлы заголовков\Terrain</Filter>
-    </ClInclude>
     <ClInclude Include="stb_image.h">
       <Filter>Файлы заголовков\Utility</Filter>
     </ClInclude>
@@ -194,9 +191,6 @@
     <ClCompile Include="stringConverter.cpp">
       <Filter>Исходные файлы\Utility</Filter>
     </ClCompile>
-    <ClCompile Include="terrainCell.cpp">
-      <Filter>Исходные файлы\Terrain</Filter>
-    </ClCompile>
     <ClCompile Include="std_image.cpp">
       <Filter>Исходные файлы\Utility</Filter>
     </ClCompile>
@@ -210,5 +204,7 @@
     <FxCompile Include="LightPixelShader.hlsl" />
     <FxCompile Include="TerrainVertexShader.hlsl" />
     <FxCompile Include="TerrainPixelShader.hlsl" />
+    <FxCompile Include="TerrainDomainShader.hlsl" />
+    <FxCompile Include="TerrainHullShader.hlsl" />
   </ItemGroup>
 </Project>

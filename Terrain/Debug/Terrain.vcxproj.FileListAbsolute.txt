@@ -18,3 +18,5 @@ A:\GitHub\DynamicLandscapeRendering\Terrain\Terrain\Debug\TexturePixelShader.cso
 A:\GitHub\DynamicLandscapeRendering\Terrain\Terrain\Debug\TextureVertexShader.cso
 A:\GitHub\DynamicLandscapeRendering\Terrain\Terrain\Debug\Terrain.exe
 A:\GitHub\DynamicLandscapeRendering\Terrain\Terrain\Debug\Terrain.pdb
+A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\TerrainDomainShader.cso
+A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\TerrainHullShader.cso

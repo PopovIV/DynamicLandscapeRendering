@@ -130,6 +130,6 @@ bool ShaderManager::RenderFontShader(ID3D11DeviceContext* deviceContext, int ind
 }
 
 // Function to render for Terrain shader
-bool ShaderManager::RenderTerrainShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor) {
-    return m_TerrainShader->Render(deviceContext, indexCount, worldMatrix, viewMatrix, projectionMatrix, textures, normalMaps, lightDirection, diffuseColor);
+bool ShaderManager::RenderTerrainShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor) {
+    return m_TerrainShader->Render(deviceContext, indexCount, worldMatrix, viewMatrix, projectionMatrix, cameraPos, textures, normalMaps, lightDirection, diffuseColor);
 }

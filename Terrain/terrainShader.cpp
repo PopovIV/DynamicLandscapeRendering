@@ -4,6 +4,8 @@ TerrainShader::TerrainShader() {
 
     m_vertexShader = nullptr;
     m_pixelShader = nullptr;
+    m_hullShader = nullptr;
+    m_domainShader = nullptr;
     m_layout = nullptr;
     m_matrixBuffer = nullptr;
     m_sampleState = nullptr;
@@ -17,7 +19,7 @@ bool TerrainShader::Initialize(ID3D11Device* device, HWND hwnd) {
     bool result;
 
     // Initialize the vertex and pixel shaders.
-    result = InitializeShader(device, hwnd, L"TerrainVertexShader.hlsl", L"TerrainPixelShader.hlsl");
+    result = InitializeShader(device, hwnd, L"TerrainVertexShader.hlsl", L"TerrainPixelShader.hlsl", L"TerrainHullShader.hlsl", L"TerrainDomainShader.hlsl");
     if (!result)
         return false;
 
@@ -26,12 +28,12 @@ bool TerrainShader::Initialize(ID3D11Device* device, HWND hwnd) {
 }
 
 // Render function
-bool TerrainShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor) {
+bool TerrainShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor) {
 
     bool result;
 
     // Set the shader parameters that it will use for rendering.
-    result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, textures, normalMaps, lightDirection, diffuseColor);
+    result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, cameraPos, textures, normalMaps, lightDirection, diffuseColor);
     if (!result)
         return false;
 
@@ -43,22 +45,26 @@ bool TerrainShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, X
 }
 
 // Function to initialize shader
-bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename) {
+bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename, WCHAR* hsFilename, WCHAR* dsFilename) {
 
     HRESULT result;
     ID3D10Blob* errorMessage;
     ID3D10Blob* vertexShaderBuffer;
     ID3D10Blob* pixelShaderBuffer;
-    D3D11_INPUT_ELEMENT_DESC polygonLayout[6];
+    ID3D10Blob* hullShaderBuffer;
+    ID3D10Blob* domainShaderBuffer;
+    D3D11_INPUT_ELEMENT_DESC polygonLayout[5];
     unsigned int numElements;
     D3D11_BUFFER_DESC matrixBufferDesc;
     D3D11_SAMPLER_DESC samplerDesc;
     D3D11_BUFFER_DESC lightBufferDesc;
 
     // Initialize the pointers this function will use to null.
-    errorMessage = 0;
-    vertexShaderBuffer = 0;
-    pixelShaderBuffer = 0;
+    errorMessage = nullptr;
+    vertexShaderBuffer = nullptr;
+    hullShaderBuffer = nullptr;
+    domainShaderBuffer = nullptr;
+    pixelShaderBuffer = nullptr;
 
     // Compile the vertex shader code.
     result = D3DCompileFromFile(vsFilename, NULL, NULL, "main", "vs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &vertexShaderBuffer, &errorMessage);
@@ -69,6 +75,34 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
         // If there was nothing in the error message then it simply could not find the shader file itself.
         else
             MessageBox(hwnd, vsFilename, L"Missing Shader File", MB_OK);
+        return false;
+    }
+
+    // Compile the hull shader code.
+    result = D3DCompileFromFile(hsFilename, NULL, NULL, "main", "hs_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &hullShaderBuffer, &errorMessage);
+    if (FAILED(result)) {
+        // If the shader failed to compile it should have writen something to the error message.
+        if (errorMessage)
+            OutputShaderErrorMessage(errorMessage, hwnd, hsFilename);
+
+        // If there was nothing in the error message then it simply could not find the file itself.
+        else
+            MessageBox(hwnd, hsFilename, L"Missing Shader File", MB_OK);
+
+        return false;
+    }
+
+    // Compile the domain shader code.
+    result = D3DCompileFromFile(dsFilename, NULL, NULL, "main", "ds_5_0", D3D10_SHADER_ENABLE_STRICTNESS, 0, &domainShaderBuffer, &errorMessage);
+    if (FAILED(result)) {
+        // If the shader failed to compile it should have writen something to the error message.
+        if (errorMessage)
+            OutputShaderErrorMessage(errorMessage, hwnd, dsFilename);
+
+        // If there was nothing in the error message then it simply could not find the file itself.
+        else
+            MessageBox(hwnd, dsFilename, L"Missing Shader File", MB_OK);
+
         return false;
     }
 
@@ -87,6 +121,16 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
 
     // Create the vertex shader from the buffer.
     result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader);
+    if (FAILED(result))
+        return false;
+
+    // Create the hull shader from the buffer.
+    result = device->CreateHullShader(hullShaderBuffer->GetBufferPointer(), hullShaderBuffer->GetBufferSize(), NULL, &m_hullShader);
+    if (FAILED(result))
+        return false;
+
+    // Create the domain shader from the buffer.
+    result = device->CreateDomainShader(domainShaderBuffer->GetBufferPointer(), domainShaderBuffer->GetBufferSize(), NULL, &m_domainShader);
     if (FAILED(result))
         return false;
 
@@ -136,13 +180,6 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
     polygonLayout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
     polygonLayout[4].InstanceDataStepRate = 0;
 
-    polygonLayout[5].SemanticName = "COLOR";
-    polygonLayout[5].SemanticIndex = 0;
-    polygonLayout[5].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-    polygonLayout[5].InputSlot = 0;
-    polygonLayout[5].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-    polygonLayout[5].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-    polygonLayout[5].InstanceDataStepRate = 0;
 
     // Get a count of the elements in the layout.
     numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
@@ -242,6 +279,18 @@ void TerrainShader::ShutdownShader() {
         m_pixelShader = nullptr;
     }
 
+    // Release the domain shader.
+    if (m_domainShader) {
+        m_domainShader->Release();
+        m_domainShader = nullptr;
+    }
+
+    // Release the hull shader.
+    if (m_hullShader) {
+        m_hullShader->Release();
+        m_hullShader = nullptr;
+    }
+
     // Release the vertex shader.
     if (m_vertexShader) {
         m_vertexShader->Release();
@@ -283,7 +332,7 @@ void TerrainShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd
 }
 
 // Function to fill shader buffers and params
-bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor) {
+bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor) {
 
     HRESULT result;
     D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -308,6 +357,7 @@ bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
     dataPtr->world = worldMatrix;
     dataPtr->view = viewMatrix;
     dataPtr->projection = projectionMatrix;
+    dataPtr->cameraPos = cameraPos;
 
     // Unlock the constant buffer.
     deviceContext->Unmap(m_matrixBuffer, 0);
@@ -316,7 +366,8 @@ bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
     bufferNumber = 0;
 
     // Finanly set the constant buffer in the vertex shader with the updated values.
-    deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
+    deviceContext->DSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
+    deviceContext->HSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
     // Set shader texture resource in the pixel shader.
     deviceContext->PSSetShaderResources(0, 1, &textures[0]);
@@ -362,6 +413,8 @@ void TerrainShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCo
 
     // Set the vertex and pixel shaders that will be used to render this triangle.
     deviceContext->VSSetShader(m_vertexShader, NULL, 0);
+    deviceContext->HSSetShader(m_hullShader, NULL, 0);
+    deviceContext->DSSetShader(m_domainShader, NULL, 0);
     deviceContext->PSSetShader(m_pixelShader, NULL, 0);
 
     // Set the sampler state in the pixel shader.
