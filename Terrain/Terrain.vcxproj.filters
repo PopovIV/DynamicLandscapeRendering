@@ -69,9 +69,6 @@
     <ClInclude Include="camera.h">
       <Filter>Файлы заголовков\Terrain</Filter>
     </ClInclude>
-    <ClInclude Include="colorShader.h">
-      <Filter>Файлы заголовков\Shaders</Filter>
-    </ClInclude>
     <ClInclude Include="fontShader.h">
       <Filter>Файлы заголовков\Shaders</Filter>
     </ClInclude>
@@ -93,14 +90,8 @@
     <ClInclude Include="textureManager.h">
       <Filter>Файлы заголовков\Terrain\UserInterface</Filter>
     </ClInclude>
-    <ClInclude Include="textureShader.h">
-      <Filter>Файлы заголовков\Shaders</Filter>
-    </ClInclude>
     <ClInclude Include="light.h">
       <Filter>Файлы заголовков\Terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="lightShader.h">
-      <Filter>Файлы заголовков\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="terrainShader.h">
       <Filter>Файлы заголовков\Shaders</Filter>
@@ -112,6 +103,9 @@
       <Filter>Файлы заголовков\Utility</Filter>
     </ClInclude>
     <ClInclude Include="stb_image.h">
+      <Filter>Файлы заголовков\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="loadpng.h">
       <Filter>Файлы заголовков\Utility</Filter>
     </ClInclude>
   </ItemGroup>
@@ -152,9 +146,6 @@
     <ClCompile Include="shaderManager.cpp">
       <Filter>Исходные файлы\Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="colorShader.cpp">
-      <Filter>Исходные файлы\Shaders</Filter>
-    </ClCompile>
     <ClCompile Include="fontShader.cpp">
       <Filter>Исходные файлы\Shaders</Filter>
     </ClCompile>
@@ -173,14 +164,8 @@
     <ClCompile Include="textureManager.cpp">
       <Filter>Исходные файлы\Terrain\UserInterface</Filter>
     </ClCompile>
-    <ClCompile Include="textureShader.cpp">
-      <Filter>Исходные файлы\Shaders</Filter>
-    </ClCompile>
     <ClCompile Include="light.cpp">
       <Filter>Исходные файлы\Terrain</Filter>
-    </ClCompile>
-    <ClCompile Include="lightShader.cpp">
-      <Filter>Исходные файлы\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="terrainShader.cpp">
       <Filter>Исходные файлы\Shaders</Filter>
@@ -194,14 +179,13 @@
     <ClCompile Include="std_image.cpp">
       <Filter>Исходные файлы\Utility</Filter>
     </ClCompile>
+    <ClCompile Include="loadpng.cpp">
+      <Filter>Исходные файлы\Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="FontVertexShader.hlsl" />
     <FxCompile Include="FontPixelShader.hlsl" />
-    <FxCompile Include="TexturePixelShader.hlsl" />
-    <FxCompile Include="TextureVertexShader.hlsl" />
-    <FxCompile Include="LightVertexShader.hlsl" />
-    <FxCompile Include="LightPixelShader.hlsl" />
     <FxCompile Include="TerrainVertexShader.hlsl" />
     <FxCompile Include="TerrainPixelShader.hlsl" />
     <FxCompile Include="TerrainDomainShader.hlsl" />

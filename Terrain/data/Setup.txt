@@ -1,4 +1,5 @@
-Terrain Filename: data/myHeightMap.r16
-Terrain Height: 1025
-Terrain Width: 1025
-Terrain Scaling: 200.0
+Terrain Filename: data/myHeightMap.png
+Terrain Height: 1024
+Terrain Width: 1024
+Tess Factor: 16
+Terrain Scaling: 1.0

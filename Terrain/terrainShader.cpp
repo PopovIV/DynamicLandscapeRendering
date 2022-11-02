@@ -57,6 +57,7 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
     unsigned int numElements;
     D3D11_BUFFER_DESC matrixBufferDesc;
     D3D11_SAMPLER_DESC samplerDesc;
+    D3D11_SAMPLER_DESC mapSamplerDesc;
     D3D11_BUFFER_DESC lightBufferDesc;
 
     // Initialize the pointers this function will use to null.
@@ -366,6 +367,7 @@ bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
     bufferNumber = 0;
 
     // Finanly set the constant buffer in the vertex shader with the updated values.
+
     deviceContext->DSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
     deviceContext->HSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
