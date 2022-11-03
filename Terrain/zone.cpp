@@ -50,7 +50,7 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
         return false;
 
     // Set the initial position and rotation.
-    m_Position->SetPosition(512.0f, 30.0f, -10.0f);
+    m_Position->SetPosition(512.0f, 110.0f, 0.0f);
     m_Position->SetRotation(0.0f, 0.0f, 0.0f);
 
     // Create the terrain object.
@@ -196,7 +196,7 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
     Direct3D->GetOrthoMatrix(orthoMatrix);
 
     // Clear the buffers to begin the scene.
-    Direct3D->BeginScene(0.2f, 0.2f, 0.5f, 1.0f);
+    Direct3D->BeginScene(0.0f, 0.50f, 1.0f, 1.0f);
 
     // Determine if the terrain should be rendered in wireframe or not.
     if (m_wireFrame)
