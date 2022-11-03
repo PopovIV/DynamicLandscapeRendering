@@ -11,11 +11,13 @@ cbuffer MatrixBuffer
 struct PS_INPUT
 {
     float4 position : SV_POSITION;
+    float2 tex : TEXCOORD0;
 };
 
 struct DS_INPUT
 {
     float4 position : POSITION;
+    float2 tex : TEXCOORD0;
 };
 
 struct HS_CONSTANT_DATA_OUTPUT
@@ -34,6 +36,8 @@ PS_INPUT main(HS_CONSTANT_DATA_OUTPUT input, float2 domain : SV_DomainLocation, 
     output.position = mul(output.position, worldMatrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
+
+    output.tex = lerp(lerp(patch[0].tex, patch[1].tex, domain.x), lerp(patch[3].tex, patch[2].tex, domain.x), domain.y);
 
     return output;
 }

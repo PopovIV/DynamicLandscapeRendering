@@ -19,9 +19,10 @@ cbuffer LightBuffer
 struct PS_INPUT
 {
     float4 position : SV_POSITION;
+    float2 tex : TEXCOORD0;
 };
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
-    return float4(0.0, 6.0, 0.0, 1.0);
+    return diffuseTexture1.Sample(SampleType, input.tex);
 }

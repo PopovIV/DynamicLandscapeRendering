@@ -16,6 +16,7 @@ struct HS_INPUT
 struct DS_INPUT
 {
     float4 position : POSITION;
+    float2 tex : TEXCOORD0;
 };
 
 float calcTessFactor(float3 p) {
@@ -60,13 +61,26 @@ HS_CONSTANT_DATA_OUTPUT constantsHullShader(InputPatch<HS_INPUT, NUM_CONTROL_POI
 [domain("quad")]
 [partitioning("fractional_even")]
 [outputtopology("triangle_cw")]
+[maxtessfactor(16.0)]
 [outputcontrolpoints(NUM_CONTROL_POINTS)]
 [patchconstantfunc("constantsHullShader")]
-DS_INPUT main(InputPatch<HS_INPUT, NUM_CONTROL_POINTS> patch, uint patchID : SV_OutputControlPointID, uint PatchID : SV_PrimitiveID)
+DS_INPUT main(InputPatch<HS_INPUT, NUM_CONTROL_POINTS> patch, uint i : SV_OutputControlPointID, uint PatchID : SV_PrimitiveID)
 {
     DS_INPUT output;
 
-    output.position = patch[patchID].position;
+    output.position = patch[i].position;
+    if (i == 0) {
+        output.tex = float2(0.0f, 0.0f);
+    }
+    if (i == 1) {
+        output.tex = float2(1.0f, 0.0f);
+    }
+    if (i == 2) {
+        output.tex = float2(1.0f, 1.0f);
+    }
+    if (i == 3) {
+        output.tex = float2(0.0f, 1.0f);
+    }
 
     return output;
 }
