@@ -1,5 +1,5 @@
 Terrain Filename: data/myHeightMap.png
 Terrain Height: 1024
 Terrain Width: 1024
-Tess Factor: 16
-Terrain Scaling: 1.0
+Tess Factor: 1
+Terrain Scaling: 1.5

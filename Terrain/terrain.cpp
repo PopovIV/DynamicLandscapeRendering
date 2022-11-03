@@ -137,9 +137,9 @@ bool Terrain::InitializeBuffers(ID3D11Device* device) {
     m_vertexCount = (int)(scalePatchX * scalePatchY);
 
     // Set the index count to the same as the vertex count.
-    m_indexCount = (scalePatchX - 1) * (scalePatchY - 1) * 4;;
+    m_indexCount = (scalePatchX - 1) * (scalePatchY - 1) * 4;
 
-    // Create the vertex array.
+    //// Create the vertex array.
     vertices = new VertexType[m_vertexCount];
     if (!vertices)
         return false;
@@ -159,7 +159,7 @@ bool Terrain::InitializeBuffers(ID3D11Device* device) {
         }
     }
 
-    // Create the index array.
+    //// Create the index array.
     indices = new unsigned long[m_indexCount];
     if (!indices)
         return false;

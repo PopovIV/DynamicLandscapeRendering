@@ -29,12 +29,12 @@ HS_CONSTANT_DATA_OUTPUT constantsHullShader(InputPatch<HS_INPUT, NUM_CONTROL_POI
     HS_CONSTANT_DATA_OUTPUT output;
 
     // Assign tessellation levels (constant for now)
-    output.EdgeFactors[0] = 4;
-    output.EdgeFactors[1] = 4;
-    output.EdgeFactors[2] = 4;
-    output.EdgeFactors[3] = 4;
-    output.InsideFactor[0] = 4;
-    output.InsideFactor[1] = 4;
+    output.EdgeFactors[0] = 1;
+    output.EdgeFactors[1] = 1;
+    output.EdgeFactors[2] = 1;
+    output.EdgeFactors[3] = 1;
+    output.InsideFactor[0] = 1;
+    output.InsideFactor[1] = 1;
 
     return output;
 }
@@ -44,8 +44,7 @@ HS_CONSTANT_DATA_OUTPUT constantsHullShader(InputPatch<HS_INPUT, NUM_CONTROL_POI
 [outputtopology("triangle_cw")]
 [outputcontrolpoints(NUM_CONTROL_POINTS)]
 [patchconstantfunc("constantsHullShader")]
-[maxtessfactor(1.0)]
-DS_INPUT main(InputPatch<HS_INPUT, NUM_CONTROL_POINTS> patch, uint patchID : SV_OutputControlPointID)
+DS_INPUT main(InputPatch<HS_INPUT, NUM_CONTROL_POINTS> patch, uint patchID : SV_OutputControlPointID, uint PatchID : SV_PrimitiveID)
 {
     DS_INPUT output;
 

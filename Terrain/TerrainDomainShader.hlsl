@@ -30,7 +30,7 @@ PS_INPUT main(HS_CONSTANT_DATA_OUTPUT input, float2 domain : SV_DomainLocation, 
 {
     PS_INPUT output;
 
-    output.position = lerp(lerp(patch[0].position, patch[1].position, domain.x), lerp(patch[2].position, patch[3].position, domain.x), domain.y);
+    output.position = lerp(lerp(patch[0].position, patch[1].position, domain.x), lerp(patch[3].position, patch[2].position, domain.x), domain.y);
     output.position = mul(output.position, worldMatrix);
     output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
