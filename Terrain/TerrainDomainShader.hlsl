@@ -43,8 +43,18 @@ PS_INPUT main(HS_CONSTANT_DATA_OUTPUT input, float3 uvwCoord : SV_DomainLocation
     float3 vertexTangent;
     float3 vertexBinormal;
 
+    float3 position, projection0, projection1, projection2,
+        projectedPosition;
+
+    position = patch[0].position * uvwCoord.x + patch[1].position * uvwCoord.y + patch[2].position * uvwCoord.z;
+    projection0 = position - dot(position - patch[0].position, patch[0].normal) * patch[0].normal;
+    projection1 = position - dot(position - patch[1].position, patch[1].normal) * patch[1].normal;
+    projection2 = position - dot(position - patch[2].position, patch[2].normal) * patch[2].normal;
+    projectedPosition = projection0 * uvwCoord.x + projection1 * uvwCoord.y + projection2 * uvwCoord.z;
+
     // Find new vertex pos
-    vertexPos = patch[0].position * uvwCoord.x + patch[1].position * uvwCoord.y + patch[2].position * uvwCoord.z;
+    vertexPos = lerp(position, projectedPosition, 0.9);
+    //vertexPos = patch[0].position * uvwCoord.x + patch[1].position * uvwCoord.y + patch[2].position * uvwCoord.z;
     vertexTex = patch[0].tex * uvwCoord.x + patch[1].tex * uvwCoord.y + patch[2].tex * uvwCoord.z;
     vertexNormal = patch[0].normal * uvwCoord.x + patch[1].normal * uvwCoord.y + patch[2].normal * uvwCoord.z;
     vertexTangent = patch[0].tangent * uvwCoord.x + patch[1].tangent * uvwCoord.y + patch[2].tangent * uvwCoord.z;
