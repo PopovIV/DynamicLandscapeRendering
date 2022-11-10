@@ -41,8 +41,11 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
         return false;
 
     // Initialize the light object.
+    m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
     m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-    m_Light->SetDirection(-0.5f, -1.0f, -0.5f);
+    m_Light->SetDirection(0.0f, -1.0f, -0.5f);
+    m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
+    m_Light->SetSpecularPower(32.0f);
 
     // Create the position object.
     m_Position = new Position;
@@ -211,8 +214,7 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
 
     // Render the cell buffers using the terrain shader.
     result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, viewMatrix,
-        projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps,
-        m_Light->GetDirection(), m_Light->GetDiffuseColor());
+        projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps, m_Light);
     if (!result)
         return false;
 

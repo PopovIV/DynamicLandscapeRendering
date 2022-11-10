@@ -38,7 +38,7 @@ float calculateEdgeFactor(float4 p0, float4 p1)
     p1 = mul(p1, worldMatrix);
     float edgeLength = distance(p0, p1);
     float4 edgeCenter = (p0 + p1) * 0.5;
-    float viewDistance = distance(edgeCenter, mul(float4(cameraPos, 1.0f), worldMatrix));
+    float viewDistance = distance(edgeCenter, cameraPos);
     return (edgeLength * 1080) / (10.0 * viewDistance);
 }
 

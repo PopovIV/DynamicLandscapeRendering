@@ -16,6 +16,7 @@ struct PS_INPUT
     float3 tangent : TANGENT;
     float3 binormal : BINORMAL;
     float pixelHeight : POSITION;
+    float3 viewDirection: TEXCOORD1;
 };
 
 struct DS_INPUT
@@ -68,6 +69,10 @@ PS_INPUT main(HS_CONSTANT_DATA_OUTPUT input, float3 uvwCoord : SV_DomainLocation
     output.tangent = normalize(mul(vertexTangent, (float3x3)worldMatrix));
     output.binormal = normalize(mul(vertexBinormal, (float3x3)worldMatrix));
     output.pixelHeight = mul(float4(vertexPos, 1.0f), worldMatrix).y;
+
+    float4 worldPosition;
+    worldPosition = mul(float4(vertexPos, 1.0f), worldMatrix);
+    output.viewDirection = normalize(cameraPos - worldPosition.xyz);
 
     return output;
 }
