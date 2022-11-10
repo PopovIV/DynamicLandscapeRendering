@@ -43,7 +43,7 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     // Initialize the light object.
     m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
     m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-    m_Light->SetDirection(0.0f, -1.0f, -0.5f);
+    m_Light->SetDirection(1000.0f, 500.0f, -1.0f);
     m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
     m_Light->SetSpecularPower(32.0f);
 
@@ -53,7 +53,7 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
         return false;
 
     // Set the initial position and rotation.
-    m_Position->SetPosition(512.0f, 30.0f, -10.0f);
+    m_Position->SetPosition(512.0f, 360.0f, -10.0f);
     m_Position->SetRotation(0.0f, 0.0f, 0.0f);
 
     // Create the terrain object.
@@ -68,9 +68,12 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
         return false;
     }
 
+    lightDir = m_Light->GetDirection();
+    
     // Set the UI to display by default.
     m_displayUI = true;
     m_wireFrame = true;
+    m_dayNightCycle = true;
 
     return true;
 
@@ -180,6 +183,10 @@ void Zone::HandleMovementInput(Input* Input, float frameTime) {
     if (Input->IsF2Toggled())
         m_wireFrame = !m_wireFrame;
 
+    // Determine day/night cycle off/on.
+    if (Input->IsF3Toggled())
+        m_dayNightCycle = !m_dayNightCycle;
+
 }
 
 // Render function
@@ -211,6 +218,28 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
     m_Terrain->Render(Direct3D->GetDeviceContext());
     ID3D11ShaderResourceView* textures[] = { TextureManager->GetTexture(0) , TextureManager->GetTexture(2) , TextureManager->GetTexture(4), TextureManager->GetTexture(6) };
     ID3D11ShaderResourceView* normalMaps[] = { TextureManager->GetTexture(1) , TextureManager->GetTexture(3) , TextureManager->GetTexture(5), TextureManager->GetTexture(7) };
+
+
+    // Update our time
+    static float t = 0.0f;
+    static ULONGLONG timeStart = 0;
+    if (m_dayNightCycle) {
+        ULONGLONG timeCur = GetTickCount64();
+        if (timeStart == 0)
+            timeStart = timeCur;
+        t = (timeCur - timeStart) / 1000.0f;
+
+        XMVECTOR vec = XMLoadFloat3(&lightDir);
+        XMVECTOR direction = XMVector3Transform(vec, XMMatrixRotationX(t));
+        XMFLOAT3 fl = XMFLOAT3(1.0f, 1.0f, 1.0f);
+        XMStoreFloat3(&fl, direction);
+        m_Light->SetDirection(fl.x, fl.y, fl.z);
+    }
+    else {
+        t = 0;
+        timeStart = 0;
+        lightDir = m_Light->GetDirection();
+    }
 
     // Render the cell buffers using the terrain shader.
     result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, viewMatrix,

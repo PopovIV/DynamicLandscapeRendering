@@ -43,7 +43,8 @@ private:
     Light* m_Light;
     Position* m_Position;
     Terrain* m_Terrain;
-    bool m_displayUI, m_wireFrame;
+    XMFLOAT3 lightDir;
+    bool m_displayUI, m_wireFrame, m_dayNightCycle;
 };
 
 #endif
