@@ -53,6 +53,13 @@ PS_INPUT main(HS_CONSTANT_DATA_OUTPUT input, float3 uvwCoord : SV_DomainLocation
     projection2 = position - dot(position - patch[2].position, patch[2].normal) * patch[2].normal;
     projectedPosition = projection0 * uvwCoord.x + projection1 * uvwCoord.y + projection2 * uvwCoord.z;
 
+    float3 p1 = patch[1].position - patch[0].position;
+    float3 p2 = patch[2].position - patch[0].position;
+
+    float3 p1crossp2 = float3(p1.y * p2.z - p2.y * p1.z, -(p1.x * p2.z - p2.x * p1.z), p1.x * p2.y - p2.y * p1.x);
+    float area = sqrt(dot(p1crossp2, p1crossp2));
+    float coef = max(int(area / 100), 1);
+
     // Find new vertex pos
     vertexPos = lerp(position, projectedPosition, 0.9);
     //vertexPos = patch[0].position * uvwCoord.x + patch[1].position * uvwCoord.y + patch[2].position * uvwCoord.z;
@@ -63,7 +70,7 @@ PS_INPUT main(HS_CONSTANT_DATA_OUTPUT input, float3 uvwCoord : SV_DomainLocation
     // To new coords
     output.position = mul(float4(vertexPos, 1.0f), worldMatrix);
     output.position = mul(output.position, viewMatrix);
-    output.tex = vertexTex;
+    output.tex = vertexTex * coef;
     output.position = mul(output.position, projectionMatrix);
     output.normal = normalize(mul(vertexNormal, (float3x3)worldMatrix));
     output.tangent = normalize(mul(vertexTangent, (float3x3)worldMatrix));

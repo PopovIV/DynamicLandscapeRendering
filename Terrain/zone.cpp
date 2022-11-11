@@ -1,4 +1,7 @@
 #include "zone.h"
+#include "imgui.h"
+#include "imgui_impl_dx11.h"
+
 Zone::Zone() {
 
     m_UserInterface = nullptr;
@@ -132,6 +135,7 @@ bool Zone::Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager,
     if (!result)
         return false;
 
+
     // Render the graphics.
     result = Render(Direct3D, ShaderManager, TextureManager);
     if (!result)
@@ -257,6 +261,8 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
         if (!result)
             return false;
     }
+
+    ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
     // Present the rendered scene to the screen.
     Direct3D->EndScene();

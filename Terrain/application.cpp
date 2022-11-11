@@ -1,4 +1,8 @@
 #include "application.h"
+#include "imgui.h"
+#include "imgui_impl_dx11.h"
+#include "imgui_impl_win32.h"
+
 
 Application::Application() {
     m_Input = nullptr;
@@ -125,12 +129,23 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
         return false;
     }
 
+    // Setup Platform/Renderer backends
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGui::StyleColorsDark();
+    ImGui_ImplWin32_Init(hwnd);
+    ImGui_ImplDX11_Init(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext());
+
     return true;
 
 }
 
 // Function to clear all stuff that was created in initialize function
 void Application::Shutdown() {
+    ImGui_ImplDX11_Shutdown();
+    ImGui_ImplWin32_Shutdown();
+    ImGui::DestroyContext();
 
     // Release the zone object.
     if (m_Zone) {
@@ -186,9 +201,34 @@ bool Application::Frame()
 {
     bool result;
 
+    // Start the Dear ImGui frame
+    ImGui_ImplDX11_NewFrame();
+    ImGui_ImplWin32_NewFrame();
+    ImGui::NewFrame();
+
     // Update the system stats.
     m_Fps->Frame();
     m_Timer->Frame();
+
+    static bool demoWindow = false;
+    static bool myWindow = true;
+    if (demoWindow)
+        ImGui::ShowDemoWindow(&demoWindow);
+
+    if (myWindow)
+    {
+        ImGui::Begin("Zalupa", &myWindow);
+        
+        if (ImGui::Button("Open demo"))
+            demoWindow = true;
+
+        std::string str = "FPS: ";
+        str += std::to_string(m_Fps->GetFps());
+
+        ImGui::Text(str.c_str());
+
+        ImGui::End();
+    }
 
     // Do the input frame processing.
     result = m_Input->Frame();
@@ -198,6 +238,8 @@ bool Application::Frame()
     // Check if the user pressed escape and wants to exit the application.
     if (m_Input->IsEscapePressed() == true)
         return false;
+
+    ImGui::Render();
 
     // Do the zone frame processing.
     result = m_Zone->Frame(m_Direct3D, m_Input, m_ShaderManager, m_TextureManager, m_Timer->GetTime(), m_Fps->GetFps());

@@ -1,4 +1,5 @@
 #include "system.h"
+#include "imgui_impl_win32.h"
 
 // Function to initialize aplication instanc and window class
 bool System::Initialize() {
@@ -22,6 +23,8 @@ bool System::Initialize() {
     result = m_Application->Initialize(m_hinstance, m_hwnd, screenWidth, screenHeight);
     if (!result)
         return false;
+
+
 
     return true;
 
@@ -89,7 +92,6 @@ bool System::Frame() {
 
 
 LRESULT CALLBACK System::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam) {
-
     return DefWindowProc(hwnd, umsg, wparam, lparam);
 
 }
@@ -168,7 +170,7 @@ void System::InitializeWindows(int& screenWidth, int& screenHeight) {
     SetFocus(m_hwnd);
 
     // Hide the mouse cursor.
-    ShowCursor(false);
+    //ShowCursor(false);
 
 }
 
@@ -176,7 +178,7 @@ void System::InitializeWindows(int& screenWidth, int& screenHeight) {
 void System::ShutdownWindows() {
 
     // Show the mouse cursor.
-    ShowCursor(true);
+    //ShowCursor(true);
 
     // Fix the display settings if leaving full screen mode.
     if (FULL_SCREEN)
@@ -195,8 +197,13 @@ void System::ShutdownWindows() {
 
 }
 
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam) {
+
+    if (ImGui_ImplWin32_WndProcHandler(hwnd, umessage, wparam, lparam))
+        return true;
 
     switch (umessage) {
         // Check if the window is being destroyed.

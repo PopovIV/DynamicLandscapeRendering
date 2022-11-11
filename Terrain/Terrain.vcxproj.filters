@@ -37,6 +37,12 @@
     <Filter Include="Файлы заголовков\Utility">
       <UniqueIdentifier>{fca19904-8ec1-40bf-9efe-0cb3885a9fdb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Файлы заголовков\imgui">
+      <UniqueIdentifier>{32ffb202-4c9b-459d-a7a3-b3bf383778c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\imgui">
+      <UniqueIdentifier>{29c3890d-49fd-42f7-8585-a9eb55e4b6e2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="system.h">
@@ -113,6 +119,21 @@
     </ClInclude>
     <ClInclude Include="stb_image.h">
       <Filter>Файлы заголовков\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui.h">
+      <Filter>Файлы заголовков\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_impl_dx11.h">
+      <Filter>Файлы заголовков\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_impl_win32.h">
+      <Filter>Файлы заголовков\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imconfig.h">
+      <Filter>Файлы заголовков\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="imgui_internal.h">
+      <Filter>Файлы заголовков\imgui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -193,6 +214,27 @@
     </ClCompile>
     <ClCompile Include="std_image.cpp">
       <Filter>Исходные файлы\Utility</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_impl_dx11.cpp">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_impl_win32.cpp">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui.cpp">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_demo.cpp">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_draw.cpp">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_tables.cpp">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="imgui_widgets.cpp">
+      <Filter>Исходные файлы\imgui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
