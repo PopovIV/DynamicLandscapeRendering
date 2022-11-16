@@ -217,7 +217,7 @@ bool Application::Frame()
 
     if (myWindow)
     {
-        ImGui::Begin("Zalupa", &myWindow);
+        ImGui::Begin("ImGui", &myWindow);
         
         if (ImGui::Button("Open demo"))
             demoWindow = true;

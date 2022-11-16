@@ -44,11 +44,11 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
         return false;
 
     // Initialize the light object.
-    m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
+    m_Light->SetAmbientColor(0.8f, 0.8f, 0.8f, 1.0f);
     m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
     m_Light->SetDirection(1000.0f, 500.0f, -1.0f);
     m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
-    m_Light->SetSpecularPower(32.0f);
+    m_Light->SetSpecularPower(300.0f);
 
     // Create the position object.
     m_Position = new Position;
@@ -56,7 +56,7 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
         return false;
 
     // Set the initial position and rotation.
-    m_Position->SetPosition(512.0f, 360.0f, -10.0f);
+    m_Position->SetPosition(512.0f, 84.0f, 10.0f);
     m_Position->SetRotation(0.0f, 0.0f, 0.0f);
 
     // Create the terrain object.

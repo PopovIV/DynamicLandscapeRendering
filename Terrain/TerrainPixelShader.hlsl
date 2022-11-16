@@ -13,8 +13,8 @@ cbuffer LightBuffer
 {
     float4 ambientColor;
     float4 diffuseColor;
-    float3 lightDirection;
     float4 specularColor;
+    float3 lightDirection;
     float specularPower;
 };
 

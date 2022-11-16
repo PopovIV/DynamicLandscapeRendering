@@ -56,7 +56,7 @@ PS_INPUT main(HS_CONSTANT_DATA_OUTPUT input, float3 uvwCoord : SV_DomainLocation
     float3 p1 = patch[1].position - patch[0].position;
     float3 p2 = patch[2].position - patch[0].position;
 
-    float3 p1crossp2 = float3(p1.y * p2.z - p2.y * p1.z, -(p1.x * p2.z - p2.x * p1.z), p1.x * p2.y - p2.y * p1.x);
+    float3 p1crossp2 = float3(p1.y * p2.z - p2.y * p1.z, -(p1.x * p2.z - p2.x * p1.z), p1.x * p2.y - p2.x * p1.y);
     float area = sqrt(dot(p1crossp2, p1crossp2));
     float coef = max(int(area / 100), 1);
 
