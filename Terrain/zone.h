@@ -31,6 +31,10 @@ public:
     // Function to update frame each second
     bool Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager, TextureManager* TextureManager, float frameTime, int fps);
 
+    void GetPosition(float& x, float& y , float& z) { m_Position->GetPosition(x, y, z); };
+    void GetRotation(float& x, float& y, float& z) { m_Position->GetRotation(x, y, z); };
+
+
 private:
     // Function to process all user's input
     void HandleMovementInput(Input* Input, float frameTime);

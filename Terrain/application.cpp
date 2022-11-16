@@ -224,7 +224,27 @@ bool Application::Frame()
 
         std::string str = "FPS: ";
         str += std::to_string(m_Fps->GetFps());
-
+        ImGui::Text(str.c_str());
+        float x, y, z;
+        m_Zone->GetPosition(x, y, z);
+        str = "\nX: ";
+        str += std::to_string(x);
+        ImGui::Text(str.c_str());
+        str = "\nY: ";
+        str += std::to_string(y);
+        ImGui::Text(str.c_str());
+        str = "\nZ: ";
+        str += std::to_string(z);
+        ImGui::Text(str.c_str());
+        m_Zone->GetRotation(x, y, z);
+        str = "\nrX: ";
+        str += std::to_string(x);
+        ImGui::Text(str.c_str());
+        str = "\nrY: ";
+        str += std::to_string(y);
+        ImGui::Text(str.c_str());
+        str = "\nrZ: ";
+        str += std::to_string(z);
         ImGui::Text(str.c_str());
 
         ImGui::End();

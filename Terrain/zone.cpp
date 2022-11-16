@@ -74,7 +74,7 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     lightDir = m_Light->GetDirection();
     
     // Set the UI to display by default.
-    m_displayUI = true;
+    m_displayUI = false;
     m_wireFrame = true;
     m_dayNightCycle = true;
 
