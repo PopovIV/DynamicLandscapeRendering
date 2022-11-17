@@ -53,7 +53,7 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
     ID3D10Blob* pixelShaderBuffer;
     ID3D10Blob* hullShaderBuffer;
     ID3D10Blob* domainShaderBuffer;
-    D3D11_INPUT_ELEMENT_DESC polygonLayout[5];
+    D3D11_INPUT_ELEMENT_DESC polygonLayout[6];
     unsigned int numElements;
     D3D11_BUFFER_DESC matrixBufferDesc;
     D3D11_SAMPLER_DESC samplerDesc;
@@ -180,6 +180,13 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
     polygonLayout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
     polygonLayout[4].InstanceDataStepRate = 0;
 
+    polygonLayout[5].SemanticName = "TEXCOORD";
+    polygonLayout[5].SemanticIndex = 1;
+    polygonLayout[5].Format = DXGI_FORMAT_R32G32_FLOAT;
+    polygonLayout[5].InputSlot = 0;
+    polygonLayout[5].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+    polygonLayout[5].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+    polygonLayout[5].InstanceDataStepRate = 0;
 
     // Get a count of the elements in the layout.
     numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
@@ -378,6 +385,10 @@ bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
     deviceContext->PSSetShaderResources(5, 1, &normalMaps[2]);
     deviceContext->PSSetShaderResources(6, 1, &textures[3]);
     deviceContext->PSSetShaderResources(7, 1, &normalMaps[3]);
+    deviceContext->PSSetShaderResources(8, 1, &textures[4]);
+    deviceContext->PSSetShaderResources(9, 1, &textures[5]);
+    deviceContext->PSSetShaderResources(10, 1, &textures[5]);
+    deviceContext->PSSetShaderResources(11, 1, &normalMaps[4]);
 
     // Lock the light constant buffer so it can be written to.
     result = deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);

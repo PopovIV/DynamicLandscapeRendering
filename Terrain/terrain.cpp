@@ -241,6 +241,7 @@ bool Terrain::InitializeBuffers(ID3D11Device* device) {
         vertices[i].normal = XMFLOAT3(m_terrainModel[i].nx, m_terrainModel[i].ny, m_terrainModel[i].nz);
         vertices[i].tangent = XMFLOAT3(m_terrainModel[i].tx, m_terrainModel[i].ty, m_terrainModel[i].tz);
         vertices[i].binormal = XMFLOAT3(m_terrainModel[i].bx, m_terrainModel[i].by, m_terrainModel[i].bz);
+        vertices[i].texture2 = XMFLOAT2(m_terrainModel[i].tu2, m_terrainModel[i].tv2);
         indices[i] = i;
     }
 
@@ -347,6 +348,7 @@ void Terrain::SetTerrainCoordinates() {
 bool Terrain::BuildTerrainModel() {
 
     int i, j, index, index1, index2, index3, index4;
+    float incrementSize, tu2Left, tu2Right, tv2Top, tv2Bottom;
 
     // Calculate the number of vertices in the 3D terrain model.
     m_vertexCount = (m_terrainHeight - 1) * (m_terrainWidth - 1) * 6;
@@ -355,6 +357,15 @@ bool Terrain::BuildTerrainModel() {
     m_terrainModel = new ModelType[m_vertexCount];
     if (!m_terrainModel)
         return false;
+
+    // Setup the increment size for the second set of textures (alpha map).
+    incrementSize = 1.0f / (float)(m_terrainWidth - 1);
+
+    // Initialize the texture increments.
+    tu2Left = 0.0f;
+    tu2Right = incrementSize;
+    tv2Bottom = 1.0f;
+    tv2Top = 1.0f - incrementSize;
 
     // Initialize the index into the height map array.
     index = 0;
@@ -379,6 +390,8 @@ bool Terrain::BuildTerrainModel() {
             m_terrainModel[index].nx = m_heightMap[index1].nx;
             m_terrainModel[index].ny = m_heightMap[index1].ny;
             m_terrainModel[index].nz = m_heightMap[index1].nz;
+            m_terrainModel[index].tu2 = tu2Left;
+            m_terrainModel[index].tv2 = tv2Top;
             index++;
 
             // Triangle 1 - Upper right.
@@ -390,6 +403,8 @@ bool Terrain::BuildTerrainModel() {
             m_terrainModel[index].nx = m_heightMap[index2].nx;
             m_terrainModel[index].ny = m_heightMap[index2].ny;
             m_terrainModel[index].nz = m_heightMap[index2].nz;
+            m_terrainModel[index].tu2 = tu2Right;
+            m_terrainModel[index].tv2 = tv2Top;
             index++;
 
             // Triangle 1 - Bottom left.
@@ -401,6 +416,8 @@ bool Terrain::BuildTerrainModel() {
             m_terrainModel[index].nx = m_heightMap[index3].nx;
             m_terrainModel[index].ny = m_heightMap[index3].ny;
             m_terrainModel[index].nz = m_heightMap[index3].nz;
+            m_terrainModel[index].tu2 = tu2Left;
+            m_terrainModel[index].tv2 = tv2Bottom;
             index++;
 
             // Triangle 2 - Bottom left.
@@ -412,6 +429,8 @@ bool Terrain::BuildTerrainModel() {
             m_terrainModel[index].nx = m_heightMap[index3].nx;
             m_terrainModel[index].ny = m_heightMap[index3].ny;
             m_terrainModel[index].nz = m_heightMap[index3].nz;
+            m_terrainModel[index].tu2 = tu2Left;
+            m_terrainModel[index].tv2 = tv2Bottom;
             index++;
 
             // Triangle 2 - Upper right.
@@ -424,6 +443,8 @@ bool Terrain::BuildTerrainModel() {
             m_terrainModel[index].ny = m_heightMap[index2].ny;
             m_terrainModel[index].nz = m_heightMap[index2].nz;
             m_terrainModel[index].nz = m_heightMap[index2].nz;
+            m_terrainModel[index].tu2 = tu2Right;
+            m_terrainModel[index].tv2 = tv2Top;
             index++;
 
             // Triangle 2 - Bottom right.
@@ -435,8 +456,21 @@ bool Terrain::BuildTerrainModel() {
             m_terrainModel[index].nx = m_heightMap[index4].nx;
             m_terrainModel[index].ny = m_heightMap[index4].ny;
             m_terrainModel[index].nz = m_heightMap[index4].nz;
+            m_terrainModel[index].tu2 = tu2Right;
+            m_terrainModel[index].tv2 = tv2Bottom;
             index++;
+
+            // Increment the tu texture coords for the alpha map.
+            tu2Left += incrementSize;
+            tu2Right += incrementSize;
         }
+        // Reset the tu texture coordinate increments for the alpha map.
+        tu2Left = 0.0f;
+        tu2Right = incrementSize;
+
+        // Increment the tv texture coords for the alpha map.
+        tv2Top -= incrementSize;
+        tv2Bottom -= incrementSize;
     }
 
     return true;

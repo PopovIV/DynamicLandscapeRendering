@@ -46,7 +46,7 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     // Initialize the light object.
     m_Light->SetAmbientColor(0.8f, 0.8f, 0.8f, 1.0f);
     m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-    m_Light->SetDirection(1000.0f, 500.0f, -1.0f);
+    m_Light->SetDirection(640.0f, 90.0f, -1.0f);
     m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
     m_Light->SetSpecularPower(300.0f);
 
@@ -220,8 +220,8 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
     float posX, posY, posZ;
     m_Position->GetPosition(posX, posY, posZ);
     m_Terrain->Render(Direct3D->GetDeviceContext());
-    ID3D11ShaderResourceView* textures[] = { TextureManager->GetTexture(0) , TextureManager->GetTexture(2) , TextureManager->GetTexture(4), TextureManager->GetTexture(6) };
-    ID3D11ShaderResourceView* normalMaps[] = { TextureManager->GetTexture(1) , TextureManager->GetTexture(3) , TextureManager->GetTexture(5), TextureManager->GetTexture(7) };
+    ID3D11ShaderResourceView* textures[] = { TextureManager->GetTexture(0) , TextureManager->GetTexture(2) , TextureManager->GetTexture(4), TextureManager->GetTexture(6), TextureManager->GetTexture(8), TextureManager->GetTexture(9), TextureManager->GetTexture(10), TextureManager->GetTexture(11) };
+    ID3D11ShaderResourceView* normalMaps[] = { TextureManager->GetTexture(1) , TextureManager->GetTexture(3) , TextureManager->GetTexture(5), TextureManager->GetTexture(7), TextureManager->GetTexture(12) };
 
 
     // Update our time
@@ -234,7 +234,7 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
         t = (timeCur - timeStart) / 1000.0f;
 
         XMVECTOR vec = XMLoadFloat3(&lightDir);
-        XMVECTOR direction = XMVector3Transform(vec, XMMatrixRotationX(t));
+        XMVECTOR direction = XMVector3Transform(vec, XMMatrixRotationZ(t));
         XMFLOAT3 fl = XMFLOAT3(1.0f, 1.0f, 1.0f);
         XMStoreFloat3(&fl, direction);
         m_Light->SetDirection(fl.x, fl.y, fl.z);

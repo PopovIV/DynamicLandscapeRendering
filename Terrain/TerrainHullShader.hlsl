@@ -15,6 +15,7 @@ struct HS_INPUT
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
     float3 binormal : BINORMAL;
+    float2 tex2 : TEXCOORD1;
 };
 
 struct DS_INPUT
@@ -24,6 +25,7 @@ struct DS_INPUT
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
     float3 binormal : BINORMAL;
+    float2 tex2 : TEXCOORD1;
 };
 
 struct HS_CONSTANT_DATA_OUTPUT
@@ -77,6 +79,7 @@ DS_INPUT main(InputPatch<HS_INPUT, NUM_CONTROL_POINTS> patch, uint patchID : SV_
     output.tangent = patch[patchID].tangent;
     output.binormal = patch[patchID].binormal;
     output.tex = patch[patchID].tex;
+    output.tex2 = patch[patchID].tex2;
 
     return output;
 }

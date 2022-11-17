@@ -61,7 +61,7 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
         return false;
 
     // Initialize the texture manager object.
-    result = m_TextureManager->Initialize(15);
+    result = m_TextureManager->Initialize(25);
     if (!result) {
         MessageBox(hwnd, L"Could not initialize the texture manager object.", L"Error", MB_OK);
         return false;
@@ -94,6 +94,18 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
     if (!result)
         return false;
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/snow_normal.dds", 7, Texture::DDS);
+    if (!result)
+        return false;
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/grass_diffuse2.dds", 8, Texture::DDS);
+    if (!result)
+        return false;
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/rock_diffuse2.dds", 9, Texture::DDS);
+    if (!result)
+        return false;
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/slope_diffuse2.dds", 10, Texture::DDS);
+    if (!result)
+        return false;
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/myHeightMap.dds", 11, Texture::DDS);
     if (!result)
         return false;
 

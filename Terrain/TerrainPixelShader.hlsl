@@ -8,6 +8,10 @@ Texture2D slopeDiffuseTexture : register(t4);
 Texture2D slopeNormalTexture : register(t5);
 Texture2D snowDiffuseTexture : register(t6);
 Texture2D snowNormalTexture : register(t7);
+Texture2D grass2 : register(t8);
+Texture2D rock2 : register(t9);
+Texture2D slope2 : register(t10);
+Texture2D noise : register(t11);
 
 cbuffer LightBuffer
 {
@@ -25,8 +29,9 @@ struct PS_INPUT
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
     float3 binormal : BINORMAL;
+    float2 tex2 : TEXCOORD1;
     float pixelHeight: POSITION;
-    float3 viewDirection: TEXCOORD1;
+    float3 viewDirection: TEXCOORD2;
 };
 
 float4 blend(float4 texture1, float a1, float4 texture2, float a2)
@@ -48,10 +53,10 @@ float4 main(PS_INPUT input) : SV_TARGET
     float4 bumpMap;
     float3 bumpNormal;
     float lightIntensity;
-    float4 grassTexture;
-    float4 rockTexture;
-    float4 slopeTexture;
-    float4 snowTexture;
+    float4 grassTexture, grassTexture2;
+    float4 rockTexture, rockTexture2;
+    float4 slopeTexture, slopeTexture2;
+    float4 snowTexture, snowTexture2;
     float blendAmount;
     float4 color;
     float4 diffuse;
@@ -62,6 +67,9 @@ float4 main(PS_INPUT input) : SV_TARGET
     slope = 1.0f - input.normal.y;
     // Invert the light direction for calculations.
     lightDir = -lightDirection;
+
+    // Get data from height map
+    float alpha = noise.Sample(SampleType, input.tex2);
 
     // Setup the first material.
     textureColor = grassDiffuseTexture.Sample(SampleType, input.tex);
@@ -75,6 +83,10 @@ float4 main(PS_INPUT input) : SV_TARGET
     lightIntensity = ambientColor + diffuse + specular;
     grassTexture = saturate(textureColor * lightIntensity);
 
+    //
+    textureColor = grass2.Sample(SampleType, input.tex);
+    grassTexture2 = saturate(textureColor * lightIntensity);
+
     // Setup the second material.
     textureColor = rockDiffuseTexture.Sample(SampleType, input.tex);
     bumpMap = rockNormalTexture.Sample(SampleType, input.tex);
@@ -86,6 +98,10 @@ float4 main(PS_INPUT input) : SV_TARGET
     specular = pow(saturate(dot(reflect, input.viewDirection)), specularPower);
     lightIntensity = ambientColor + diffuse + specular;
     rockTexture = saturate(textureColor * lightIntensity);
+
+    //
+    textureColor = rock2.Sample(SampleType, input.tex);
+    rockTexture2 = saturate(textureColor * lightIntensity);
 
     // Setup the third material.
     textureColor = slopeDiffuseTexture.Sample(SampleType, input.tex);
@@ -99,6 +115,10 @@ float4 main(PS_INPUT input) : SV_TARGET
     lightIntensity = ambientColor + diffuse + specular;
     slopeTexture = saturate(textureColor * lightIntensity);
 
+    //
+    textureColor = slope2.Sample(SampleType, input.tex);
+    slopeTexture2 = saturate(textureColor * lightIntensity);
+
     // Setup the third material.
     textureColor = snowDiffuseTexture.Sample(SampleType, input.tex);
     bumpMap = snowNormalTexture.Sample(SampleType, input.tex);
@@ -107,13 +127,17 @@ float4 main(PS_INPUT input) : SV_TARGET
     bumpNormal = normalize(bumpNormal);
     diffuse = saturate(dot(bumpNormal, lightDir));
     reflect = normalize(2 * diffuse * bumpNormal - lightDir);
-    specular = pow(saturate(dot(reflect, input.viewDirection)), specularPower);
-    lightIntensity = ambientColor + diffuse + specular;
+    specular = pow(saturate(dot(reflect, input.viewDirection)), 100000.0f);
+    lightIntensity = float3(0.3f, 0.3f, 0.3f) + diffuse + specular;
     snowTexture = saturate(textureColor * lightIntensity);
 
     // Determine which material to use based on slope.
     float4 baseColor;
 
+    //grassTexture = blend(grassTexture2, 1 - alpha.r, grassTexture, alpha.r);
+    grassTexture = lerp(grassTexture2, grassTexture, alpha.r);
+    rockTexture = lerp(rockTexture, rockTexture2, alpha.r);
+    slopeTexture = lerp(slopeTexture2, slopeTexture, alpha.r);
     if (input.pixelHeight < 100.0f)
     {
         baseColor = grassTexture;

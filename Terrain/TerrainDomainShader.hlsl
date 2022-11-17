@@ -15,8 +15,9 @@ struct PS_INPUT
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
     float3 binormal : BINORMAL;
+    float2 tex2 : TEXCOORD1;
     float pixelHeight : POSITION;
-    float3 viewDirection: TEXCOORD1;
+    float3 viewDirection: TEXCOORD2;
 };
 
 struct DS_INPUT
@@ -26,6 +27,7 @@ struct DS_INPUT
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
     float3 binormal : BINORMAL;
+    float2 tex2 : TEXCOORD1;
 };
 
 struct HS_CONSTANT_DATA_OUTPUT
@@ -62,7 +64,6 @@ PS_INPUT main(HS_CONSTANT_DATA_OUTPUT input, float3 uvwCoord : SV_DomainLocation
 
     // Find new vertex pos
     vertexPos = lerp(position, projectedPosition, 0.9);
-    //vertexPos = patch[0].position * uvwCoord.x + patch[1].position * uvwCoord.y + patch[2].position * uvwCoord.z;
     vertexTex = patch[0].tex * uvwCoord.x + patch[1].tex * uvwCoord.y + patch[2].tex * uvwCoord.z;
     vertexNormal = patch[0].normal * uvwCoord.x + patch[1].normal * uvwCoord.y + patch[2].normal * uvwCoord.z;
     vertexTangent = patch[0].tangent * uvwCoord.x + patch[1].tangent * uvwCoord.y + patch[2].tangent * uvwCoord.z;
@@ -76,6 +77,7 @@ PS_INPUT main(HS_CONSTANT_DATA_OUTPUT input, float3 uvwCoord : SV_DomainLocation
     output.tangent = normalize(mul(vertexTangent, (float3x3)worldMatrix));
     output.binormal = normalize(mul(vertexBinormal, (float3x3)worldMatrix));
     output.pixelHeight = mul(float4(vertexPos, 1.0f), worldMatrix).y;
+    output.tex2 = patch[0].tex2 * uvwCoord.x + patch[1].tex2 * uvwCoord.y + patch[2].tex2 * uvwCoord.z;
 
     float4 worldPosition;
     worldPosition = mul(float4(vertexPos, 1.0f), worldMatrix);
