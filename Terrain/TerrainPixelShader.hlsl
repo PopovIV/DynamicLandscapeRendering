@@ -128,19 +128,18 @@ float4 main(PS_INPUT input) : SV_TARGET
 
     // Determine which material to use based on slope.
     float4 baseColor;
-
     grassTexture = lerp(grassTexture, grassTexture2, alpha.r);
-    rockTexture = lerp(rockTexture2, rockTexture, alpha.r);
-    if (input.pixelHeight < 100.0f)
+    rockTexture = lerp(rockTexture, rockTexture2, alpha.r);
+    if (input.pixelHeight < 200.0f)
     {
         baseColor = grassTexture;
     }
-    else if (input.pixelHeight >= 100.0f && input.pixelHeight < 250.0f)
+    else if (input.pixelHeight >= 200.0f && input.pixelHeight < 300.0f)
     {
-        blendAmount = (250.f - input.pixelHeight) / (250.0f - 100.0f);
+        blendAmount = (300.f - input.pixelHeight) / (300.0f - 200.0f);
         baseColor = blend(snowTexture, 1 - blendAmount, grassTexture, blendAmount);
     }
-    else if (input.pixelHeight > 250.0f)
+    else if (input.pixelHeight > 300.0f)
     {
         baseColor = snowTexture;
     }
