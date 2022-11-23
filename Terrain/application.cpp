@@ -220,6 +220,8 @@ bool Application::Frame()
     m_Timer->Frame();
 
     static bool demoWindow = false;
+    static bool wireframe = false;
+    static bool dayNight = false;
     static bool myWindow = true;
     if (demoWindow)
         ImGui::ShowDemoWindow(&demoWindow);
@@ -228,8 +230,17 @@ bool Application::Frame()
     {
         ImGui::Begin("ImGui", &myWindow);
         
+        dayNight = m_Zone->GetDayNight();
+        wireframe = m_Zone->GetWireFrame();
+
         if (ImGui::Button("Open demo"))
             demoWindow = true;
+
+        if (ImGui::Checkbox("WireFrame Mode", &wireframe))
+            m_Zone->ToggleWireFrame();
+
+        if (ImGui::Checkbox("DayNight Cycle", &dayNight))
+            m_Zone->ToggleDayNight();
 
         std::string str = "FPS: ";
         str += std::to_string(m_Fps->GetFps());

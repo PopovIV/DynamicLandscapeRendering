@@ -33,7 +33,10 @@ public:
 
     void GetPosition(float& x, float& y , float& z) { m_Position->GetPosition(x, y, z); };
     void GetRotation(float& x, float& y, float& z) { m_Position->GetRotation(x, y, z); };
-
+    void ToggleWireFrame() { m_wireFrame = !m_wireFrame; };
+    void ToggleDayNight() { m_dayNightCycle = !m_dayNightCycle; };
+    bool GetWireFrame() { return m_wireFrame; };
+    bool GetDayNight() { return m_dayNightCycle; };
 
 private:
     // Function to process all user's input
