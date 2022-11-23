@@ -46,7 +46,7 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     // Initialize the light object.
     m_Light->SetAmbientColor(0.8f, 0.8f, 0.8f, 1.0f);
     m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-    m_Light->SetDirection(640.0f, 90.0f, -1.0f);
+    m_Light->SetDirection(90.0f, 90.0f, -10.0f);
     m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
     m_Light->SetSpecularPower(300.0f);
 
@@ -56,7 +56,7 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
         return false;
 
     // Set the initial position and rotation.
-    m_Position->SetPosition(512.0f, 84.0f, 10.0f);
+    m_Position->SetPosition(512.0f, 200.0f, 250.0f);
     m_Position->SetRotation(0.0f, 0.0f, 0.0f);
 
     // Create the terrain object.
@@ -75,9 +75,8 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     
     // Set the UI to display by default.
     m_displayUI = false;
-    m_wireFrame = true;
-    m_dayNightCycle = true;
-
+    m_wireFrame = false;
+    m_dayNightCycle = false;
     return true;
 
 }
@@ -220,8 +219,8 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
     float posX, posY, posZ;
     m_Position->GetPosition(posX, posY, posZ);
     m_Terrain->Render(Direct3D->GetDeviceContext());
-    ID3D11ShaderResourceView* textures[] = { TextureManager->GetTexture(0) , TextureManager->GetTexture(2) , TextureManager->GetTexture(4), TextureManager->GetTexture(6), TextureManager->GetTexture(8), TextureManager->GetTexture(9), TextureManager->GetTexture(10), TextureManager->GetTexture(11) };
-    ID3D11ShaderResourceView* normalMaps[] = { TextureManager->GetTexture(1) , TextureManager->GetTexture(3) , TextureManager->GetTexture(5), TextureManager->GetTexture(7), TextureManager->GetTexture(12) };
+    ID3D11ShaderResourceView* textures[] = { TextureManager->GetTexture(0) , TextureManager->GetTexture(2) , TextureManager->GetTexture(4), TextureManager->GetTexture(6), TextureManager->GetTexture(8), TextureManager->GetTexture(9)};
+    ID3D11ShaderResourceView* normalMaps[] = { TextureManager->GetTexture(1) , TextureManager->GetTexture(3) , TextureManager->GetTexture(5), TextureManager->GetTexture(7), TextureManager->GetTexture(10) };
 
 
     // Update our time
