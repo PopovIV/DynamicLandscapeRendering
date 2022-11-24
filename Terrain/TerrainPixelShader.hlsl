@@ -24,6 +24,7 @@ cbuffer LightBuffer
 struct PS_INPUT
 {
     float4 position : SV_POSITION;
+    float4 worldPosition : WORLD;
     float2 tex : TEXCOORD0;
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
@@ -43,6 +44,19 @@ float4 blend(float4 texture1, float a1, float4 texture2, float a2)
 
     return float4((texture1.rgb * b1 + texture2.rgb * b2) / (b1 + b2), 1.0f);
 }
+
+float4 triplanar_sample(Texture2D tex, float3 pos, float3 N) {
+    float tighten = 0.4679f;
+    float3 blending = saturate(abs(N) - tighten);
+    float b = blending.x + blending.y + blending.z;
+    blending /= float3(b, b, b);;
+    float scale = 1.0f / 1000.0f;
+    float4 x = tex.Sample(SampleType, pos.xy * scale);
+    float4 y = tex.Sample(SampleType, pos.xz * scale);
+    float4 z = tex.Sample(SampleType, pos.yz * scale);
+    return x * blending.x + y * blending.y + z * blending.z;
+}
+
 
 float4 main(PS_INPUT input) : SV_TARGET
 {
@@ -71,8 +85,10 @@ float4 main(PS_INPUT input) : SV_TARGET
     float alpha = noise.Sample(SampleType, input.tex2);
 
     // Setup the first material.
-    textureColor = grassDiffuseTexture.Sample(SampleType, input.tex);
-    bumpMap = grassNormalTexture.Sample(SampleType, input.tex);
+    textureColor = triplanar_sample(grassDiffuseTexture, input.worldPosition.xyz, input.normal);
+    bumpMap = triplanar_sample(grassNormalTexture, input.worldPosition.xyz, input.normal);
+    //textureColor = grassDiffuseTexture.Sample(SampleType, input.tex);
+    //bumpMap = grassNormalTexture.Sample(SampleType, input.tex);
     bumpMap = (bumpMap * 2.0f) - 1.0f;
     bumpNormal = (bumpMap.x * input.tangent) + (bumpMap.y * input.binormal) + (bumpMap.z * input.normal);
     bumpNormal = normalize(bumpNormal);
@@ -83,12 +99,15 @@ float4 main(PS_INPUT input) : SV_TARGET
     grassTexture = saturate(textureColor * lightIntensity);
 
     //
-    textureColor = grass2.Sample(SampleType, input.tex);
+    textureColor = triplanar_sample(grass2, input.worldPosition.xyz, input.normal);
+    //textureColor = grass2.Sample(SampleType, input.tex);
     grassTexture2 = saturate(textureColor * lightIntensity);
 
     // Setup the second material.
-    textureColor = rockDiffuseTexture.Sample(SampleType, input.tex);
-    bumpMap = rockNormalTexture.Sample(SampleType, input.tex);
+    textureColor = triplanar_sample(rockDiffuseTexture, input.worldPosition.xyz, input.normal);
+    bumpMap = triplanar_sample(rockNormalTexture, input.worldPosition.xyz, input.normal);
+    //textureColor = rockDiffuseTexture.Sample(SampleType, input.tex);
+    //bumpMap = rockNormalTexture.Sample(SampleType, input.tex);
     bumpMap = (bumpMap * 2.0f) - 1.0f;
     bumpNormal = (bumpMap.x * input.tangent) + (bumpMap.y * input.binormal) + (bumpMap.z * input.normal);
     bumpNormal = normalize(bumpNormal);
@@ -99,12 +118,15 @@ float4 main(PS_INPUT input) : SV_TARGET
     rockTexture = saturate(textureColor * lightIntensity);
 
     //
-    textureColor = rock2.Sample(SampleType, input.tex);
+    textureColor = triplanar_sample(rock2, input.worldPosition.xyz, input.normal);
+    //textureColor = rock2.Sample(SampleType, input.tex);
     rockTexture2 = saturate(textureColor * lightIntensity);
 
     // Setup the third material.
-    textureColor = slopeDiffuseTexture.Sample(SampleType, input.tex);
-    bumpMap = slopeNormalTexture.Sample(SampleType, input.tex);
+    textureColor = triplanar_sample(slopeDiffuseTexture, input.worldPosition.xyz, input.normal);
+    bumpMap = triplanar_sample(slopeNormalTexture, input.worldPosition.xyz, input.normal);
+    //textureColor = slopeDiffuseTexture.Sample(SampleType, input.tex);
+    //bumpMap = slopeNormalTexture.Sample(SampleType, input.tex);
     bumpMap = (bumpMap * 2.0f) - 1.0f;
     bumpNormal = (bumpMap.x * input.tangent) + (bumpMap.y * input.binormal) + (bumpMap.z * input.normal);
     bumpNormal = normalize(bumpNormal);
@@ -115,8 +137,10 @@ float4 main(PS_INPUT input) : SV_TARGET
     slopeTexture = saturate(textureColor * lightIntensity);
 
     // Setup the third material.
-    textureColor = snowDiffuseTexture.Sample(SampleType, input.tex);
-    bumpMap = snowNormalTexture.Sample(SampleType, input.tex);
+    textureColor = triplanar_sample(snowDiffuseTexture, input.worldPosition.xyz, input.normal);
+    bumpMap = triplanar_sample(snowNormalTexture, input.worldPosition.xyz, input.normal);
+    //textureColor = snowDiffuseTexture.Sample(SampleType, input.tex);
+    //bumpMap = snowNormalTexture.Sample(SampleType, input.tex);
     bumpMap = (bumpMap * 2.0f) - 1.0f;
     bumpNormal = (bumpMap.x * input.tangent) + (bumpMap.y * input.binormal) + (bumpMap.z * input.normal);
     bumpNormal = normalize(bumpNormal);
