@@ -12,13 +12,21 @@ Texture2D grass2 : register(t8);
 Texture2D rock2 : register(t9);
 Texture2D noise : register(t10);
 
-cbuffer LightBuffer
+cbuffer LightBuffer : register(b0)
 {
     float4 ambientColor;
     float4 diffuseColor;
     float4 specularColor;
     float3 lightDirection;
     float specularPower;
+};
+
+cbuffer scaleBuffer : register(b1)
+{
+    float grassScale;
+    float rockScale;
+    float slopeScale;
+    float snowScale;
 };
 
 struct PS_INPUT
@@ -50,7 +58,7 @@ float4 triplanar_sampleGrass(Texture2D tex, float3 pos, float3 N) {
     float3 blending = saturate(abs(N) - tighten);
     float b = blending.x + blending.y + blending.z;
     blending /= float3(b, b, b);;
-    float scale = 1 / (4.0f);
+    float scale = 1 / grassScale;
     float4 x = tex.Sample(SampleType, pos.xy * scale);
     float4 y = tex.Sample(SampleType, pos.xz * scale);
     float4 z = tex.Sample(SampleType, pos.zy * scale);
@@ -62,7 +70,7 @@ float4 triplanar_sampleRock(Texture2D tex, float3 pos, float3 N) {
     float3 blending = saturate(abs(N) - tighten);
     float b = blending.x + blending.y + blending.z;
     blending /= float3(b, b, b);;
-    float scale = 1.0f / 4.0f;
+    float scale = 1.0f / rockScale;
     float4 x = tex.Sample(SampleType, pos.xy * scale);
     float4 y = tex.Sample(SampleType, pos.xz * scale);
     float4 z = tex.Sample(SampleType, pos.yz * scale);
@@ -74,7 +82,7 @@ float4 triplanar_sampleSlope(Texture2D tex, float3 pos, float3 N) {
     float3 blending = saturate(abs(N) - tighten);
     float b = blending.x + blending.y + blending.z;
     blending /= float3(b, b, b);;
-    float scale = 1.0f / 4.0f;
+    float scale = 1.0f / slopeScale;
     float4 x = tex.Sample(SampleType, pos.xy * scale);
     float4 y = tex.Sample(SampleType, pos.xz * scale);
     float4 z = tex.Sample(SampleType, pos.yz * scale);
@@ -86,7 +94,7 @@ float4 triplanar_sampleSnow(Texture2D tex, float3 pos, float3 N) {
     float3 blending = saturate(abs(N) - tighten);
     float b = blending.x + blending.y + blending.z;
     blending /= float3(b, b, b);;
-    float scale = 1.0f / 4.0f;
+    float scale = 1.0f / snowScale;
     float4 x = tex.Sample(SampleType, pos.xy * scale);
     float4 y = tex.Sample(SampleType, pos.xz * scale);
     float4 z = tex.Sample(SampleType, pos.yz * scale);

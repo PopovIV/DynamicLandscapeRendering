@@ -28,12 +28,12 @@ bool TerrainShader::Initialize(ID3D11Device* device, HWND hwnd) {
 }
 
 // Render function
-bool TerrainShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], Light* light) {
+bool TerrainShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], Light* light, XMFLOAT4 scales) {
 
     bool result;
 
     // Set the shader parameters that it will use for rendering.
-    result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, cameraPos, textures, normalMaps, light);
+    result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, cameraPos, textures, normalMaps, light, scales);
     if (!result)
         return false;
 
@@ -58,6 +58,7 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
     D3D11_BUFFER_DESC matrixBufferDesc;
     D3D11_SAMPLER_DESC samplerDesc;
     D3D11_BUFFER_DESC lightBufferDesc;
+    D3D11_BUFFER_DESC scaleBufferDesc;
 
     // Initialize the pointers this function will use to null.
     errorMessage = nullptr;
@@ -218,9 +219,9 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
 
     // Create a texture sampler state description.
     samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_MIRROR;
-    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_MIRROR;
-    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_MIRROR;
+    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
     samplerDesc.MipLODBias = 0.0f;
     samplerDesc.MaxAnisotropy = 1;
     samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
@@ -249,6 +250,19 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
     if (FAILED(result))
         return false;
 
+    // Setup the description of the scale dynamic constant buffer that is in the pixel shader.
+    scaleBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+    scaleBufferDesc.ByteWidth = sizeof(ScaleBufferType);
+    scaleBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+    scaleBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+    scaleBufferDesc.MiscFlags = 0;
+    scaleBufferDesc.StructureByteStride = 0;
+
+    // Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
+    result = device->CreateBuffer(&scaleBufferDesc, NULL, &m_scaleBuffer);
+    if (FAILED(result))
+        return false;
+
     return true;
 
 }
@@ -260,6 +274,12 @@ void TerrainShader::ShutdownShader() {
     if (m_lightBuffer) {
         m_lightBuffer->Release();
         m_lightBuffer = nullptr;
+    }
+
+    // Release the scale constant buffer.
+    if (m_scaleBuffer) {
+        m_scaleBuffer->Release();
+        m_scaleBuffer = nullptr;
     }
 
     // Release the sampler state.
@@ -339,13 +359,14 @@ void TerrainShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd
 }
 
 // Function to fill shader buffers and params
-bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], Light* light) {
+bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], Light* light, XMFLOAT4 scales) {
 
     HRESULT result;
     D3D11_MAPPED_SUBRESOURCE mappedResource;
     MatrixBufferType* dataPtr;
     unsigned int bufferNumber;
     LightBufferType* dataPtr2;
+    ScaleBufferType* dataPtr3;
 
     // Transpose the matrices to prepare them for the shader.
     worldMatrix = XMMatrixTranspose(worldMatrix);
@@ -407,11 +428,29 @@ bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
     // Unlock the light constant buffer.
     deviceContext->Unmap(m_lightBuffer, 0);
 
+    // Lock the light constant buffer so it can be written to.
+    result = deviceContext->Map(m_scaleBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    if (FAILED(result))
+        return false;
+
+    // Get a pointer to the data in the light constant buffer.
+    dataPtr3 = (ScaleBufferType*)mappedResource.pData;
+
+    // Copy the lighting variables into the constant buffer.
+    dataPtr3->grassScale = scales.x;
+    dataPtr3->rockScale = scales.y;
+    dataPtr3->slopeScale = scales.z;
+    dataPtr3->snowScale = scales.w;
+
+    // Unlock the light constant buffer.
+    deviceContext->Unmap(m_scaleBuffer, 0);
+
     // Set the position of the light constant buffer in the pixel shader.
     bufferNumber = 0;
 
     // Finally set the light constant buffer in the pixel shader with the updated values.
-    deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_lightBuffer);
+    deviceContext->PSSetConstantBuffers(bufferNumber++, 1, &m_lightBuffer);
+    deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_scaleBuffer);
 
     return true;
 

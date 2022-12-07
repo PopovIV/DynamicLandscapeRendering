@@ -138,6 +138,8 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
         return false;
     }
 
+    scales = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
+
     // Setup Platform/Renderer backends
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -223,6 +225,10 @@ bool Application::Frame()
     static bool wireframe = false;
     static bool dayNight = false;
     static bool myWindow = true;
+    static int x = 1;
+    static int y = 1;
+    static int z = 1;
+    static int w = 1;
     if (demoWindow)
         ImGui::ShowDemoWindow(&demoWindow);
 
@@ -241,6 +247,16 @@ bool Application::Frame()
 
         if (ImGui::Checkbox("DayNight Cycle", &dayNight))
             m_Zone->ToggleDayNight();
+
+        
+        ImGui::SliderInt("Grass scales", &x, 1, 16, "%d", 0);
+        scales.x = x;
+        ImGui::SliderInt("Rock scales", &y, 1, 16, "%d", 0);
+        scales.y = y;
+        ImGui::SliderInt("Slope scales", &z, 1, 16, "%d", 0);
+        scales.z = z;
+        ImGui::SliderInt("Snow scales", &w, 1, 16, "%d", 0);
+        scales.w = w;
 
         std::string str = "FPS: ";
         str += std::to_string(m_Fps->GetFps());
@@ -282,7 +298,7 @@ bool Application::Frame()
     ImGui::Render();
 
     // Do the zone frame processing.
-    result = m_Zone->Frame(m_Direct3D, m_Input, m_ShaderManager, m_TextureManager, m_Timer->GetTime(), m_Fps->GetFps());
+    result = m_Zone->Frame(m_Direct3D, m_Input, m_ShaderManager, m_TextureManager, m_Timer->GetTime(), m_Fps->GetFps(), scales);
     if (!result)
         return false;
 

@@ -41,6 +41,7 @@ private:
     Timer* m_Timer;
     Fps* m_Fps;
     Zone* m_Zone;
+    XMFLOAT4 scales;
 };
 
 #endif
