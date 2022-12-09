@@ -210,7 +210,7 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
     Direct3D->GetOrthoMatrix(orthoMatrix);
 
     // Clear the buffers to begin the scene.
-    Direct3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
+    Direct3D->BeginScene(0.30f, 0.59f, 0.71f, 1.0f);
 
     // Determine if the terrain should be rendered in wireframe or not.
     if (m_wireFrame)
@@ -221,7 +221,7 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
     m_Position->GetPosition(posX, posY, posZ);
     m_Terrain->Render(Direct3D->GetDeviceContext());
     ID3D11ShaderResourceView* textures[] = { TextureManager->GetTexture(0) , TextureManager->GetTexture(2) , TextureManager->GetTexture(4), TextureManager->GetTexture(6), TextureManager->GetTexture(8), TextureManager->GetTexture(9)};
-    ID3D11ShaderResourceView* normalMaps[] = { TextureManager->GetTexture(1) , TextureManager->GetTexture(3) , TextureManager->GetTexture(5), TextureManager->GetTexture(7), TextureManager->GetTexture(10) };
+    ID3D11ShaderResourceView* normalMaps[] = { TextureManager->GetTexture(1) , TextureManager->GetTexture(3) , TextureManager->GetTexture(5), TextureManager->GetTexture(7), TextureManager->GetTexture(10), TextureManager->GetTexture(11) };
 
 
     // Update our time

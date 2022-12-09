@@ -105,6 +105,9 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/myHeightMap.dds", 10, Texture::DDS);
     if (!result)
         return false;
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/ColorMap.dds", 11, Texture::DDS);
+    if (!result)
+        return false;
 
     // Create the timer object.
     m_Timer = new Timer;
@@ -225,10 +228,10 @@ bool Application::Frame()
     static bool wireframe = false;
     static bool dayNight = false;
     static bool myWindow = true;
-    static int x = 1;
-    static int y = 1;
-    static int z = 1;
-    static int w = 1;
+    static int x = 2;
+    static int y = 8;
+    static int z = 8;
+    static int w = 2;
     if (demoWindow)
         ImGui::ShowDemoWindow(&demoWindow);
 
