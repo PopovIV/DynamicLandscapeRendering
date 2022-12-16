@@ -28,12 +28,12 @@ bool TerrainShader::Initialize(ID3D11Device* device, HWND hwnd) {
 }
 
 // Render function
-bool TerrainShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], Light* light, XMFLOAT4 scales) {
+bool TerrainShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], ID3D11ShaderResourceView* roughMaps[], ID3D11ShaderResourceView* aoMaps[], Light* light, XMFLOAT4 scales) {
 
     bool result;
 
     // Set the shader parameters that it will use for rendering.
-    result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, cameraPos, textures, normalMaps, light, scales);
+    result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, cameraPos, textures, normalMaps, roughMaps, aoMaps, light, scales);
     if (!result)
         return false;
 
@@ -361,7 +361,7 @@ void TerrainShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd
 }
 
 // Function to fill shader buffers and params
-bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], Light* light, XMFLOAT4 scales) {
+bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], ID3D11ShaderResourceView* roughMaps[], ID3D11ShaderResourceView* aoMaps[], Light* light, XMFLOAT4 scales) {
 
     HRESULT result;
     D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -402,16 +402,16 @@ bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
     // Set shader texture resource in the pixel shader.
     deviceContext->PSSetShaderResources(0, 1, &textures[0]);
     deviceContext->PSSetShaderResources(1, 1, &normalMaps[0]);
-    deviceContext->PSSetShaderResources(2, 1, &textures[1]);
-    deviceContext->PSSetShaderResources(3, 1, &normalMaps[1]);
-    deviceContext->PSSetShaderResources(4, 1, &textures[2]);
-    deviceContext->PSSetShaderResources(5, 1, &normalMaps[2]);
-    deviceContext->PSSetShaderResources(6, 1, &textures[3]);
-    deviceContext->PSSetShaderResources(7, 1, &normalMaps[3]);
-    deviceContext->PSSetShaderResources(8, 1, &textures[4]);
-    deviceContext->PSSetShaderResources(9, 1, &textures[5]);
-    deviceContext->PSSetShaderResources(10, 1, &normalMaps[4]);
-    deviceContext->PSSetShaderResources(11, 1, &normalMaps[5]);
+    deviceContext->PSSetShaderResources(2, 1, &roughMaps[0]);
+    deviceContext->PSSetShaderResources(3, 1, &aoMaps[0]);
+    deviceContext->PSSetShaderResources(4, 1, &textures[1]);
+    deviceContext->PSSetShaderResources(5, 1, &normalMaps[1]);
+    deviceContext->PSSetShaderResources(6, 1, &roughMaps[1]);
+    deviceContext->PSSetShaderResources(7, 1, &aoMaps[1]);
+    deviceContext->PSSetShaderResources(8, 1, &textures[2]);
+    deviceContext->PSSetShaderResources(9, 1, &normalMaps[2]);
+    deviceContext->PSSetShaderResources(10, 1, &roughMaps[2]);
+    deviceContext->PSSetShaderResources(11, 1, &aoMaps[3]);
 
     // Lock the light constant buffer so it can be written to.
     result = deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);

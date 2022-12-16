@@ -2,16 +2,16 @@ SamplerState SampleType;
 
 Texture2D grassDiffuseTexture : register(t0);
 Texture2D grassNormalTexture : register(t1);
-Texture2D rockDiffuseTexture : register(t2);
-Texture2D rockNormalTexture : register(t3);
-Texture2D slopeDiffuseTexture : register(t4);
-Texture2D slopeNormalTexture : register(t5);
-Texture2D snowDiffuseTexture : register(t6);
-Texture2D snowNormalTexture : register(t7);
-Texture2D grass2 : register(t8);
-Texture2D rock2 : register(t9);
-Texture2D noise : register(t10);
-Texture2D colorMap : register(t11);
+Texture2D grassRoughTexture : register(t2);
+Texture2D grassAoTexture : register(t3);
+Texture2D rockDiffuseTexture : register(t4);
+Texture2D rockNormalTexture : register(t5);
+Texture2D rockRoughTexture : register(t6);
+Texture2D rockAoTexture : register(t7);
+Texture2D snowDiffuseTexture : register(t8);
+Texture2D snowNormalTexture : register(t9);
+Texture2D snowRoughTexture : register(t10);
+Texture2D snowAoTexture : register(t11);
 
 cbuffer LightBuffer : register(b0)
 {
@@ -100,98 +100,97 @@ float CalculateLightIntensity(float4 bumpMap, float3 normal, float3 tangent, flo
     return ambientColor + diffuse + specular;
 }
 
+static const float PI = 3.14159265359;
+
+float3 F(float3 F0, float3 V, float3 H) {
+    return F0 + (1 - F0) * pow(1 - dot(V, H), 5.0f);
+}
+
+float3 D(float alpha, float3 N, float3 H) {
+    float numerator = alpha * alpha;
+
+    float NdotH = max(dot(N, H), 0.0f);
+    float denominator = PI * pow(NdotH * NdotH * (alpha * alpha - 1) + 1, 2.0f);
+    denominator = max(denominator, 0.00001f);
+    return numerator / denominator;
+}
+
+float3 G1(float alpha, float3 N, float3 X) {
+    float numerator = max(dot(N, X), 0.0f);
+    float k = alpha / 2.0f;
+    float denominator = max(dot(N, X), 0.0f) * (1.0f - k) + k;
+    denominator = max(denominator, 0.00001f);
+    return numerator / denominator;
+}
+
+float3 G(float alpha, float3 N, float3 V, float3 L) {
+    return G1(alpha, N, V) * G1(alpha, N, L);
+}
+
+float3 CalculatePBR(float3 N, float3 L, float3 V, float3 H, float alpha, float3 albedo, float3 F0, float ao) {
+    float3 Ks = F(F0, V, H);
+    float3 Kd = float3(1.0f, 1.0f, 1.0f) - Ks;
+    float3 lambert = albedo / PI;
+    
+    float3 cookTorranceNumerator = D(alpha, N, H) * G(alpha, N, V, L) * Ks;
+    float cookTorranceDenominator = 4.0f * max(dot(V, N), 0.0f) * max(dot(L, N), 0.0f);
+    cookTorranceDenominator = max(cookTorranceDenominator, 0.00001f);
+    float3 cookTorrance = cookTorranceNumerator / cookTorranceDenominator;
+
+    float3 BRDF = Kd * lambert + cookTorrance;
+    return  BRDF * diffuseColor * max(dot(L, N), 0.0f) * ao * 4;
+}
+
+float4 CalculateColor(Texture2D diffuseTexture, Texture2D normalTexture, Texture2D roughTexture, Texture2D aoTexture,
+    float2 tex, float3 normal, float3 tangent, float3 binormal, float3 L, float3 V) {
+    float4 albedo = diffuseTexture.Sample(SampleType, tex);
+    float4 bumpMap = normalTexture.Sample(SampleType, tex);
+    bumpMap = (bumpMap * 2.0f) - 1.0f;
+    float rough = roughTexture.Sample(SampleType, tex).r;
+    float ao = aoTexture.Sample(SampleType, tex).r;
+    float3 N = (bumpMap.x * tangent) + (bumpMap.y * binormal) + (bumpMap.z * normal);
+    N = normalize(N);
+    float3 H = normalize(V + L);
+    return float4(CalculatePBR(N, L, V, H, rough, albedo.xyz, float3(0.04f, 0.04f, 0.04f), ao), 1.0f);
+}
+
+
 float4 main(PS_INPUT input) : SV_TARGET
 {
-    float slope;
-    float4 textureColor;
-    float4 bumpMap;
-    float lightIntensity;
-    float4 grassTexture, grassTexture2;
-    float4 rockTexture, rockTexture2;
-    float4 slopeTexture;
-    float4 snowTexture;
     float blendAmount;
     float4 color;
+    float3 L = -normalize(lightDirection);
+    float3 V = normalize(input.viewDirection);
 
     input.normal = normalize(input.normal);
     input.tangent = normalize(input.tangent);
     input.binormal = normalize(input.binormal);
 
-    // Calculate the slope of this point.
-    slope = 1.0f - input.normal.y;
-    // Invert the light direction for calculations.
+    // Setup the grass material
+    float4 grassTexture = CalculateColor(grassDiffuseTexture, grassNormalTexture, grassRoughTexture, grassAoTexture, input.tex, input.normal, input.tangent, input.binormal, L, V);
+    
+    //resColor = resColor / (resColor + float3(1.0f, 1.0f, 1.0f));
+    //resColor = pow(resColor, float3(1.0 / 2.2, 1.0 / 2.2, 1.0 / 2.2));
 
-    // Get data from height map
-    float4 alpha = noise.Sample(SampleType, input.tex2);
+    // Setup the rock material
+    float4 rockTexture = CalculateColor(rockDiffuseTexture, rockNormalTexture, rockRoughTexture, rockAoTexture, input.tex, input.normal, input.tangent, input.binormal, L, V);
 
     // Setup the grass material
-    textureColor = SampleTriplanar(grassDiffuseTexture, input.worldPosition.xyz, input.normal, grassScale);
-    bumpMap = SampleTriplanarNorm(grassNormalTexture, input.worldPosition.xyz, input.normal, grassScale);
-    lightIntensity = CalculateLightIntensity(bumpMap, input.normal, input.tangent, input.binormal, input.viewDirection, specularPower) - 0.1f;
-    grassTexture = saturate(textureColor * lightIntensity);
-
-    textureColor = SampleTriplanar(grass2, input.worldPosition.xyz, input.normal, grassScale);
-    grassTexture2 = saturate(textureColor * lightIntensity);
-
-    // Setup the rock material.
-    textureColor = SampleTriplanar(rockDiffuseTexture, input.worldPosition.xyz, input.normal, rockScale);
-    lightIntensity = CalculateLightIntensity(bumpMap, input.normal, input.tangent, input.binormal, input.viewDirection, specularPower);
-    rockTexture = saturate(textureColor * lightIntensity);
-
-    textureColor = SampleTriplanar(rock2, input.worldPosition.xyz, input.normal, rockScale);
-    rockTexture2 = saturate(textureColor * lightIntensity);
-
-    // Setup the slope material.
-    textureColor = SampleTriplanar(slopeDiffuseTexture, input.worldPosition.xyz, input.normal, slopeScale);
-    bumpMap = SampleTriplanarNorm(slopeNormalTexture, input.worldPosition.xyz, input.normal, slopeScale);
-    lightIntensity = CalculateLightIntensity(bumpMap, input.normal, input.tangent, input.binormal, input.viewDirection, specularPower);
-    slopeTexture = saturate(textureColor * lightIntensity);
-
-    // Setup the snow material.
-    textureColor = SampleTriplanar(snowDiffuseTexture, input.worldPosition.xyz, input.normal, snowScale);
-    bumpMap = SampleTriplanarNorm(snowNormalTexture, input.worldPosition.xyz, input.normal, snowScale);
-    lightIntensity = CalculateLightIntensity(bumpMap, input.normal, input.tangent, input.binormal, input.viewDirection, 100000.0f) - 0.5f;
-    snowTexture = saturate(textureColor * lightIntensity);
+    float4 snowTexture = CalculateColor(snowDiffuseTexture, snowNormalTexture, snowRoughTexture, snowAoTexture, input.tex, input.normal, input.tangent, input.binormal, L, V);
 
     // Determine which material to use based on slope.
     float4 baseColor;
-    grassTexture = lerp(grassTexture, grassTexture2, alpha.r);
-    rockTexture = lerp(rockTexture, rockTexture2, alpha.r);
-    if (input.pixelHeight < 200.0f) {
-        baseColor = grassTexture;
+    if (input.pixelHeight < 250.0f) {
+        blendAmount = (250.0f - input.pixelHeight) / 100.0f;
+        baseColor = lerp(grassTexture, rockTexture, 1 - blendAmount);
     }
-    else if (input.pixelHeight >= 200.0f && input.pixelHeight < 300.0f)
-    {
-        blendAmount = (300.f - input.pixelHeight) / (300.0f - 200.0f);
-        baseColor = blend(snowTexture, 1 - blendAmount, grassTexture, blendAmount);
+    else if (input.pixelHeight >= 250.0f && input.pixelHeight < 300.0f) {
+        blendAmount = (input.pixelHeight - 250.0f) / (300.0f - 250.0f);
+        baseColor = blend(rockTexture, 1 - blendAmount, snowTexture, blendAmount);
     }
-    else if (input.pixelHeight > 300.0f)
-    {
+    else if (input.pixelHeight >= 300.0f) {
         baseColor = snowTexture;
     }
 
-    if (slope < 0.4f)
-    {
-        blendAmount = slope / 0.4f;
-        color = blend(baseColor, 1 - blendAmount, rockTexture, blendAmount);
-    }
-    else if (slope >= 0.4 && slope < 0.7) {
-        blendAmount = (slope - 0.4f) * (1.0f / (0.7f - 0.4f));
-        color = blend(rockTexture, 1 - blendAmount, slopeTexture, blendAmount);
-    }
-    else if (slope >= 0.7) {
-        color = slopeTexture;
-    }
-
-    // if use color map
-    float4 c = colorMap.Sample(SampleType, input.tex2);
-    float r = c.r;
-    float g = c.g;
-    float b = c.b;
-    float sum = r + g + b;
-    r /= sum;
-    g /= sum;
-    b /= sum;
-    //return r * rockTexture + g * grassTexture + b * snowTexture;
-    return color;
+    return baseColor;
 }
