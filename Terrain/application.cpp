@@ -227,10 +227,13 @@ bool Application::Frame()
     static bool wireframe = false;
     static bool dayNight = false;
     static bool myWindow = true;
-    static int x = 2;
-    static int y = 8;
-    static int z = 8;
-    static int w = 2;
+    static int grassScale = 2;
+    static int rockScale = 8;
+    static int slopeScale = 8;
+    static int snowScale = 2;
+    static int lightX = m_Zone->GetLighDirection().x;
+    static int lightY = m_Zone->GetLighDirection().y;
+    static int lightZ = m_Zone->GetLighDirection().z;
     if (demoWindow)
         ImGui::ShowDemoWindow(&demoWindow);
 
@@ -251,14 +254,19 @@ bool Application::Frame()
             m_Zone->ToggleDayNight();
 
         
-        ImGui::SliderInt("Grass scales", &x, 1, 16, "%d", 0);
-        scales.x = x;
-        ImGui::SliderInt("Rock scales", &y, 1, 16, "%d", 0);
-        scales.y = y;
-        ImGui::SliderInt("Slope scales", &z, 1, 16, "%d", 0);
-        scales.z = z;
-        ImGui::SliderInt("Snow scales", &w, 1, 16, "%d", 0);
-        scales.w = w;
+        ImGui::SliderInt("Grass scales", &grassScale, 1, 16, "%d", 0);
+        scales.x = grassScale;
+        ImGui::SliderInt("Rock scales", &rockScale, 1, 16, "%d", 0);
+        scales.y = rockScale;
+        ImGui::SliderInt("Slope scales", &slopeScale, 1, 16, "%d", 0);
+        scales.z = slopeScale;
+        ImGui::SliderInt("Snow scales", &snowScale, 1, 16, "%d", 0);
+        scales.w = snowScale;
+
+        ImGui::SliderInt("Light position X", &lightX, -10000, 10000, "%d", 0);
+        ImGui::SliderInt("Light position Y", &lightY, -10000, 10000, "%d", 0);
+        ImGui::SliderInt("Light position Z", &lightZ, -10000, 10000, "%d", 0);
+
 
         std::string str = "FPS: ";
         str += std::to_string(m_Fps->GetFps());
@@ -300,7 +308,7 @@ bool Application::Frame()
     ImGui::Render();
 
     // Do the zone frame processing.
-    result = m_Zone->Frame(m_Direct3D, m_Input, m_ShaderManager, m_TextureManager, m_Timer->GetTime(), m_Fps->GetFps(), scales);
+    result = m_Zone->Frame(m_Direct3D, m_Input, m_ShaderManager, m_TextureManager, m_Timer->GetTime(), m_Fps->GetFps(), scales, XMFLOAT3(lightX, lightY, lightZ));
     if (!result)
         return false;
 

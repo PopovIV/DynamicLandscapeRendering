@@ -46,7 +46,7 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     // Initialize the light object.
     m_Light->SetAmbientColor(0.8f, 0.8f, 0.8f, 1.0f);
     m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-    m_Light->SetDirection(90.0f, 90.0f, -10.0f);
+    m_Light->SetDirection(0.0f, -10000.0f, 0.0f);
     m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
     m_Light->SetSpecularPower(300.0f);
 
@@ -117,7 +117,7 @@ void Zone::Shutdown() {
 
 }
 // Function to update frame each second
-bool Zone::Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager, TextureManager* TextureManager, float frameTime, int fps, XMFLOAT4 scales) {
+bool Zone::Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager, TextureManager* TextureManager, float frameTime, int fps, XMFLOAT4 scales, XMFLOAT3 lightDir) {
 
     bool result;
     float posX, posY, posZ, rotX, rotY, rotZ;
@@ -129,6 +129,7 @@ bool Zone::Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager,
     m_Position->GetPosition(posX, posY, posZ);
     m_Position->GetRotation(rotX, rotY, rotZ);
     this->scales = scales;
+    m_Light->SetDirection(lightDir.x, lightDir.y, lightDir.z);
 
     // Do the frame processing for the user interface.
     result = m_UserInterface->Frame(Direct3D->GetDeviceContext(), fps, posX, posY, posZ, rotX, rotY, rotZ);
