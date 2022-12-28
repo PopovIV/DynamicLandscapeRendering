@@ -81,32 +81,59 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
     if (!result)
         return false;
 
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/rock_diffuse.dds", 4, Texture::DDS);
+
+    // Load textures into the texture manager.
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/grass_diffuse2.dds", 4, Texture::DDS);
     if (!result)
         return false;
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/rock_normal.dds", 5, Texture::DDS);
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/grass_normal2.dds", 5, Texture::DDS);
     if (!result)
         return false;
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/rock_rough.dds", 6, Texture::DDS);
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/grass_rough2.dds", 6, Texture::DDS);
     if (!result)
         return false;
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/rock_ao.dds", 7, Texture::DDS);
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/grass_ao2.dds", 7, Texture::DDS);
     if (!result)
         return false;
 
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/snow_diffuse2.dds", 8, Texture::DDS);
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/rock_diffuse.dds", 8, Texture::DDS);
     if (!result)
         return false;
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/snow_normal2.dds", 9, Texture::DDS);
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/rock_normal.dds", 9, Texture::DDS);
     if (!result)
         return false;
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/snow_rough2.dds", 10, Texture::DDS);
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/rock_rough.dds", 10, Texture::DDS);
     if (!result)
         return false;
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/snow_ao2.dds", 11, Texture::DDS);
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/rock_ao.dds", 11, Texture::DDS);
     if (!result)
         return false;
 
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/slope_diffuse.dds", 12, Texture::DDS);
+    if (!result)
+        return false;
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/slope_normal.dds", 13, Texture::DDS);
+    if (!result)
+        return false;
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/slope_rough.dds", 14, Texture::DDS);
+    if (!result)
+        return false;
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/slope_ao.dds", 15, Texture::DDS);
+    if (!result)
+        return false;
+
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/snow_diffuse.dds", 16, Texture::DDS);
+    if (!result)
+        return false;
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/snow_normal.dds", 17, Texture::DDS);
+    if (!result)
+        return false;
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/snow_rough.dds", 18, Texture::DDS);
+    if (!result)
+        return false;
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/snow_ao.dds", 19, Texture::DDS);
+    if (!result)
+        return false;
 
     // Create the timer object.
     m_Timer = new Timer;

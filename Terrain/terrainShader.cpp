@@ -411,7 +411,15 @@ bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
     deviceContext->PSSetShaderResources(8, 1, &textures[2]);
     deviceContext->PSSetShaderResources(9, 1, &normalMaps[2]);
     deviceContext->PSSetShaderResources(10, 1, &roughMaps[2]);
-    deviceContext->PSSetShaderResources(11, 1, &aoMaps[3]);
+    deviceContext->PSSetShaderResources(11, 1, &aoMaps[2]);
+    deviceContext->PSSetShaderResources(12, 1, &textures[3]);
+    deviceContext->PSSetShaderResources(13, 1, &normalMaps[3]);
+    deviceContext->PSSetShaderResources(14, 1, &roughMaps[3]);
+    deviceContext->PSSetShaderResources(15, 1, &aoMaps[3]);
+    deviceContext->PSSetShaderResources(16, 1, &textures[4]);
+    deviceContext->PSSetShaderResources(17, 1, &normalMaps[4]);
+    deviceContext->PSSetShaderResources(18, 1, &roughMaps[4]);
+    deviceContext->PSSetShaderResources(19, 1, &aoMaps[4]);
 
     // Lock the light constant buffer so it can be written to.
     result = deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
