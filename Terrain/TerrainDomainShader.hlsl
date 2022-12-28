@@ -47,8 +47,7 @@ PS_INPUT main(HS_CONSTANT_DATA_OUTPUT input, float3 uvwCoord : SV_DomainLocation
     float3 vertexTangent;
     float3 vertexBinormal;
 
-    float3 position, projection0, projection1, projection2,
-        projectedPosition;
+    float3 position, projection0, projection1, projection2, projectedPosition;
 
     position = patch[0].position * uvwCoord.x + patch[1].position * uvwCoord.y + patch[2].position * uvwCoord.z;
     projection0 = position - dot(position - patch[0].position, patch[0].normal) * patch[0].normal;

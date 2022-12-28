@@ -29,10 +29,11 @@ public:
     // Function to clear all stuff that was created in initialize function
     void Shutdown();
     // Function to update frame each second
-    bool Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager, TextureManager* TextureManager, float frameTime, int fps, XMFLOAT4 scales);
+    bool Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager, TextureManager* TextureManager, float frameTime, int fps, XMFLOAT4 scales, XMFLOAT3 lightDir);
 
     void GetPosition(float& x, float& y , float& z) { m_Position->GetPosition(x, y, z); };
     void GetRotation(float& x, float& y, float& z) { m_Position->GetRotation(x, y, z); };
+    XMFLOAT3 GetLighDirection(void) { return lightDir; };
     void ToggleWireFrame() { m_wireFrame = !m_wireFrame; };
     void ToggleDayNight() { m_dayNightCycle = !m_dayNightCycle; };
     bool GetWireFrame() { return m_wireFrame; };

@@ -71,41 +71,67 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/grass_diffuse.dds", 0, Texture::DDS);
     if (!result)
         return false;
-
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/grass_normal.dds", 1, Texture::DDS);
     if (!result)
         return false;
-
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/rock_diffuse.dds", 2, Texture::DDS);
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/grass_rough.dds", 2, Texture::DDS);
     if (!result)
         return false;
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/rock_normal.dds", 3, Texture::DDS);
-    if (!result)
-        return false;
-
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/slope_diffuse.dds", 4, Texture::DDS);
-    if (!result)
-        return false;
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/slope_normal.dds", 5, Texture::DDS);
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/grass_ao.dds", 3, Texture::DDS);
     if (!result)
         return false;
 
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/snow_diffuse.dds", 6, Texture::DDS);
+
+    // Load textures into the texture manager.
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/grass_diffuse2.dds", 4, Texture::DDS);
     if (!result)
         return false;
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/snow_normal.dds", 7, Texture::DDS);
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/grass_normal2.dds", 5, Texture::DDS);
     if (!result)
         return false;
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/grass_diffuse2.dds", 8, Texture::DDS);
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/grass_rough2.dds", 6, Texture::DDS);
     if (!result)
         return false;
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/rock_diffuse2.dds", 9, Texture::DDS);
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/grass_ao2.dds", 7, Texture::DDS);
     if (!result)
         return false;
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/myHeightMap.dds", 10, Texture::DDS);
+
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/rock_diffuse.dds", 8, Texture::DDS);
     if (!result)
         return false;
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/ColorMap.dds", 11, Texture::DDS);
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/rock_normal.dds", 9, Texture::DDS);
+    if (!result)
+        return false;
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/rock_rough.dds", 10, Texture::DDS);
+    if (!result)
+        return false;
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/rock_ao.dds", 11, Texture::DDS);
+    if (!result)
+        return false;
+
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/slope_diffuse.dds", 12, Texture::DDS);
+    if (!result)
+        return false;
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/slope_normal.dds", 13, Texture::DDS);
+    if (!result)
+        return false;
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/slope_rough.dds", 14, Texture::DDS);
+    if (!result)
+        return false;
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/slope_ao.dds", 15, Texture::DDS);
+    if (!result)
+        return false;
+
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/snow_diffuse.dds", 16, Texture::DDS);
+    if (!result)
+        return false;
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/snow_normal.dds", 17, Texture::DDS);
+    if (!result)
+        return false;
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/snow_rough.dds", 18, Texture::DDS);
+    if (!result)
+        return false;
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/snow_ao.dds", 19, Texture::DDS);
     if (!result)
         return false;
 
@@ -228,10 +254,13 @@ bool Application::Frame()
     static bool wireframe = false;
     static bool dayNight = false;
     static bool myWindow = true;
-    static int x = 2;
-    static int y = 8;
-    static int z = 8;
-    static int w = 2;
+    static int grassScale = 2;
+    static int rockScale = 8;
+    static int slopeScale = 8;
+    static int snowScale = 2;
+    static int lightX = m_Zone->GetLighDirection().x;
+    static int lightY = m_Zone->GetLighDirection().y;
+    static int lightZ = m_Zone->GetLighDirection().z;
     if (demoWindow)
         ImGui::ShowDemoWindow(&demoWindow);
 
@@ -252,14 +281,19 @@ bool Application::Frame()
             m_Zone->ToggleDayNight();
 
         
-        ImGui::SliderInt("Grass scales", &x, 1, 16, "%d", 0);
-        scales.x = x;
-        ImGui::SliderInt("Rock scales", &y, 1, 16, "%d", 0);
-        scales.y = y;
-        ImGui::SliderInt("Slope scales", &z, 1, 16, "%d", 0);
-        scales.z = z;
-        ImGui::SliderInt("Snow scales", &w, 1, 16, "%d", 0);
-        scales.w = w;
+        ImGui::SliderInt("Grass scales", &grassScale, 1, 16, "%d", 0);
+        scales.x = grassScale;
+        ImGui::SliderInt("Rock scales", &rockScale, 1, 16, "%d", 0);
+        scales.y = rockScale;
+        ImGui::SliderInt("Slope scales", &slopeScale, 1, 16, "%d", 0);
+        scales.z = slopeScale;
+        ImGui::SliderInt("Snow scales", &snowScale, 1, 16, "%d", 0);
+        scales.w = snowScale;
+
+        ImGui::SliderInt("Light position X", &lightX, -10000, 10000, "%d", 0);
+        ImGui::SliderInt("Light position Y", &lightY, -10000, 10000, "%d", 0);
+        ImGui::SliderInt("Light position Z", &lightZ, -10000, 10000, "%d", 0);
+
 
         std::string str = "FPS: ";
         str += std::to_string(m_Fps->GetFps());
@@ -301,7 +335,7 @@ bool Application::Frame()
     ImGui::Render();
 
     // Do the zone frame processing.
-    result = m_Zone->Frame(m_Direct3D, m_Input, m_ShaderManager, m_TextureManager, m_Timer->GetTime(), m_Fps->GetFps(), scales);
+    result = m_Zone->Frame(m_Direct3D, m_Input, m_ShaderManager, m_TextureManager, m_Timer->GetTime(), m_Fps->GetFps(), scales, XMFLOAT3(lightX, lightY, lightZ));
     if (!result)
         return false;
 
