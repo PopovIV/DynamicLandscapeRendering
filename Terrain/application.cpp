@@ -135,6 +135,10 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
     if (!result)
         return false;
 
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/splatMap.dds", 20, Texture::DDS);
+    if (!result)
+        return false;
+
     // Create the timer object.
     m_Timer = new Timer;
     if (!m_Timer)

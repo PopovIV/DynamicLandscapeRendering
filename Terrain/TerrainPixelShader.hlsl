@@ -20,6 +20,7 @@ Texture2D snowDiffuseTexture : register(t16);
 Texture2D snowNormalTexture : register(t17);
 Texture2D snowRoughTexture : register(t18);
 Texture2D snowAoTexture : register(t19);
+Texture2D splatMap : register(t20);
 
 cbuffer LightBuffer : register(b0)
 {
@@ -188,6 +189,10 @@ float4 main(PS_INPUT input) : SV_TARGET
 
     // Setup the grass material
     float4 snowTexture = CalculateColor(snowDiffuseTexture, snowNormalTexture, snowRoughTexture, snowAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, snowScale);
+
+    // 
+    //float4 splat = splatMap.Sample(SampleType, input.worldPosition.xz / 1024 * -1);
+    //return splat.r * grassTexture + splat.g * rockTexture + splat.b * snowTexture;
 
     // Determine which material to use based on slope.
     float4 baseColor;
