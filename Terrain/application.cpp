@@ -261,9 +261,9 @@ bool Application::Frame()
     static bool wireframe = false;
     static bool dayNight = false;
     static bool myWindow = true;
-    static int grassScale = 2;
-    static int rockScale = 8;
-    static int slopeScale = 8;
+    static int grassScale = 40;
+    static int rockScale = 32;
+    static int slopeScale = 32;
     static int snowScale = 2;
     static int lightX = m_Zone->GetLighDirection().x;
     static int lightY = m_Zone->GetLighDirection().y;
@@ -288,13 +288,13 @@ bool Application::Frame()
             m_Zone->ToggleDayNight();
 
         
-        ImGui::SliderInt("Grass scales", &grassScale, 1, 16, "%d", 0);
+        ImGui::SliderInt("Grass scales", &grassScale, 1, 64, "%d", 0);
         scales.x = grassScale;
-        ImGui::SliderInt("Rock scales", &rockScale, 1, 16, "%d", 0);
+        ImGui::SliderInt("Rock scales", &rockScale, 1, 64, "%d", 0);
         scales.y = rockScale;
-        ImGui::SliderInt("Slope scales", &slopeScale, 1, 16, "%d", 0);
+        ImGui::SliderInt("Slope scales", &slopeScale, 1, 64, "%d", 0);
         scales.z = slopeScale;
-        ImGui::SliderInt("Snow scales", &snowScale, 1, 16, "%d", 0);
+        ImGui::SliderInt("Snow scales", &snowScale, 1, 64, "%d", 0);
         scales.w = snowScale;
 
         ImGui::SliderInt("Light position X", &lightX, -10000, 10000, "%d", 0);
