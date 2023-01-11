@@ -81,6 +81,7 @@ void Position::MoveForward(bool keydown) {
 
     // Update the position.
     m_positionX += sinf(radians) * m_forwardSpeed;
+    m_positionY -= sinf(m_rotationX * 0.0174532925f) * m_forwardSpeed;
     m_positionZ += cosf(radians) * m_forwardSpeed;
 
 }
@@ -107,6 +108,7 @@ void Position::MoveBackward(bool keydown) {
 
     // Update the position.
     m_positionX -= sinf(radians) * m_backwardSpeed;
+    m_positionY += sinf(m_rotationX * 0.0174532925f) * m_backwardSpeed;
     m_positionZ -= cosf(radians) * m_backwardSpeed;
 
 }
@@ -150,6 +152,56 @@ void Position::MoveDownward(bool keydown) {
     m_positionY -= m_downwardSpeed;
 
 }
+
+// Function to calculate left move speed and movement
+void Position::MoveLeft(bool keydown) {
+
+    float radians;
+
+    // Update the upward speed movement based on the frame time and whether the user is holding the key down or not.
+    if (keydown) {
+        m_leftSpeed += m_frameTime * 1.0f;
+        if (m_leftSpeed > (m_frameTime * 50.0f))
+            m_leftSpeed = m_frameTime * 50.0f;
+    }
+    else {
+        m_leftSpeed -= m_frameTime * 0.5f;
+        if (m_leftSpeed < 0.0f)
+            m_leftSpeed = 0.0f;
+    }
+
+    radians = m_rotationY * XM_PI / 180;
+
+    // Update the height position.
+    m_positionX -= cosf(radians) * m_leftSpeed;
+    m_positionZ += sinf(radians) * m_leftSpeed;
+
+}
+
+// Function to calculate right move speed and movement
+void Position::MoveRight(bool keydown) {
+
+    float radians;
+
+    // Update the upward speed movement based on the frame time and whether the user is holding the key down or not.
+    if (keydown) {
+        m_rightSpeed += m_frameTime * 1.0f;
+        if (m_rightSpeed > (m_frameTime * 50.0f))
+            m_rightSpeed = m_frameTime * 50.0f;
+    }
+    else {
+        m_rightSpeed -= m_frameTime * 0.5f;
+        if (m_rightSpeed < 0.0f)
+            m_rightSpeed = 0.0f;
+    }
+
+    radians = m_rotationY * XM_PI / 180;
+
+    // Update the height position.
+    m_positionX += cosf(radians) * m_rightSpeed;
+    m_positionZ -= sinf(radians) * m_rightSpeed;
+
+};
 
 // Function to calculate left turn speed and movement
 void Position::TurnLeft(bool keydown) {
@@ -246,3 +298,29 @@ void Position::LookDownward(bool keydown) {
         m_rotationX = -90.0f;
 
 }
+
+// Function to calculate turn using mouse
+void Position::TurnMouse(XMFLOAT2 mouseMove) {
+
+    float x = mouseMove.x;
+    float y = mouseMove.y;
+    float eps = 1e-10;
+    while (fabs(x) > eps || fabs(y) > eps) {
+        if (x > 0) {
+            TurnRight(true);
+            x -= 1;
+        } else if (x < 0) {
+            TurnLeft(true);
+            x += 1;
+        }
+        if (y > 0) {
+            LookDownward(true);
+            y -= 1;
+        } else if (y < 0) {
+            LookUpward(true);
+            y += 1;
+        }
+    }
+
+}
+

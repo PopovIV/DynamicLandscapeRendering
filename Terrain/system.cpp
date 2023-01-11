@@ -24,8 +24,6 @@ bool System::Initialize() {
     if (!result)
         return false;
 
-
-
     return true;
 
 }

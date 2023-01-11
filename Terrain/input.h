@@ -10,6 +10,9 @@
 #pragma comment(lib, "dxguid.lib")
 #include <dinput.h>
 
+#include <directxmath.h>
+using namespace DirectX;
+
 class Input {
 public:
     // constructors
@@ -40,13 +43,11 @@ public:
     // Function to check if down key is pressed
     bool IsDownPressed();
     // Function to check if A key is pressed
-    bool IsAPressed();
-    // Function to check if Z key is pressed
-    bool IsZPressed();
-    // Function to check if PgUp key is pressed
     bool IsPgUpPressed();
     // Function to check if PgDown key is pressed
     bool IsPgDownPressed();
+    // Function to check if mouse is used
+    XMFLOAT2 IsMouseUsed();
     // Function to check if F1 key is pressed
     bool IsF1Toggled();
     // Function to check if F2 key is pressed

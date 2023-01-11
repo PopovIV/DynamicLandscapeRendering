@@ -177,8 +177,8 @@ float4 main(PS_INPUT input) : SV_TARGET
     input.binormal = normalize(input.binormal);
 
     // Setup the grass material
-    float4 grassTexture2 = CalculateColor(grassDiffuseTexture, grassNormalTexture, grassRoughTexture, grassAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, grassScale);
-    float4 grassTexture = CalculateColor(grassDiffuse2Texture, grassNormal2Texture, grassRough2Texture, grassAo2Texture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, grassScale);
+    float4 grassTexture2 = CalculateColor(grassDiffuseTexture, grassNormalTexture, grassRoughTexture, grassAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, grassScale / 2);
+    float4 grassTexture = CalculateColor(grassDiffuse2Texture, grassNormal2Texture, grassRough2Texture, grassAo2Texture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, grassScale * 2);
     float alpha = noise.Sample(SampleType, input.tex2).r;
     grassTexture = (alpha * grassTexture) + ((1.0 - alpha) * grassTexture2);
 

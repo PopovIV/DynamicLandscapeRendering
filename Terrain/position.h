@@ -6,6 +6,9 @@
 #define _POSITION_H_
 #include <math.h>
 
+#include <directxmath.h>
+using namespace DirectX;
+
 class Position {
 public:
     // constructors
@@ -35,6 +38,10 @@ public:
     void MoveUpward(bool keydown);
     // Function to calculate downward speed and movement
     void MoveDownward(bool keydown);
+    // Function to calculate left move speed and movement
+    void MoveLeft(bool keydown);
+    // Function to calculate right move speed and movement
+    void MoveRight(bool keydown);
     // Function to calculate left turn speed and movement
     void TurnLeft(bool keydown);
     // Function to calculate right turn speed and movement
@@ -43,6 +50,8 @@ public:
     void LookUpward(bool keydown);
     // Function to calculate downward turn speed and movement
     void LookDownward(bool keydown);
+    // Function to calculate turn using mouse
+    void TurnMouse(XMFLOAT2 mouseMove);
 
 private:
     float m_positionX, m_positionY, m_positionZ;
@@ -51,6 +60,7 @@ private:
     float m_frameTime;
 
     float m_forwardSpeed, m_backwardSpeed;
+    float m_rightSpeed, m_leftSpeed;
     float m_upwardSpeed, m_downwardSpeed;
     float m_leftTurnSpeed, m_rightTurnSpeed;
     float m_lookUpSpeed, m_lookDownSpeed;

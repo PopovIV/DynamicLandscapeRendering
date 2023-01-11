@@ -192,7 +192,7 @@ void Input::GetMouseLocation(int& mouseX, int& mouseY) {
 bool Input::IsLeftPressed() {
 
     // Do a bitwise and on the keyboard state to check if the key is currently being pressed.
-    if (m_keyboardState[DIK_LEFT] & 0x80)
+    if (m_keyboardState[DIK_LEFT] || m_keyboardState[DIK_A] & 0x80)
         return true;
 
 
@@ -204,7 +204,7 @@ bool Input::IsLeftPressed() {
 bool Input::IsRightPressed() {
 
     // Do a bitwise and on the keyboard state to check if the key is currently being pressed.
-    if (m_keyboardState[DIK_RIGHT] & 0x80)
+    if (m_keyboardState[DIK_RIGHT] || m_keyboardState[DIK_D] & 0x80)
         return true;
 
     return false;
@@ -215,7 +215,7 @@ bool Input::IsRightPressed() {
 bool Input::IsUpPressed() {
 
     // Do a bitwise and on the keyboard state to check if the key is currently being pressed.
-    if (m_keyboardState[DIK_UP] & 0x80)
+    if (m_keyboardState[DIK_UP] || m_keyboardState[DIK_W] & 0x80)
         return true;
 
     return false;
@@ -226,34 +226,13 @@ bool Input::IsUpPressed() {
 bool Input::IsDownPressed() {
 
     // Do a bitwise and on the keyboard state to check if the key is currently being pressed.
-    if (m_keyboardState[DIK_DOWN] & 0x80)
+    if (m_keyboardState[DIK_DOWN] || m_keyboardState[DIK_S] & 0x80)
         return true;
 
     return false;
 
 }
 
-// Function to check if A key is pressed
-bool Input::IsAPressed(){
-
-    // Do a bitwise and on the keyboard state to check if the key is currently being pressed.
-    if (m_keyboardState[DIK_A] & 0x80)
-        return true;
-
-    return false;
-
-}
-
-// Function to check if Z key is pressed
-bool Input::IsZPressed() {
-
-    // Do a bitwise and on the keyboard state to check if the key is currently being pressed.
-    if (m_keyboardState[DIK_Z] & 0x80)
-        return true;
-
-    return false;
-
-}
 
 // Function to check if PgUP key is pressed
 bool Input::IsPgUpPressed() {
@@ -276,6 +255,16 @@ bool Input::IsPgDownPressed() {
     return false;
 
 }
+
+// Function to check if mouse is used
+XMFLOAT2 Input::IsMouseUsed() {
+    
+    if (m_mouseState.rgbButtons[0] || m_mouseState.rgbButtons[1] || m_mouseState.rgbButtons[2] & 0x80)
+        return XMFLOAT2(m_mouseState.lX, m_mouseState.lY);
+
+    return XMFLOAT2(0.0f, 0.0f);
+
+};
 
 // Function to check if F1 key is pressed
 bool Input::IsF1Toggled() {

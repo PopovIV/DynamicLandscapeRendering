@@ -156,21 +156,19 @@ void Zone::HandleMovementInput(Input* Input, float frameTime) {
 
     // Handle the input.
     keyDown = Input->IsLeftPressed();
-    m_Position->TurnLeft(keyDown);
+    m_Position->MoveLeft(keyDown);
     keyDown = Input->IsRightPressed();
-    m_Position->TurnRight(keyDown);
+    m_Position->MoveRight(keyDown);
     keyDown = Input->IsUpPressed();
     m_Position->MoveForward(keyDown);
     keyDown = Input->IsDownPressed();
     m_Position->MoveBackward(keyDown);
-    keyDown = Input->IsAPressed();
-    m_Position->MoveUpward(keyDown);
-    keyDown = Input->IsZPressed();
-    m_Position->MoveDownward(keyDown);
     keyDown = Input->IsPgUpPressed();
     m_Position->LookUpward(keyDown);
     keyDown = Input->IsPgDownPressed();
     m_Position->LookDownward(keyDown);
+    XMFLOAT2 mouseMove = Input->IsMouseUsed();
+    m_Position->TurnMouse(mouseMove);
 
     // Get the view point position/rotation.
     m_Position->GetPosition(posX, posY, posZ);
