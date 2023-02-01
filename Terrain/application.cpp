@@ -135,7 +135,7 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
     if (!result)
         return false;
 
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/splatMap.dds", 20, Texture::DDS);
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/detailNormalMap.dds", 20, Texture::DDS);
     if (!result)
         return false;
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/noise.dds", 21, Texture::DDS);
@@ -265,6 +265,7 @@ bool Application::Frame()
     static int rockScale = 32;
     static int slopeScale = 32;
     static int snowScale = 2;
+    static int detailScale = 2;
     static int lightX = m_Zone->GetLighDirection().x;
     static int lightY = m_Zone->GetLighDirection().y;
     static int lightZ = m_Zone->GetLighDirection().z;
@@ -296,6 +297,7 @@ bool Application::Frame()
         scales.z = slopeScale;
         ImGui::SliderInt("Snow scales", &snowScale, 1, 64, "%d", 0);
         scales.w = snowScale;
+        ImGui::SliderInt("Detail scales", &detailScale, 1, 64, "%d", 0);
 
         ImGui::SliderInt("Light position X", &lightX, -10000, 10000, "%d", 0);
         ImGui::SliderInt("Light position Y", &lightY, -10000, 10000, "%d", 0);
@@ -342,7 +344,7 @@ bool Application::Frame()
     ImGui::Render();
 
     // Do the zone frame processing.
-    result = m_Zone->Frame(m_Direct3D, m_Input, m_ShaderManager, m_TextureManager, m_Timer->GetTime(), m_Fps->GetFps(), scales, XMFLOAT3(lightX, lightY, lightZ));
+    result = m_Zone->Frame(m_Direct3D, m_Input, m_ShaderManager, m_TextureManager, m_Timer->GetTime(), m_Fps->GetFps(), scales, detailScale, XMFLOAT3(lightX, lightY, lightZ));
     if (!result)
         return false;
 

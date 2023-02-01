@@ -137,7 +137,7 @@ void Zone::Shutdown() {
 
 }
 // Function to update frame each second
-bool Zone::Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager, TextureManager* TextureManager, float frameTime, int fps, XMFLOAT4 scales, XMFLOAT3 lightDir) {
+bool Zone::Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager, TextureManager* TextureManager, float frameTime, int fps, XMFLOAT4 scales, float detailScale, XMFLOAT3 lightDir) {
 
     bool result;
     float posX, posY, posZ, rotX, rotY, rotZ;
@@ -149,6 +149,7 @@ bool Zone::Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager,
     m_Position->GetPosition(posX, posY, posZ);
     m_Position->GetRotation(rotX, rotY, rotZ);
     this->scales = scales;
+    this->detailScale = detailScale;
     m_Light->SetDirection(lightDir.x, lightDir.y, lightDir.z);
 
     // Do the frame processing for the user interface.
@@ -291,7 +292,7 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
 
     // Render the cell buffers using the terrain shader.
     result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, viewMatrix,
-        projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps, roughMaps, aoMaps, m_Light, scales);
+        projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps, roughMaps, aoMaps, m_Light, scales, detailScale);
     if (!result)
         return false;
 

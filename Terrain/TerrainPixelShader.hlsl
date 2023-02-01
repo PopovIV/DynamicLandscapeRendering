@@ -20,7 +20,7 @@ Texture2D snowDiffuseTexture : register(t16);
 Texture2D snowNormalTexture : register(t17);
 Texture2D snowRoughTexture : register(t18);
 Texture2D snowAoTexture : register(t19);
-Texture2D splatMap : register(t20);
+Texture2D detailNormalMap : register(t20);
 Texture2D noise : register(t21);
 
 cbuffer LightBuffer : register(b0)
@@ -38,6 +38,8 @@ cbuffer scaleBuffer : register(b1)
     float rockScale;
     float slopeScale;
     float snowScale;
+    float detailScale;
+    float3 tmp;
 };
 
 struct PS_INPUT
@@ -154,8 +156,10 @@ float3 CalculatePBR(float3 N, float3 L, float3 V, float3 H, float alpha, float3 
 float4 CalculateColor(Texture2D diffuseTexture, Texture2D normalTexture, Texture2D roughTexture, Texture2D aoTexture,
     float3 pos, float3 normal, float3 tangent, float3 binormal, float3 L, float3 V, float scale) {
     float4 albedo = SampleTriplanar(diffuseTexture, pos, normal, scale);
-    float4 bumpMap = SampleTriplanarNorm(normalTexture, pos, normal, scale);
-    bumpMap = (bumpMap * 2.0f) - 1.0f;
+    float4 bumpMap = SampleTriplanarNorm(normalTexture, pos, normal, scale) * 2.0f - 1.0f;
+    float4 detailBumpMap = SampleTriplanarNorm(detailNormalMap, pos, normal,  1 / detailScale) * 2.0f - 1.0f;
+    bumpMap.x += detailBumpMap.x;
+    bumpMap.z += detailBumpMap.z;
     float rough = SampleTriplanar(roughTexture, pos, normal, scale).r;
     float ao = SampleTriplanar(aoTexture, pos, normal, scale).r;
     float3 N = (bumpMap.x * tangent) + (bumpMap.y * binormal) + (bumpMap.z * normal);

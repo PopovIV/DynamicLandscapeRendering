@@ -30,7 +30,7 @@ public:
     // Function to clear all stuff that was created in initialize function
     void Shutdown();
     // Function to update frame each second
-    bool Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager, TextureManager* TextureManager, float frameTime, int fps, XMFLOAT4 scales, XMFLOAT3 lightDir);
+    bool Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager, TextureManager* TextureManager, float frameTime, int fps, XMFLOAT4 scales, float detailScale, XMFLOAT3 lightDir);
 
     void GetPosition(float& x, float& y , float& z) { m_Position->GetPosition(x, y, z); };
     void GetRotation(float& x, float& y, float& z) { m_Position->GetRotation(x, y, z); };
@@ -55,6 +55,7 @@ private:
     SkyDome* m_SkyDome;
     XMFLOAT3 lightDir;
     XMFLOAT4 scales;
+    float detailScale;
     bool m_displayUI, m_wireFrame, m_dayNightCycle;
 };
 
