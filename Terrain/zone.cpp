@@ -8,6 +8,7 @@ Zone::Zone() {
     m_Camera = nullptr;
     m_Light = nullptr;
     m_Position = nullptr;
+    m_SkyDome = nullptr;
     m_Terrain = nullptr;
 
 }
@@ -59,6 +60,18 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     m_Position->SetPosition(512.0f, 200.0f, 250.0f);
     m_Position->SetRotation(0.0f, 0.0f, 0.0f);
 
+    // Create the sky dome object.
+    m_SkyDome = new SkyDome;
+    if (!m_SkyDome)
+        return false;
+
+    // Initialize the sky dome object.
+    result = m_SkyDome->Initialize(Direct3D->GetDevice());
+    if (!result) {
+        MessageBox(hwnd, L"Could not initialize the sky dome object.", L"Error", MB_OK);
+        return false;
+    }
+
     // Create the terrain object.
     m_Terrain = new Terrain;
     if (!m_Terrain)
@@ -88,6 +101,13 @@ void Zone::Shutdown() {
         m_Terrain->Shutdown();
         delete m_Terrain;
         m_Terrain = nullptr;
+    }
+
+    // Release the sky dome object.
+    if (m_SkyDome) {
+        m_SkyDome->Shutdown();
+        delete m_SkyDome;
+        m_SkyDome = nullptr;
     }
 
     // Release the position object.
@@ -197,6 +217,7 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
 
     XMMATRIX worldMatrix, viewMatrix, projectionMatrix, baseViewMatrix, orthoMatrix;
     bool result;
+    XMFLOAT3 cameraPosition;
 
     // Generate the view matrix based on the camera's position.
     m_Camera->Render();
@@ -208,8 +229,31 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
     m_Camera->GetBaseViewMatrix(baseViewMatrix);
     Direct3D->GetOrthoMatrix(orthoMatrix);
 
+    // Get the position of the camera.
+    cameraPosition = m_Camera->GetPosition();
     // Clear the buffers to begin the scene.
     Direct3D->BeginScene(0.30f, 0.59f, 0.71f, 1.0f);
+
+    // SKYDOME
+    // Turn off back face culling and turn off the Z buffer.
+    Direct3D->TurnOffCulling();
+    Direct3D->TurnZBufferOff();
+
+    // Translate the sky dome to be centered around the camera position.
+    worldMatrix = XMMatrixTranslation(cameraPosition.x, cameraPosition.y, cameraPosition.z);
+
+    // Render the sky dome using the sky dome shader.
+    m_SkyDome->Render(Direct3D->GetDeviceContext());
+    result = ShaderManager->RenderSkyDomeShader(Direct3D->GetDeviceContext(), m_SkyDome->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_SkyDome->GetApexColor(), m_SkyDome->GetCenterColor());
+    if (!result)
+        return false;
+
+    // Reset the world matrix.
+    Direct3D->GetWorldMatrix(worldMatrix);
+
+    // Turn the Z buffer back and back face culling on.
+    Direct3D->TurnZBufferOn();
+    Direct3D->TurnOnCulling();
 
     // Determine if the terrain should be rendered in wireframe or not.
     if (m_wireFrame)

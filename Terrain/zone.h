@@ -14,6 +14,7 @@
 #include "camera.h"
 #include "light.h"
 #include "position.h"
+#include "skydome.h"
 #include "terrain.h"
 
 class Zone {
@@ -51,6 +52,7 @@ private:
     Light* m_Light;
     Position* m_Position;
     Terrain* m_Terrain;
+    SkyDome* m_SkyDome;
     XMFLOAT3 lightDir;
     XMFLOAT4 scales;
     bool m_displayUI, m_wireFrame, m_dayNightCycle;

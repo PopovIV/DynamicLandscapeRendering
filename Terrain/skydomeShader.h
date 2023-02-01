@@ -1,8 +1,8 @@
 //--------------------------------------------------------------------------------------
-// TextureShader  - class for texture terrain shader
+// skydomeShader  - class for skydome shader
 //--------------------------------------------------------------------------------------
-#ifndef _TEXTURESHADER_H_
-#define _TEXTURESHADER_H_
+#ifndef _SKYDOMESHADER_H_
+#define _SKYDOMESHADER_H_
 
 #include <d3d11.h>
 #include <d3dcompiler.h>
@@ -11,7 +11,7 @@
 using namespace DirectX;
 using namespace std;
 
-class TextureShader {
+class SkyDomeShader {
 private:
     struct MatrixBufferType {
         XMMATRIX world;
@@ -19,30 +19,26 @@ private:
         XMMATRIX projection;
     };
 
-public:
-    // constructors
-    TextureShader();
-    TextureShader(const TextureShader& other) {};
-    // destructors
-    ~TextureShader() {};
+    struct ColorBufferType {
+        XMFLOAT4 apexColor;
+        XMFLOAT4 centerColor;
+    };
 
-    // Function to initialize shader
+public:
+    SkyDomeShader();
+    SkyDomeShader(const SkyDomeShader& other) {};
+    ~SkyDomeShader() {};
+
     bool Initialize(ID3D11Device* device, HWND hwnd);
-    // Function to realese shader
-    void Shutdown() { ShutdownShader(); };
-    // Render function
-    bool Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture);
+    void Shutdown();
+    bool Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT4 apexColor, XMFLOAT4 centerColor);
 
 private:
-    // Function to initialize shader
     bool InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename);
-    // Function to release shader
     void ShutdownShader();
-    // Function to print errors to file
     void OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename);
-    // Function to fill shader buffers and params
-    bool SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture);
-    // Render function
+
+    bool SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT4 apexColor, XMFLOAT4 centerColor);
     void RenderShader(ID3D11DeviceContext* deviceContext, int indexCount);
 
 private:
@@ -50,7 +46,7 @@ private:
     ID3D11PixelShader* m_pixelShader;
     ID3D11InputLayout* m_layout;
     ID3D11Buffer* m_matrixBuffer;
-    ID3D11SamplerState* m_sampleState;
+    ID3D11Buffer* m_colorBuffer;
 };
 
 #endif

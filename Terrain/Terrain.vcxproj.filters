@@ -43,6 +43,12 @@
     <Filter Include="Исходные файлы\imgui">
       <UniqueIdentifier>{29c3890d-49fd-42f7-8585-a9eb55e4b6e2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Исходные файлы\Sky">
+      <UniqueIdentifier>{c8a087d0-36cf-4ba5-9253-12b7d5d6973d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Sky">
+      <UniqueIdentifier>{968daaf5-7a29-47f3-8f09-e9d92ff144c1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="system.h">
@@ -134,6 +140,12 @@
     </ClInclude>
     <ClInclude Include="imgui_internal.h">
       <Filter>Файлы заголовков\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="skydome.h">
+      <Filter>Файлы заголовков\Sky</Filter>
+    </ClInclude>
+    <ClInclude Include="skydomeShader.h">
+      <Filter>Файлы заголовков\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -236,6 +248,12 @@
     <ClCompile Include="imgui_widgets.cpp">
       <Filter>Исходные файлы\imgui</Filter>
     </ClCompile>
+    <ClCompile Include="skydome.cpp">
+      <Filter>Исходные файлы\Sky</Filter>
+    </ClCompile>
+    <ClCompile Include="skydomeShader.cpp">
+      <Filter>Исходные файлы\Shaders</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="FontVertexShader.hlsl" />
@@ -248,5 +266,7 @@
     <FxCompile Include="TerrainPixelShader.hlsl" />
     <FxCompile Include="TerrainDomainShader.hlsl" />
     <FxCompile Include="TerrainHullShader.hlsl" />
+    <FxCompile Include="SkyDomeVertexShader.hlsl" />
+    <FxCompile Include="SkyDomePixelShader.hlsl" />
   </ItemGroup>
 </Project>

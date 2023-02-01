@@ -9,6 +9,7 @@
 #include "textureshader.h"
 #include "lightshader.h"
 #include "fontshader.h"
+#include "skydomeshader.h"
 #include "terrainshader.h"
 
 class ShaderManager {
@@ -32,6 +33,8 @@ public:
     bool RenderLightShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor);
     // Function to render for Font shader
     bool RenderFontShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, XMFLOAT4 color);
+    // Function to render for SkyDome shader
+    bool RenderSkyDomeShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT4 apexColor, XMFLOAT4 centerColor);
     // Function to render for Terrain shader
     bool RenderTerrainShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], ID3D11ShaderResourceView* roughMaps[], ID3D11ShaderResourceView* aoMaps[], Light* light, XMFLOAT4 scales);
 
@@ -40,6 +43,7 @@ private:
     TextureShader* m_TextureShader;
     LightShader* m_LightShader;
     FontShader* m_FontShader;
+    SkyDomeShader* m_SkyDomeShader;
     TerrainShader* m_TerrainShader;
 
 };

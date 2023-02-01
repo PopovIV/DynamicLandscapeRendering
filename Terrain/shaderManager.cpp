@@ -6,6 +6,7 @@ ShaderManager::ShaderManager() {
     m_TextureShader = nullptr;
     m_LightShader = nullptr;
     m_FontShader = nullptr;
+    m_SkyDomeShader = nullptr;
     m_TerrainShader = nullptr;
 
 }
@@ -55,6 +56,16 @@ bool ShaderManager::Initialize(ID3D11Device* device, HWND hwnd) {
     if (!result)
         return false;
 
+    // Create the sky dome shader object.
+    m_SkyDomeShader = new SkyDomeShader;
+    if (!m_SkyDomeShader)
+        return false;
+
+    // Initialize the sky dome shader object.
+    result = m_SkyDomeShader->Initialize(device, hwnd);
+    if (!result)
+        return false;
+
     // Create the terrain shader object.
     m_TerrainShader = new TerrainShader;
     if (!m_TerrainShader)
@@ -77,6 +88,14 @@ void ShaderManager::Shutdown() {
         m_TerrainShader->Shutdown();
         delete m_TerrainShader;
         m_TerrainShader = nullptr;
+    }
+
+    // Release the sky dome shader object.
+    if (m_SkyDomeShader)
+    {
+        m_SkyDomeShader->Shutdown();
+        delete m_SkyDomeShader;
+        m_SkyDomeShader = nullptr;
     }
 
     // Release the font shader object.
@@ -127,6 +146,10 @@ bool ShaderManager::RenderLightShader(ID3D11DeviceContext* deviceContext, int in
 // Function to render for Font shader
 bool ShaderManager::RenderFontShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, XMFLOAT4 color) {
     return m_FontShader->Render(deviceContext, indexCount, worldMatrix, viewMatrix, projectionMatrix, texture, color);
+}
+
+bool ShaderManager::RenderSkyDomeShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT4 apexColor, XMFLOAT4 centerColor) {
+    return m_SkyDomeShader->Render(deviceContext, indexCount, worldMatrix, viewMatrix, projectionMatrix, apexColor, centerColor);
 }
 
 // Function to render for Terrain shader
