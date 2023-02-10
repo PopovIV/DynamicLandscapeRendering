@@ -45,6 +45,10 @@ public:
     void TurnOnCulling() { m_deviceContext->RSSetState(m_rasterState); };
     void TurnOffCulling() { m_deviceContext->RSSetState(m_rasterStateNoCulling); };
 
+    ID3D11DepthStencilView* GetDepthStencilView() { return m_depthStencilView; };
+    void SetBackBufferRenderTarget() { m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView); };
+
+
     void EnableAlphaBlending();
     void EnableAlphaToCoverageBlending();
     void DisableAlphaBlending();

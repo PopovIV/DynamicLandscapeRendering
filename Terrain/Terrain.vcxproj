@@ -183,6 +183,7 @@
     <ClInclude Include="light.h" />
     <ClInclude Include="lightShader.h" />
     <ClInclude Include="position.h" />
+    <ClInclude Include="renderTexture.h" />
     <ClInclude Include="shaderManager.h" />
     <ClInclude Include="skydome.h" />
     <ClInclude Include="skydomeShader.h" />
@@ -220,6 +221,7 @@
     <ClCompile Include="lightShader.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="position.cpp" />
+    <ClCompile Include="renderTexture.cpp" />
     <ClCompile Include="shaderManager.cpp" />
     <ClCompile Include="skydome.cpp" />
     <ClCompile Include="skydomeShader.cpp" />

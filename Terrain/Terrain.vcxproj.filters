@@ -147,6 +147,9 @@
     <ClInclude Include="skydomeShader.h">
       <Filter>Файлы заголовков\Shaders</Filter>
     </ClInclude>
+    <ClInclude Include="renderTexture.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -253,6 +256,9 @@
     </ClCompile>
     <ClCompile Include="skydomeShader.cpp">
       <Filter>Исходные файлы\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="renderTexture.cpp">
+      <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
