@@ -193,7 +193,7 @@ float AverageLuminance::Process(ID3D11DeviceContext* deviceContext, ID3D11Shader
 
     CopyTexture(deviceContext, sourceTexture, *m_renderTextures[0], m_copyPixelShader);
     CopyTexture(deviceContext, m_renderTextures[0]->GetShaderResourceView(), *m_renderTextures[1], m_pixelShader);
-    for (int i = 1; i < m_renderTextures.size(); i++) {
+    for (int i = 2; i < m_renderTextures.size(); i++) {
         CopyTexture(deviceContext, m_renderTextures[i - 1]->GetShaderResourceView(), *m_renderTextures[i], m_copyPixelShader);
     }
 

@@ -70,10 +70,10 @@ bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
         return true;
       case Texture::DDS:
         // Load the Texture
-        hResult = DirectX::CreateDDSTextureFromFile(device, filename, nullptr, &m_textureView);
+        //hResult = DirectX::CreateDDSTextureFromFile(device, filename, nullptr, &m_textureView);
       
-       //hResult = DirectX::CreateDDSTextureFromFileEx(device, filename, 0, D3D11_USAGE_IMMUTABLE, D3D11_BIND_SHADER_RESOURCE,
-       //           0, D3D11_RESOURCE_MISC_TEXTURECUBE, sRGB, nullptr, &m_textureView);
+        hResult = DirectX::CreateDDSTextureFromFileEx(device, nullptr, filename, 0,
+            D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0, sRGB, nullptr, &m_textureView, 0);
  
         if (FAILED(hResult))
             return false;
