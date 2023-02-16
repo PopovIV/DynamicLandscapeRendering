@@ -22,7 +22,6 @@ Texture2D snowRoughTexture : register(t18);
 Texture2D snowAoTexture : register(t19);
 Texture2D detailNormalMap : register(t20);
 Texture2D noise : register(t21);
-Texture2D test : register(t22);
 
 cbuffer LightBuffer : register(b0)
 {

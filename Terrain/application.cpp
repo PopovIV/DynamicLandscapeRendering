@@ -61,7 +61,7 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
         return false;
 
     // Initialize the texture manager object.
-    result = m_TextureManager->Initialize(25);
+    result = m_TextureManager->Initialize(30);
     if (!result) {
         MessageBox(hwnd, L"Could not initialize the texture manager object.", L"Error", MB_OK);
         return false;

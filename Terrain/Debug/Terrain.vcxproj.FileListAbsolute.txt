@@ -22,3 +22,7 @@ A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\TerrainDomainShader.cso
 A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\TerrainHullShader.cso
 A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\SkyDomePixelShader.cso
 A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\SkyDomeVertexShader.cso
+A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\ToneMapPixelShader.cso
+A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\ToneMapVertexShader.cso
+A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\CopyPixelShader.cso
+A:\GitHub\DynamicLandscapeRendering\Terrain\Debug\LuminancePixelShader.cso

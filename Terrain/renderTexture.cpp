@@ -56,6 +56,13 @@ bool RenderTexture::Initialize(ID3D11Device* device, int textureWidth, int textu
         return false;
     }
 
+    m_viewport.Width = (FLOAT)textureWidth;
+    m_viewport.Height = (FLOAT)textureHeight;
+    m_viewport.MinDepth = 0.0f;
+    m_viewport.MaxDepth = 1.0f;
+    m_viewport.TopLeftX = 0;
+    m_viewport.TopLeftY = 0;
+
     return true;
 }
 

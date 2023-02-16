@@ -17,6 +17,7 @@
 #include "skydome.h"
 #include "terrain.h"
 #include "renderTexture.h"
+#include "toneMap.h"
 
 class Zone {
 public:
@@ -57,6 +58,7 @@ private:
     Position* m_Position;
     Terrain* m_Terrain;
     SkyDome* m_SkyDome;
+    ToneMap* m_ToneMap;
     XMFLOAT3 lightDir;
     XMFLOAT4 scales;
     float detailScale;

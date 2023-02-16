@@ -87,6 +87,17 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     m_Terrain = new Terrain;
     if (!m_Terrain)
         return false;
+
+    // Initialize toneMap object.
+    m_ToneMap = new ToneMap;
+    if (!m_ToneMap)
+        return false;
+    result = m_ToneMap->Initialize(Direct3D->GetDevice(), hwnd, screenWidth, screenHeight);
+    if (!result) {
+        MessageBox(hwnd, L"Could not initialize the tone map object.", L"Error", MB_OK);
+        return false;
+    }
+
     // Initialize the terrain object.
 
     result = m_Terrain->Initialize(Direct3D->GetDevice(), "data/setup.txt");
@@ -144,6 +155,11 @@ void Zone::Shutdown() {
     if (m_Camera) {
         delete m_Camera;
         m_Camera = nullptr;
+    }
+
+    if (m_ToneMap) {
+        delete m_ToneMap;
+        m_ToneMap = nullptr;
     }
 
     // Release the user interface object.
@@ -327,101 +343,16 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
 // Render function
 bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManager* TextureManager) {
 
-    XMMATRIX worldMatrix, viewMatrix, projectionMatrix, baseViewMatrix, orthoMatrix;
     bool result;
-    XMFLOAT3 cameraPosition;
 
     result = RenderToTexture(Direct3D, ShaderManager, TextureManager);
     if (!result) {
         return false;
     }
-
-    // Generate the view matrix based on the camera's position.
-    m_Camera->Render();
-
-    // Get the world, view, and projection matrices from the camera and d3d objects.
-    Direct3D->GetWorldMatrix(worldMatrix);
-    m_Camera->GetViewMatrix(viewMatrix);
-    Direct3D->GetProjectionMatrix(projectionMatrix);
-    m_Camera->GetBaseViewMatrix(baseViewMatrix);
-    Direct3D->GetOrthoMatrix(orthoMatrix);
-
-    // Get the position of the camera.
-    cameraPosition = m_Camera->GetPosition();
-    // Clear the buffers to begin the scene.
     Direct3D->BeginScene(0.30f, 0.59f, 0.71f, 1.0f);
 
-    // SKYDOME
-    // Turn off back face culling and turn off the Z buffer.
-    Direct3D->TurnOffCulling();
-    Direct3D->TurnZBufferOff();
-
-    // Translate the sky dome to be centered around the camera position.
-    worldMatrix = XMMatrixTranslation(cameraPosition.x, cameraPosition.y, cameraPosition.z);
-
-    // Render the sky dome using the sky dome shader.
-    m_SkyDome->Render(Direct3D->GetDeviceContext());
-    result = ShaderManager->RenderSkyDomeShader(Direct3D->GetDeviceContext(), m_SkyDome->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_SkyDome->GetApexColor(), m_SkyDome->GetCenterColor());
-    if (!result)
-        return false;
-
-    // Reset the world matrix.
-    Direct3D->GetWorldMatrix(worldMatrix);
-
-    // Turn the Z buffer back and back face culling on.
-    Direct3D->TurnZBufferOn();
-    Direct3D->TurnOnCulling();
-
-    // Determine if the terrain should be rendered in wireframe or not.
-    if (m_wireFrame)
-        Direct3D->EnableWireframe();
-
-    // Render the terrain grid using the color shader.
-    float posX, posY, posZ;
-    m_Position->GetPosition(posX, posY, posZ);
-    m_Terrain->Render(Direct3D->GetDeviceContext());
-    ID3D11ShaderResourceView* textures[] = { TextureManager->GetTexture(0), TextureManager->GetTexture(4), TextureManager->GetTexture(8), TextureManager->GetTexture(12), TextureManager->GetTexture(16), TextureManager->GetTexture(20) };
-    ID3D11ShaderResourceView* normalMaps[] = { TextureManager->GetTexture(1), TextureManager->GetTexture(5), TextureManager->GetTexture(9), TextureManager->GetTexture(13), TextureManager->GetTexture(17), TextureManager->GetTexture(21) };
-    ID3D11ShaderResourceView* roughMaps[] = { TextureManager->GetTexture(2), TextureManager->GetTexture(6), TextureManager->GetTexture(10), TextureManager->GetTexture(14), TextureManager->GetTexture(18), m_RenderTexture->GetShaderResourceView() };
-    ID3D11ShaderResourceView* aoMaps[] = { TextureManager->GetTexture(3), TextureManager->GetTexture(7), TextureManager->GetTexture(11), TextureManager->GetTexture(15), TextureManager->GetTexture(19) };
-
-    // Update our time
-    static float t = 0.0f;
-    static ULONGLONG timeStart = 0;
-    if (m_dayNightCycle) {
-        ULONGLONG timeCur = GetTickCount64();
-        if (timeStart == 0)
-            timeStart = timeCur;
-        t = (timeCur - timeStart) / 1000.0f;
-
-        XMVECTOR vec = XMLoadFloat3(&lightDir);
-        XMVECTOR direction = XMVector3Transform(vec, XMMatrixRotationZ(t));
-        XMFLOAT3 fl = XMFLOAT3(1.0f, 1.0f, 1.0f);
-        XMStoreFloat3(&fl, direction);
-        m_Light->SetDirection(fl.x, fl.y, fl.z);
-    }
-    else {
-        t = 0;
-        timeStart = 0;
-        lightDir = m_Light->GetDirection();
-    }
-
-    // Render the cell buffers using the terrain shader.
-    result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, viewMatrix,
-        projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps, roughMaps, aoMaps, m_Light, scales, detailScale);
-    if (!result)
-        return false;
-
-    // Determine if the terrain should be rendered in wireframe or not.
-    if (m_wireFrame)
-        Direct3D->DisableWireframe();
-
-    // Render the user interface.
-    if (m_displayUI) {
-        result = m_UserInterface->Render(Direct3D, ShaderManager, worldMatrix, baseViewMatrix, orthoMatrix);
-        if (!result)
-            return false;
-    }
+    // Post effect render
+    m_ToneMap->Process(Direct3D->GetDeviceContext(), m_RenderTexture->GetShaderResourceView(), Direct3D->GetRenderTarget(), Direct3D->GetViewPort());
 
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 

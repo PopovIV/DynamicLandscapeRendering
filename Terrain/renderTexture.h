@@ -9,6 +9,7 @@
 class RenderTexture {
   public:
     RenderTexture();
+    RenderTexture(ID3D11Device* device, int textureWidth, int textureHeight) { Initialize(device, textureWidth, textureHeight); };
     RenderTexture(const RenderTexture& other) {};
     ~RenderTexture() {};
 
@@ -17,12 +18,16 @@ class RenderTexture {
 
     void SetRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView) { deviceContext->OMSetRenderTargets(1, &m_renderTargetView, depthStencilView); };
     void ClearRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView, float red, float green, float blue, float alpha);
+    ID3D11Texture2D* GetRenderTarget() { return m_renderTargetTexture; };
+    ID3D11RenderTargetView* GetRenderTargetView() { return m_renderTargetView; };
     ID3D11ShaderResourceView* GetShaderResourceView() { return m_shaderResourceView; };
+    D3D11_VIEWPORT GetViewPort() { return m_viewport; };
 
   private:
     ID3D11Texture2D* m_renderTargetTexture;
     ID3D11RenderTargetView* m_renderTargetView;
     ID3D11ShaderResourceView* m_shaderResourceView;
+    D3D11_VIEWPORT m_viewport;
 };
 
 #endif
