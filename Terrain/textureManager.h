@@ -20,7 +20,7 @@ public:
     void Shutdown();
 
     // Texture loader function
-    bool LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* filename, int location, Texture::TextureType type);
+    bool LoadTexture(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* filename, int location, Texture::TextureType type, bool sRGB = false);
 
     ID3D11ShaderResourceView* GetTexture(int id) { return m_TextureArray[id].GetTexture(); };
 

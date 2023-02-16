@@ -38,7 +38,7 @@ float3 TonemapFilmic(float3 color)
     static const float W = 11.2; // Linear White Point Value
 
     float e = Exposure();
-    float3 curr = Uncharted2Tonemap(e * color);
+    float3 curr = Uncharted2Tonemap(e * 8 * color);
     float3 whiteScale = 1.0f / Uncharted2Tonemap(W);
     return curr * whiteScale;
 }

@@ -32,7 +32,7 @@ public:
     ~Texture() {};
 
     // Function to initialize texture
-    bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* filename, TextureType type);
+    bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* filename, TextureType type, bool sRGB = false);
     // Function to realese texture
     void Shutdown();
 
