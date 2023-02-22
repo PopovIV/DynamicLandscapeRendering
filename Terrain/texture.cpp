@@ -9,7 +9,7 @@ Texture::Texture() {
 }
 
 // Function to initialize texture
-bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* filename, TextureType type) {
+bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* filename, TextureType type, bool sRGB) {
 
     bool result;
     int height, width;
@@ -70,7 +70,11 @@ bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
         return true;
       case Texture::DDS:
         // Load the Texture
-        hResult = DirectX::CreateDDSTextureFromFile(device, filename, nullptr, &m_textureView);
+        //hResult = DirectX::CreateDDSTextureFromFile(device, filename, nullptr, &m_textureView);
+      
+        hResult = DirectX::CreateDDSTextureFromFileEx(device, nullptr, filename, 0,
+            D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0, sRGB, nullptr, &m_textureView, 0);
+ 
         if (FAILED(hResult))
             return false;
         // Generate mipmaps for this texture.

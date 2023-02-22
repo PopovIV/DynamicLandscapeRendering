@@ -16,6 +16,8 @@
 #include "position.h"
 #include "skydome.h"
 #include "terrain.h"
+#include "renderTexture.h"
+#include "toneMap.h"
 
 class Zone {
 public:
@@ -41,18 +43,22 @@ public:
     bool GetDayNight() { return m_dayNightCycle; };
 
 private:
+    bool RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManager* TextureManager);
     // Function to process all user's input
     void HandleMovementInput(Input* Input, float frameTime);
     // Render function
     bool Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManager* TextureManager);
 
 private:
+    RenderTexture* m_RenderTexture;
     UserInterface* m_UserInterface;
+    D3DClass* Direct3D;
     Camera* m_Camera;
     Light* m_Light;
     Position* m_Position;
     Terrain* m_Terrain;
     SkyDome* m_SkyDome;
+    ToneMap* m_ToneMap;
     XMFLOAT3 lightDir;
     XMFLOAT4 scales;
     float detailScale;

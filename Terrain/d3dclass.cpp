@@ -309,6 +309,8 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
     viewport.TopLeftX = 0.0f;
     viewport.TopLeftY = 0.0f;
 
+    m_viewport = viewport;
+
     // Create the viewport.
     m_deviceContext->RSSetViewports(1, &viewport);
 

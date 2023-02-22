@@ -147,6 +147,15 @@
     <ClInclude Include="skydomeShader.h">
       <Filter>Файлы заголовков\Shaders</Filter>
     </ClInclude>
+    <ClInclude Include="renderTexture.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="averageLuminance.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="toneMap.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -254,6 +263,15 @@
     <ClCompile Include="skydomeShader.cpp">
       <Filter>Исходные файлы\Shaders</Filter>
     </ClCompile>
+    <ClCompile Include="renderTexture.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="toneMap.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="averageLuminance.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="FontVertexShader.hlsl" />
@@ -268,5 +286,9 @@
     <FxCompile Include="TerrainHullShader.hlsl" />
     <FxCompile Include="SkyDomeVertexShader.hlsl" />
     <FxCompile Include="SkyDomePixelShader.hlsl" />
+    <FxCompile Include="ToneMapVertexShader.hlsl" />
+    <FxCompile Include="ToneMapPixelShader.hlsl" />
+    <FxCompile Include="CopyPixelShader.hlsl" />
+    <FxCompile Include="LuminancePixelShader.hlsl" />
   </ItemGroup>
 </Project>

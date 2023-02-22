@@ -45,6 +45,11 @@ public:
     void TurnOnCulling() { m_deviceContext->RSSetState(m_rasterState); };
     void TurnOffCulling() { m_deviceContext->RSSetState(m_rasterStateNoCulling); };
 
+    ID3D11DepthStencilView* GetDepthStencilView() { return m_depthStencilView; };
+    void SetBackBufferRenderTarget() { m_deviceContext->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView); };
+    ID3D11RenderTargetView* GetRenderTarget() { return  m_renderTargetView; };
+    D3D11_VIEWPORT GetViewPort() { return m_viewport; };
+
     void EnableAlphaBlending();
     void EnableAlphaToCoverageBlending();
     void DisableAlphaBlending();
@@ -73,6 +78,8 @@ private:
     ID3D11BlendState* m_alphaEnableBlendingState;
     ID3D11BlendState* m_alphaDisableBlendingState;
     ID3D11BlendState* m_alphaEnableBlendingState2;
+
+    D3D11_VIEWPORT m_viewport;
 };
 
 #endif

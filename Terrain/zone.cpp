@@ -5,6 +5,7 @@
 Zone::Zone() {
 
     m_UserInterface = nullptr;
+    m_RenderTexture = nullptr;
     m_Camera = nullptr;
     m_Light = nullptr;
     m_Position = nullptr;
@@ -45,11 +46,21 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
         return false;
 
     // Initialize the light object.
-    m_Light->SetAmbientColor(0.8f, 0.8f, 0.8f, 1.0f);
+    m_Light->SetAmbientColor(0.7f, 0.7f, 0.7f, 1.0f);
     m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-    m_Light->SetDirection(0.0f, -10000.0f, 0.0f);
+    m_Light->SetDirection(-10.0f, -30.0f, 10.0f);
     m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
     m_Light->SetSpecularPower(300.0f);
+
+    m_RenderTexture = new RenderTexture();
+    if (!m_RenderTexture) {
+        return false;
+    }
+
+    result = m_RenderTexture->Initialize(Direct3D->GetDevice(), screenWidth, screenHeight);
+    if (!result) {
+        return false;
+    }
 
     // Create the position object.
     m_Position = new Position;
@@ -76,6 +87,17 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     m_Terrain = new Terrain;
     if (!m_Terrain)
         return false;
+
+    // Initialize toneMap object.
+    m_ToneMap = new ToneMap;
+    if (!m_ToneMap)
+        return false;
+    result = m_ToneMap->Initialize(Direct3D->GetDevice(), hwnd, screenWidth, screenHeight);
+    if (!result) {
+        MessageBox(hwnd, L"Could not initialize the tone map object.", L"Error", MB_OK);
+        return false;
+    }
+
     // Initialize the terrain object.
 
     result = m_Terrain->Initialize(Direct3D->GetDevice(), "data/setup.txt");
@@ -110,6 +132,13 @@ void Zone::Shutdown() {
         m_SkyDome = nullptr;
     }
 
+    // Release the render to texture object.
+    if (m_RenderTexture) {
+        m_RenderTexture->Shutdown();
+        delete m_RenderTexture;
+        m_RenderTexture = 0;
+    }
+
     // Release the position object.
     if (m_Position) {
         delete m_Position;
@@ -126,6 +155,11 @@ void Zone::Shutdown() {
     if (m_Camera) {
         delete m_Camera;
         m_Camera = nullptr;
+    }
+
+    if (m_ToneMap) {
+        delete m_ToneMap;
+        m_ToneMap = nullptr;
     }
 
     // Release the user interface object.
@@ -214,11 +248,14 @@ void Zone::HandleMovementInput(Input* Input, float frameTime) {
 }
 
 // Render function
-bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManager* TextureManager) {
+bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManager* TextureManager) {
 
     XMMATRIX worldMatrix, viewMatrix, projectionMatrix, baseViewMatrix, orthoMatrix;
     bool result;
     XMFLOAT3 cameraPosition;
+
+    m_RenderTexture->SetRenderTarget(Direct3D->GetDeviceContext(), Direct3D->GetDepthStencilView());
+    m_RenderTexture->ClearRenderTarget(Direct3D->GetDeviceContext(), Direct3D->GetDepthStencilView(), 0.0f, 0.0f, 1.0f, 1.0f);
 
     // Generate the view matrix based on the camera's position.
     m_Camera->Render();
@@ -232,8 +269,6 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
 
     // Get the position of the camera.
     cameraPosition = m_Camera->GetPosition();
-    // Clear the buffers to begin the scene.
-    Direct3D->BeginScene(0.30f, 0.59f, 0.71f, 1.0f);
 
     // SKYDOME
     // Turn off back face culling and turn off the Z buffer.
@@ -300,12 +335,24 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
     if (m_wireFrame)
         Direct3D->DisableWireframe();
 
-    // Render the user interface.
-    if (m_displayUI) {
-        result = m_UserInterface->Render(Direct3D, ShaderManager, worldMatrix, baseViewMatrix, orthoMatrix);
-        if (!result)
-            return false;
+    Direct3D->SetBackBufferRenderTarget();
+    return true;
+
+}
+
+// Render function
+bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManager* TextureManager) {
+
+    bool result;
+
+    result = RenderToTexture(Direct3D, ShaderManager, TextureManager);
+    if (!result) {
+        return false;
     }
+    Direct3D->BeginScene(0.30f, 0.59f, 0.71f, 1.0f);
+
+    // Post effect render
+    m_ToneMap->Process(Direct3D->GetDeviceContext(), m_RenderTexture->GetShaderResourceView(), Direct3D->GetRenderTarget(), Direct3D->GetViewPort());
 
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
