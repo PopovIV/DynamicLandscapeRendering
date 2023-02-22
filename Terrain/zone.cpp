@@ -46,9 +46,9 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
         return false;
 
     // Initialize the light object.
-    m_Light->SetAmbientColor(0.8f, 0.8f, 0.8f, 1.0f);
+    m_Light->SetAmbientColor(0.7f, 0.7f, 0.7f, 1.0f);
     m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-    m_Light->SetDirection(0.0f, -10000.0f, 0.0f);
+    m_Light->SetDirection(-10.0f, -30.0f, 10.0f);
     m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
     m_Light->SetSpecularPower(300.0f);
 

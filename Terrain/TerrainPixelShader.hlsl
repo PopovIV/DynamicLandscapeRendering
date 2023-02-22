@@ -150,7 +150,7 @@ float3 CalculatePBR(float3 N, float3 L, float3 V, float3 H, float alpha, float3 
     float3 cookTorrance = cookTorranceNumerator / cookTorranceDenominator;
 
     float3 BRDF = Kd * lambert + cookTorrance;
-    return  BRDF * diffuseColor * max(dot(L, N), 0.0f) * ao * 4;//4
+    return  BRDF * diffuseColor * max(dot(L, N), 0.0f) * ao;//4
 }
 
 float4 CalculateColor(Texture2D diffuseTexture, Texture2D normalTexture, Texture2D roughTexture, Texture2D aoTexture,

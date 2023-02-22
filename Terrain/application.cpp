@@ -299,9 +299,9 @@ bool Application::Frame()
         scales.w = snowScale;
         ImGui::SliderInt("Detail scales", &detailScale, 1, 64, "%d", 0);
 
-        ImGui::SliderInt("Light position X", &lightX, -10000, 10000, "%d", 0);
-        ImGui::SliderInt("Light position Y", &lightY, -10000, 10000, "%d", 0);
-        ImGui::SliderInt("Light position Z", &lightZ, -10000, 10000, "%d", 0);
+        ImGui::SliderInt("Light position X", &lightX, -100, 100, "%d", 0);
+        ImGui::SliderInt("Light position Y", &lightY, -100, 100, "%d", 0);
+        ImGui::SliderInt("Light position Z", &lightZ, -100, 100, "%d", 0);
 
 
         std::string str = "FPS: ";
