@@ -78,7 +78,7 @@ bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
         if (FAILED(hResult))
             return false;
         // Generate mipmaps for this texture.
-        deviceContext->GenerateMips(m_textureView);
+        //deviceContext->GenerateMips(m_textureView);
 
         return true;
       default:

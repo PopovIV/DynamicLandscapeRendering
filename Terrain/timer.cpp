@@ -33,7 +33,7 @@ void Timer::Frame() {
     elapsedTicks = currentTime - m_startTime;
 
     // Calculate the frame time.
-   m_frameTime = (float)elapsedTicks / m_frequency;
+    m_frameTime = (float)elapsedTicks / m_frequency;
  
     // Restart the timer.
     m_startTime = currentTime;
