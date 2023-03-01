@@ -8,7 +8,8 @@ TerrainShader::TerrainShader() {
     m_domainShader = nullptr;
     m_layout = nullptr;
     m_matrixBuffer = nullptr;
-    m_sampleState = nullptr;
+    m_samplerState = nullptr;
+    m_samplerStateNoMips = nullptr;
     m_lightBuffer = nullptr;
 
 }
@@ -225,6 +226,26 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
     samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
     samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
     samplerDesc.MipLODBias = 0.0f;
+    samplerDesc.MaxAnisotropy = 1;
+    samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+    samplerDesc.BorderColor[0] = 1;
+    samplerDesc.BorderColor[1] = 1;
+    samplerDesc.BorderColor[2] = 1;
+    samplerDesc.BorderColor[3] = 1;
+    samplerDesc.MinLOD = 0;
+    samplerDesc.MaxLOD = 0;
+
+    // Create the texture sampler state.
+    result = device->CreateSamplerState(&samplerDesc, &m_samplerStateNoMips);
+    if (FAILED(result))
+        return false;
+
+    // Create a texture sampler state description.
+    samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.MipLODBias = 0.0f;
     samplerDesc.MaxAnisotropy = 16;
     samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
     samplerDesc.BorderColor[0] = 1;
@@ -235,7 +256,7 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsF
     samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
     // Create the texture sampler state.
-    result = device->CreateSamplerState(&samplerDesc, &m_sampleState);
+    result = device->CreateSamplerState(&samplerDesc, &m_samplerState);
     if (FAILED(result))
         return false;
 
@@ -285,9 +306,14 @@ void TerrainShader::ShutdownShader() {
     }
 
     // Release the sampler state.
-    if (m_sampleState) {
-        m_sampleState->Release();
-        m_sampleState = nullptr;
+    if (m_samplerState) {
+        m_samplerState->Release();
+        m_samplerState = nullptr;
+    }
+
+    if (m_samplerStateNoMips) {
+        m_samplerStateNoMips->Release();
+        m_samplerState = nullptr;
     }
 
     // Release the matrix constant buffer.
@@ -482,7 +508,8 @@ void TerrainShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCo
     deviceContext->PSSetShader(m_pixelShader, NULL, 0);
 
     // Set the sampler state in the pixel shader.
-    deviceContext->PSSetSamplers(0, 1, &m_sampleState);
+    deviceContext->PSSetSamplers(0, 1, &m_samplerState);
+    deviceContext->PSSetSamplers(1, 1, &m_samplerStateNoMips);
 
     // Render the triangle.
     deviceContext->DrawIndexed(indexCount, 0, 0);
