@@ -156,6 +156,9 @@
     <ClInclude Include="toneMap.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="terrainCell.h">
+      <Filter>Файлы заголовков\Terrain</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -272,6 +275,9 @@
     <ClCompile Include="averageLuminance.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="terrainCell.cpp">
+      <Filter>Исходные файлы\Terrain</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="FontVertexShader.hlsl" />
@@ -290,5 +296,7 @@
     <FxCompile Include="ToneMapPixelShader.hlsl" />
     <FxCompile Include="CopyPixelShader.hlsl" />
     <FxCompile Include="LuminancePixelShader.hlsl" />
+    <FxCompile Include="ColorVertexShader.hlsl" />
+    <FxCompile Include="ColorPixelShader.hlsl" />
   </ItemGroup>
 </Project>

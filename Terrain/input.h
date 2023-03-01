@@ -54,6 +54,8 @@ public:
     bool IsF2Toggled();
     // Function to check if F3 key is pressed
     bool IsF3Toggled();
+    // Function to check if F4 key is pressed
+    bool IsF4Toggled();
 
 private:
     // Function to read the state of keyboard
@@ -77,6 +79,7 @@ private:
     bool m_F1_released;
     bool m_F2_released;
     bool m_F3_released;
+    bool m_F4_released;
 };
 
 #endif

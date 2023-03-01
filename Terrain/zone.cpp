@@ -3,7 +3,6 @@
 #include "imgui_impl_dx11.h"
 
 Zone::Zone() {
-
     m_UserInterface = nullptr;
     m_RenderTexture = nullptr;
     m_Camera = nullptr;
@@ -11,7 +10,6 @@ Zone::Zone() {
     m_Position = nullptr;
     m_SkyDome = nullptr;
     m_Terrain = nullptr;
-
 }
 
 // Function to initialize user interface, camera, position and grid
@@ -68,8 +66,8 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
         return false;
 
     // Set the initial position and rotation.
-    m_Position->SetPosition(512.0f, 200.0f, 250.0f);
-    m_Position->SetRotation(0.0f, 0.0f, 0.0f);
+    m_Position->SetPosition(812.0f, 254.0f, 314.0f);
+    m_Position->SetRotation(2.0f, 61.0f, 0.0f);
 
     // Create the sky dome object.
     m_SkyDome = new SkyDome;
@@ -112,6 +110,7 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     m_displayUI = false;
     m_wireFrame = false;
     m_dayNightCycle = false;
+    m_cellLines = true;
     return true;
 
 }
@@ -245,6 +244,12 @@ void Zone::HandleMovementInput(Input* Input, float frameTime) {
     if (Input->IsF3Toggled())
         m_dayNightCycle = !m_dayNightCycle;
 
+    // Determine if we should render the lines around each terrain cell.
+    if (Input->IsF4Toggled())
+    {
+        m_cellLines = !m_cellLines;
+    }
+
 }
 
 // Render function
@@ -298,10 +303,10 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
     // Render the terrain grid using the color shader.
     float posX, posY, posZ;
     m_Position->GetPosition(posX, posY, posZ);
-    m_Terrain->Render(Direct3D->GetDeviceContext());
+    //m_Terrain->Render(Direct3D->GetDeviceContext());
     ID3D11ShaderResourceView* textures[] = { TextureManager->GetTexture(0), TextureManager->GetTexture(4), TextureManager->GetTexture(8), TextureManager->GetTexture(12), TextureManager->GetTexture(16), TextureManager->GetTexture(20) };
     ID3D11ShaderResourceView* normalMaps[] = { TextureManager->GetTexture(1), TextureManager->GetTexture(5), TextureManager->GetTexture(9), TextureManager->GetTexture(13), TextureManager->GetTexture(17), TextureManager->GetTexture(21) };
-    ID3D11ShaderResourceView* roughMaps[] = { TextureManager->GetTexture(2), TextureManager->GetTexture(6), TextureManager->GetTexture(10), TextureManager->GetTexture(14), TextureManager->GetTexture(18)};
+    ID3D11ShaderResourceView* roughMaps[] = { TextureManager->GetTexture(2), TextureManager->GetTexture(6), TextureManager->GetTexture(10), TextureManager->GetTexture(14), TextureManager->GetTexture(18), TextureManager->GetTexture(22) };
     ID3D11ShaderResourceView* aoMaps[] = { TextureManager->GetTexture(3), TextureManager->GetTexture(7), TextureManager->GetTexture(11), TextureManager->GetTexture(15), TextureManager->GetTexture(19) };
 
     // Update our time
@@ -325,11 +330,30 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
         lightDir = m_Light->GetDirection();
     }
 
-    // Render the cell buffers using the terrain shader.
-    result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, viewMatrix,
-        projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps, roughMaps, aoMaps, m_Light, scales, detailScale);
-    if (!result)
-        return false;
+    // Render the terrain cells (and cell lines if needed).
+    for (int i = 0; i < m_Terrain->GetCellCount(); i++) {
+        // Put the terrain cell buffers on the pipeline.
+        result = m_Terrain->RenderCell(Direct3D->GetDeviceContext(), i);
+        if (!result) {
+            return false;
+        }
+
+        // Render the cell buffers using the terrain shader.
+        result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetCellIndexCount(i), worldMatrix, viewMatrix,
+                projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps, roughMaps, aoMaps, m_Light, scales, detailScale);
+        if (!result) {
+            return false;
+        }
+
+        // If needed then render the bounding box around this terrain cell using the color shader. 
+        if (m_cellLines) {
+            m_Terrain->RenderCellLines(Direct3D->GetDeviceContext(), i);
+            ShaderManager->RenderColorShader(Direct3D->GetDeviceContext(), m_Terrain->GetCellLinesIndexCount(i), worldMatrix, viewMatrix, projectionMatrix);
+            if (!result) {
+                return false;
+            }
+        }
+    }
 
     // Determine if the terrain should be rendered in wireframe or not.
     if (m_wireFrame)

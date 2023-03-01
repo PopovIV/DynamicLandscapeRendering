@@ -1,5 +1,8 @@
 #define NUM_CONTROL_POINTS 3
 
+SamplerState SampleTypeNoMips : register(s0);
+Texture2D HeightMap : register(t0);
+
 cbuffer MatrixBuffer
 {
     matrix worldMatrix;
@@ -62,22 +65,21 @@ PS_INPUT main(HS_CONSTANT_DATA_OUTPUT input, float3 uvwCoord : SV_DomainLocation
     vertexTangent = patch[0].tangent * uvwCoord.x + patch[1].tangent * uvwCoord.y + patch[2].tangent * uvwCoord.z;
     vertexBinormal = patch[0].binormal * uvwCoord.x + patch[1].binormal * uvwCoord.y + patch[2].binormal * uvwCoord.z;
     // To new coords
-    
-    //vertexPos.y = a.x * 200.0f;
+    //float h = HeightMap.SampleLevel(SampleTypeNoMips, vertexPos / 1920, 0.0f).x * 8000000.0;
+    //vertexPos += vertexNormal * h;
+
     output.position = mul(float4(vertexPos, 1.0), worldMatrix);
     output.worldPosition = output.position;
-    output.position = mul(output.worldPosition, viewMatrix);
-    output.tex = vertexTex;
+    output.position = mul(output.position, viewMatrix);
     output.position = mul(output.position, projectionMatrix);
+    output.tex = vertexTex;
     output.normal = normalize(mul(vertexNormal, (float3x3)worldMatrix));
     output.tangent = normalize(mul(vertexTangent, (float3x3)worldMatrix));
     output.binormal = normalize(mul(vertexBinormal, (float3x3)worldMatrix));
     output.pixelHeight = mul(float4(vertexPos, 1.0f), worldMatrix).y;
     output.tex2 = patch[0].tex2 * uvwCoord.x + patch[1].tex2 * uvwCoord.y + patch[2].tex2 * uvwCoord.z;
 
-    float4 worldPosition;
-    worldPosition = mul(float4(vertexPos, 1.0), worldMatrix);
-    output.viewDirection = normalize(cameraPos - worldPosition.xyz);
+    output.viewDirection = normalize(cameraPos - output.worldPosition.xyz);
 
     return output;
 }

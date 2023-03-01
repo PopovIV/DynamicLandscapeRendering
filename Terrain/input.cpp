@@ -1,16 +1,13 @@
 #include "input.h"
 
 Input::Input() {
-
     m_directInput = nullptr;
     m_keyboard = nullptr;
     m_mouse = nullptr;
-
 }
 
 // Function to initialize interface 
 bool Input::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeight) {
-
     HRESULT result;
 
     // Store the screen size which will be used for positioning the mouse cursor.
@@ -66,12 +63,10 @@ bool Input::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, int scre
         return false;
 
     return true;
-
 }
 
 // Function to realese interface
 void Input::Shutdown() {
-
     // Release the mouse.
     if (m_mouse) {
         m_mouse->Unacquire();
@@ -91,7 +86,6 @@ void Input::Shutdown() {
         m_directInput->Release();
         m_directInput = 0;
     }
-
 }
 
 // Function to read the current state into state buffers
@@ -117,7 +111,6 @@ bool Input::Frame() {
 
 // Function to read the state of keyboard
 bool Input::ReadKeyboard() {
-
     HRESULT result;
 
     // Read the keyboard device.
@@ -131,12 +124,10 @@ bool Input::ReadKeyboard() {
     }
 
     return true;
-
 }
 
 // Function to read the state of mouse
 bool Input::ReadMouse() {
-
     HRESULT result;
 
     // Read the mouse device.
@@ -150,12 +141,10 @@ bool Input::ReadMouse() {
     }
 
     return true;
-
 }
 
 // Function to deal with the changes that happened in the input device
 void Input::ProcessInput() {
-
     // Update the location of the mouse cursor based on the change of the mouse location during the frame.
     m_mouseX += m_mouseState.lX;
     m_mouseY += m_mouseState.lY;
@@ -166,109 +155,89 @@ void Input::ProcessInput() {
 
     if (m_mouseX > m_screenWidth) { m_mouseX = m_screenWidth; }
     if (m_mouseY > m_screenHeight) { m_mouseY = m_screenHeight; }
-
 }
 
 // Function to check if ESC key is pressed
 bool Input::IsEscapePressed() {
-
     // Do a bitwise and on the keyboard state to check if the escape key is currently being pressed.
     if (m_keyboardState[DIK_ESCAPE] & 0x80)
         return true;
 
     return false;
-
 }
 
 // Return position of mouse
 void Input::GetMouseLocation(int& mouseX, int& mouseY) {
-
     mouseX = m_mouseX;
     mouseY = m_mouseY;
-
 }
 
 // Function to check if left key is pressed
 bool Input::IsLeftPressed() {
-
     // Do a bitwise and on the keyboard state to check if the key is currently being pressed.
     if (m_keyboardState[DIK_LEFT] || m_keyboardState[DIK_A] & 0x80)
         return true;
 
 
     return false;
-
 }
 
 // Function to check if right key is pressed
 bool Input::IsRightPressed() {
-
     // Do a bitwise and on the keyboard state to check if the key is currently being pressed.
     if (m_keyboardState[DIK_RIGHT] || m_keyboardState[DIK_D] & 0x80)
         return true;
 
     return false;
-
 }
 
 // Function to check if up key is pressed
 bool Input::IsUpPressed() {
-
     // Do a bitwise and on the keyboard state to check if the key is currently being pressed.
     if (m_keyboardState[DIK_UP] || m_keyboardState[DIK_W] & 0x80)
         return true;
 
     return false;
-
 }
 
 // Function to check if down key is pressed
 bool Input::IsDownPressed() {
-
     // Do a bitwise and on the keyboard state to check if the key is currently being pressed.
     if (m_keyboardState[DIK_DOWN] || m_keyboardState[DIK_S] & 0x80)
         return true;
 
     return false;
-
 }
 
 
 // Function to check if PgUP key is pressed
 bool Input::IsPgUpPressed() {
-
     // Do a bitwise and on the keyboard state to check if the key is currently being pressed.
     if (m_keyboardState[DIK_PGUP] & 0x80)
         return true;
 
     return false;
-
 }
 
 // Function to check if PgDown key is pressed
 bool Input::IsPgDownPressed() {
-
     // Do a bitwise and on the keyboard state to check if the key is currently being pressed.
     if (m_keyboardState[DIK_PGDN] & 0x80)
         return true;
 
     return false;
-
 }
 
 // Function to check if mouse is used
 XMFLOAT2 Input::IsMouseUsed() {
-    
     if (m_mouseState.rgbButtons[0] || m_mouseState.rgbButtons[1] || m_mouseState.rgbButtons[2] & 0x80)
         return XMFLOAT2(m_mouseState.lX, m_mouseState.lY);
 
     return XMFLOAT2(0.0f, 0.0f);
-
 };
 
 // Function to check if F1 key is pressed
 bool Input::IsF1Toggled() {
-
     // Do a bitwise and on the keyboard state to check if the key is currently being pressed.
     if (m_keyboardState[DIK_F1] & 0x80) {
         if (m_F1_released) {
@@ -280,12 +249,10 @@ bool Input::IsF1Toggled() {
         m_F1_released = true;
 
     return false;
-
 }
 
 // Function to check if F2 key is pressed
 bool Input::IsF2Toggled() {
-
     // Do a bitwise and on the keyboard state to check if the key is currently being pressed.
     if (m_keyboardState[DIK_F2] & 0x80) {
         if (m_F2_released) {
@@ -297,12 +264,10 @@ bool Input::IsF2Toggled() {
         m_F2_released = true;
 
     return false;
-
 }
 
 // Function to check if F3 key is pressed
 bool Input::IsF3Toggled() {
-
     // Do a bitwise and on the keyboard state to check if the key is currently being pressed.
     if (m_keyboardState[DIK_F3] & 0x80) {
         if (m_F3_released) {
@@ -314,5 +279,19 @@ bool Input::IsF3Toggled() {
         m_F3_released = true;
 
     return false;
+}
 
+// Function to check if F3 key is pressed
+bool Input::IsF4Toggled() {
+    // Do a bitwise and on the keyboard state to check if the key is currently being pressed.
+    if (m_keyboardState[DIK_F4] & 0x80) {
+        if (m_F4_released) {
+            m_F4_released = false;
+            return true;
+        }
+    }
+    else
+        m_F4_released = true;
+
+    return false;
 }

@@ -141,6 +141,9 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/noise.dds", 21, Texture::DDS);
     if (!result)
         return false;
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/HM.dds", 22, Texture::DDS);
+    if (!result)
+        return false;
 
     // Create the timer object.
     m_Timer = new Timer;

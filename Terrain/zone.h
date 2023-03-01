@@ -62,7 +62,7 @@ private:
     XMFLOAT3 lightDir;
     XMFLOAT4 scales;
     float detailScale;
-    bool m_displayUI, m_wireFrame, m_dayNightCycle;
+    bool m_displayUI, m_wireFrame, m_dayNightCycle, m_cellLines;
 };
 
 #endif
