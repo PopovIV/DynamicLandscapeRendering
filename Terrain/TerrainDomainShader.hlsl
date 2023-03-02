@@ -91,7 +91,7 @@ PS_INPUT main(HS_CONSTANT_DATA_OUTPUT input, float3 uvwCoord : SV_DomainLocation
 
     vertexTex = patch[0].tex * uvwCoord.x + patch[1].tex * uvwCoord.y + patch[2].tex * uvwCoord.z;
     // To new coords
-    float h = HeightMap.SampleLevel(SampleTypeNoMips, vertexPos / 1920, 0.0f).x * 3.0;
+    float h = HeightMap.SampleLevel(SampleTypeNoMips, vertexPos / 1920, 0.0f).x * 1.0;
     vertexPos += vertexNormal * h;
 
     output.position = mul(float4(vertexPos, 1.0), worldMatrix);

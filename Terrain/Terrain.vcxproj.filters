@@ -25,12 +25,6 @@
     <Filter Include="Исходные файлы\Shaders">
       <UniqueIdentifier>{e19a64a0-fd8e-41dc-81e6-d7dd4d20ee56}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Файлы заголовков\Terrain\UserInterface">
-      <UniqueIdentifier>{ba675269-23f0-48e9-9cc2-e3138f394aaf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Исходные файлы\Terrain\UserInterface">
-      <UniqueIdentifier>{4804ce2e-8ca3-4e2a-b6e8-b54c7150097e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Исходные файлы\Utility">
       <UniqueIdentifier>{72811792-4098-4c9a-8bd4-d8d1bdeadbe1}</UniqueIdentifier>
     </Filter>
@@ -86,15 +80,6 @@
     </ClInclude>
     <ClInclude Include="fontShader.h">
       <Filter>Файлы заголовков\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="userInterface.h">
-      <Filter>Файлы заголовков\Terrain\UserInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="text.h">
-      <Filter>Файлы заголовков\Terrain\UserInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="font.h">
-      <Filter>Файлы заголовков\Terrain\UserInterface</Filter>
     </ClInclude>
     <ClInclude Include="zone.h">
       <Filter>Файлы заголовков\Terrain</Filter>
@@ -205,15 +190,6 @@
     </ClCompile>
     <ClCompile Include="fontShader.cpp">
       <Filter>Исходные файлы\Shaders</Filter>
-    </ClCompile>
-    <ClCompile Include="userInterface.cpp">
-      <Filter>Исходные файлы\Terrain\UserInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="text.cpp">
-      <Filter>Исходные файлы\Terrain\UserInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="font.cpp">
-      <Filter>Исходные файлы\Terrain\UserInterface</Filter>
     </ClCompile>
     <ClCompile Include="textureShader.cpp">
       <Filter>Исходные файлы\Shaders</Filter>

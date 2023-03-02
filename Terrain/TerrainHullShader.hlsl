@@ -67,9 +67,9 @@ HS_CONSTANT_DATA_OUTPUT constantsHullShader(InputPatch<HS_INPUT, NUM_CONTROL_POI
 
     // Assign tessellation levels (constant for now)
     output.EdgeFactors[0] = p0factor;
-        output.EdgeFactors[1] = p1factor;
-        output.EdgeFactors[2] = p2factor;
-        output.InsideFactor = (output.EdgeFactors[0] + output.EdgeFactors[1] + output.EdgeFactors[2]) / 3.0f;
+    output.EdgeFactors[1] = p1factor;
+    output.EdgeFactors[2] = p2factor;
+    output.InsideFactor = (output.EdgeFactors[0] + output.EdgeFactors[1] + output.EdgeFactors[2]) / 3.0f;
 
     output.bezierPoints[0] = CalculateBezierControlPoint(patch[0].position, patch[0].normal, patch[1].position, patch[1].normal);
     output.bezierPoints[1] = CalculateBezierControlPoint(patch[1].position, patch[1].normal, patch[0].position, patch[0].normal);

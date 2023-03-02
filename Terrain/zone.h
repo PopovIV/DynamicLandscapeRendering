@@ -10,7 +10,6 @@
 #include "shadermanager.h"
 #include "texturemanager.h"
 #include "timer.h"
-#include "userinterface.h"
 #include "camera.h"
 #include "light.h"
 #include "position.h"
@@ -46,6 +45,7 @@ public:
     bool GetWireFrame() { return m_wireFrame; };
     bool GetDayNight() { return m_dayNightCycle; };
     bool GetHeightLocked() { return m_heightLocked; };
+    Frustum* m_Frustum;
 
 private:
     bool RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManager* TextureManager);
@@ -56,7 +56,6 @@ private:
 
 private:
     RenderTexture* m_RenderTexture;
-    UserInterface* m_UserInterface;
     D3DClass* Direct3D;
     Camera* m_Camera;
     Light* m_Light;
@@ -64,7 +63,6 @@ private:
     Terrain* m_Terrain;
     SkyDome* m_SkyDome;
     ToneMap* m_ToneMap;
-    Frustum* m_Frustum;
     XMFLOAT3 lightDir;
     XMFLOAT4 scales;
     float detailScale;

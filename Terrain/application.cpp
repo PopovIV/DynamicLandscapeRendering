@@ -297,8 +297,12 @@ bool Application::Frame()
             m_Zone->ToggleDayNight();
 
         if (ImGui::Checkbox("Culling", &culling))
+        {
             m_Zone->ToggleCulling();
+        }
 
+        if (culling)
+            ImGui::Checkbox("Lock View", &m_Zone->m_Frustum->LOCK_VIEW);
         
         ImGui::SliderInt("Grass scales", &grassScale, 1, 64, "%d", 0);
         scales.x = grassScale;

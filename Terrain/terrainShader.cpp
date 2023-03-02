@@ -46,7 +46,7 @@ bool TerrainShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, X
 }
 
 // Function to initialize shader
-bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename, WCHAR* hsFilename, WCHAR* dsFilename) {
+bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wchar_t* vsFilename, const wchar_t* psFilename, const wchar_t* hsFilename, const wchar_t* dsFilename) {
 
     HRESULT result;
     ID3D10Blob* errorMessage;
@@ -355,7 +355,7 @@ void TerrainShader::ShutdownShader() {
 }
 
 // Function to print errors to file
-void TerrainShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename) {
+void TerrainShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, const wchar_t* shaderFilename) {
 
     char* compileErrors;
     unsigned long long bufferSize, i;

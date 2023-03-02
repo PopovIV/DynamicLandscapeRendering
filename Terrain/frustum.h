@@ -22,10 +22,13 @@ public:
     bool CheckSphere(float xCenter, float yCenter, float zCenter, float radius);
     bool CheckRectangle(float xCenter, float yCenter, float zCenter, float xSize, float ySize, float zSize);
     bool CheckRectangle2(float maxWidth, float maxHeight, float maxDepth, float minWidth, float minHeight, float minDepth);
+    bool CheckRectangle3(float maxWidth, float maxHeight, float maxDepth, float minWidth, float minHeight, float minDepth);
 
+    bool LOCK_VIEW = false;
 private:
     float m_screenDepth;
     float m_planes[6][4];
+    XMMATRIX m_finalMatrix;
 };
 
 #endif

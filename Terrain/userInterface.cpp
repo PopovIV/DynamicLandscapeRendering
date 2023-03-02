@@ -34,7 +34,7 @@ bool UserInterface::Initialize(D3DClass* Direct3D, int screenHeight, int screenW
         return false;
 
     // Initialize the fps text string.
-    result = m_FpsString->Initialize(Direct3D->GetDevice(), Direct3D->GetDeviceContext(), screenWidth, screenHeight, 16, false, m_Font1, "Fps: 0", 10, 50, 0.0f, 1.0f, 0.0f);
+    result = m_FpsString->Initialize(Direct3D->GetDevice(), Direct3D->GetDeviceContext(), screenWidth, screenHeight, 16, false, m_Font1, (char*)"Fps: 0", 10, 50, 0.0f, 1.0f, 0.0f);
     if (!result)
         return false;
 
@@ -73,27 +73,27 @@ bool UserInterface::Initialize(D3DClass* Direct3D, int screenHeight, int screenW
         return false;
 
     // Initialize the position text strings.
-    result = m_PositionStrings[0].Initialize(Direct3D->GetDevice(), Direct3D->GetDeviceContext(), screenWidth, screenHeight, 16, false, m_Font1, "X: 0", 10, 310, 1.0f, 1.0f, 1.0f);
+    result = m_PositionStrings[0].Initialize(Direct3D->GetDevice(), Direct3D->GetDeviceContext(), screenWidth, screenHeight, 16, false, m_Font1, (char*)"X: 0", 10, 310, 1.0f, 1.0f, 1.0f);
     if (!result)
         return false;
 
-    result = m_PositionStrings[1].Initialize(Direct3D->GetDevice(), Direct3D->GetDeviceContext(), screenWidth, screenHeight, 16, false, m_Font1, "Y: 0", 10, 330, 1.0f, 1.0f, 1.0f);
+    result = m_PositionStrings[1].Initialize(Direct3D->GetDevice(), Direct3D->GetDeviceContext(), screenWidth, screenHeight, 16, false, m_Font1, (char*)"Y: 0", 10, 330, 1.0f, 1.0f, 1.0f);
     if (!result)
         return false;
 
-    result = m_PositionStrings[2].Initialize(Direct3D->GetDevice(), Direct3D->GetDeviceContext(), screenWidth, screenHeight, 16, false, m_Font1, "Z: 0", 10, 350, 1.0f, 1.0f, 1.0f);
+    result = m_PositionStrings[2].Initialize(Direct3D->GetDevice(), Direct3D->GetDeviceContext(), screenWidth, screenHeight, 16, false, m_Font1, (char*)"Z: 0", 10, 350, 1.0f, 1.0f, 1.0f);
     if (!result)
         return false;
 
-    result = m_PositionStrings[3].Initialize(Direct3D->GetDevice(), Direct3D->GetDeviceContext(), screenWidth, screenHeight, 16, false, m_Font1, "rX: 0", 10, 370, 1.0f, 1.0f, 1.0f);
+    result = m_PositionStrings[3].Initialize(Direct3D->GetDevice(), Direct3D->GetDeviceContext(), screenWidth, screenHeight, 16, false, m_Font1, (char*)"rX: 0", 10, 370, 1.0f, 1.0f, 1.0f);
     if (!result)
         return false;
 
-    result = m_PositionStrings[4].Initialize(Direct3D->GetDevice(), Direct3D->GetDeviceContext(), screenWidth, screenHeight, 16, false, m_Font1, "rY: 0", 10, 390, 1.0f, 1.0f, 1.0f);
+    result = m_PositionStrings[4].Initialize(Direct3D->GetDevice(), Direct3D->GetDeviceContext(), screenWidth, screenHeight, 16, false, m_Font1, (char*)"rY: 0", 10, 390, 1.0f, 1.0f, 1.0f);
     if (!result)
         return false;
 
-    result = m_PositionStrings[5].Initialize(Direct3D->GetDevice(), Direct3D->GetDeviceContext(), screenWidth, screenHeight, 16, false, m_Font1, "rZ: 0", 10, 410, 1.0f, 1.0f, 1.0f);
+    result = m_PositionStrings[5].Initialize(Direct3D->GetDevice(), Direct3D->GetDeviceContext(), screenWidth, screenHeight, 16, false, m_Font1, (char*)"rZ: 0", 10, 410, 1.0f, 1.0f, 1.0f);
     if (!result)
         return false;
 

@@ -38,7 +38,7 @@ bool FontShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMA
 }
 
 
-bool FontShader::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename) {
+bool FontShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wchar_t* vsFilename, const wchar_t* psFilename) {
 
     HRESULT result;
     ID3D10Blob* errorMessage;
@@ -219,7 +219,7 @@ void FontShader::ShutdownShader() {
 }
 
 // Function to print errors to file
-void FontShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename) {
+void FontShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, const wchar_t* shaderFilename) {
 
     char* compileErrors;
     unsigned __int64 bufferSize, i;

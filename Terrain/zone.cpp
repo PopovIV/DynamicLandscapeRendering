@@ -3,7 +3,6 @@
 #include "imgui_impl_dx11.h"
 
 Zone::Zone() {
-    m_UserInterface = nullptr;
     m_RenderTexture = nullptr;
     m_Camera = nullptr;
     m_Light = nullptr;
@@ -16,18 +15,6 @@ Zone::Zone() {
 // Function to initialize user interface, camera, position and grid
 bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screenHeight, float screenDepth) {
     bool result;
-
-    // Create the user interface object.
-    m_UserInterface = new UserInterface;
-    if (!m_UserInterface)
-        return false;
-
-    // Initialize the user interface object.
-    result = m_UserInterface->Initialize(Direct3D, screenHeight, screenWidth);
-    if (!result) {
-        MessageBox(hwnd, L"Could not initialize the user interface object.", L"Error", MB_OK);
-        return false;
-    }
 
     // Create the camera object.
     m_Camera = new Camera;
@@ -108,7 +95,7 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
 
     // Initialize the terrain object.
 
-    result = m_Terrain->Initialize(Direct3D->GetDevice(), "data/setup.txt");
+    result = m_Terrain->Initialize(Direct3D->GetDevice(), (char*)"data/setup.txt");
     if (!result) {
         MessageBox(hwnd, L"Could not initialize the terrain object.", L"Error", MB_OK);
         return false;
@@ -179,13 +166,6 @@ void Zone::Shutdown() {
         m_ToneMap = nullptr;
     }
 
-    // Release the user interface object.
-    if (m_UserInterface) {
-        m_UserInterface->Shutdown();
-        delete m_UserInterface;
-        m_UserInterface = nullptr;
-    }
-
 }
 // Function to update frame each second
 bool Zone::Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager, TextureManager* TextureManager, float frameTime, int fps, XMFLOAT4 scales, float detailScale, XMFLOAT3 lightDir) {
@@ -201,11 +181,6 @@ bool Zone::Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager,
     this->scales = scales;
     this->detailScale = detailScale;
     m_Light->SetDirection(lightDir.x, lightDir.y, lightDir.z);
-
-    // Do the frame processing for the user interface.
-    result = m_UserInterface->Frame(Direct3D->GetDeviceContext(), fps, posX, posY, posZ, rotX, rotY, rotZ);
-    if (!result)
-        return false;
 
     m_Terrain->Frame();
 

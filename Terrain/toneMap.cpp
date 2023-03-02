@@ -25,7 +25,7 @@ bool ToneMap::Initialize(ID3D11Device* device, HWND hwnd, int textureWidth, int 
     return true;
 }
 
-bool ToneMap::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename) {
+bool ToneMap::InitializeShader(ID3D11Device* device, HWND hwnd, const wchar_t* vsFilename, const wchar_t* psFilename) {
     HRESULT result;
     ID3D10Blob* errorMessage;
     ID3D10Blob* vertexShaderBuffer;
@@ -133,7 +133,7 @@ void ToneMap::Process(ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceVi
 }
 
 // Function to print errors to file
-void ToneMap::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename) {
+void ToneMap::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, const wchar_t* shaderFilename) {
 
     char* compileErrors;
     unsigned long long bufferSize, i;

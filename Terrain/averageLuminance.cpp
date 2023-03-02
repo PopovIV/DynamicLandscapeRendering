@@ -25,7 +25,7 @@ bool AverageLuminance::Initialize(ID3D11Device* device, HWND hwnd, int textureWi
     return CreateTextures(device, textureWidth, textureHeight);
 }
 
-bool AverageLuminance::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psCopyFilename, WCHAR* psFilename) {
+bool AverageLuminance::InitializeShader(ID3D11Device* device, HWND hwnd, const wchar_t* vsFilename, const wchar_t* psCopyFilename, const wchar_t* psFilename) {
     HRESULT result;
     ID3D10Blob* errorMessage;
     ID3D10Blob* vertexShaderBuffer;
@@ -219,7 +219,7 @@ float AverageLuminance::Process(ID3D11DeviceContext* deviceContext, ID3D11Shader
 }
 
 // Function to print errors to file
-void AverageLuminance::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename) {
+void AverageLuminance::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, const wchar_t* shaderFilename) {
 
     char* compileErrors;
     unsigned long long bufferSize, i;

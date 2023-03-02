@@ -3,7 +3,6 @@
 void Frustum::ConstructFrustum(XMMATRIX projectionMatrix, XMMATRIX viewMatrix) {
     XMFLOAT4X4 pMatrix, matrix;
     float zMinimum, r, length;
-    XMMATRIX finalMatrix;
 
     // Convert the projection matrix into a 4x4 float type.
     XMStoreFloat4x4(&pMatrix, projectionMatrix);
@@ -18,10 +17,10 @@ void Frustum::ConstructFrustum(XMMATRIX projectionMatrix, XMMATRIX viewMatrix) {
     projectionMatrix = XMLoadFloat4x4(&pMatrix);
 
     // Create the frustum matrix from the view matrix and updated projection matrix.
-    finalMatrix = XMMatrixMultiply(viewMatrix, projectionMatrix);
+    m_finalMatrix = XMMatrixMultiply(viewMatrix, projectionMatrix);
 
     // Convert the final matrix into a 4x4 float type.
-    XMStoreFloat4x4(&matrix, finalMatrix);
+    XMStoreFloat4x4(&matrix, m_finalMatrix);
 
     // Calculate near plane of frustum.
     m_planes[0][0] = matrix._14 + matrix._13;
@@ -278,4 +277,53 @@ bool Frustum::CheckRectangle2(float maxWidth, float maxHeight, float maxDepth, f
     }
 
     return true;
+}
+
+bool Frustum::CheckRectangle3(float maxWidth, float maxHeight, float maxDepth, float minWidth, float minHeight, float minDepth) {
+    static XMMATRIX vp;
+
+    if (!LOCK_VIEW)
+        vp = m_finalMatrix;
+
+    XMFLOAT4 points[8] = {
+        {maxWidth, maxHeight, maxDepth, 1},
+        {maxWidth, maxHeight, minDepth, 1},
+        {maxWidth, minHeight, maxDepth, 1},
+        {maxWidth, minHeight, minDepth, 1},       
+        {minWidth, maxHeight, maxDepth, 1},
+        {minWidth, maxHeight, minDepth, 1},
+        {minWidth, minHeight, maxDepth, 1},
+        {minWidth, minHeight, minDepth, 1}
+    };
+
+    for (int i = 0; i < 8; i++)
+    {
+        XMStoreFloat4(&points[i], XMVector4Transform(XMLoadFloat4(&points[i]), vp));
+        points[i].x /= points[i].w;
+        points[i].y /= points[i].w;
+        points[i].z /= points[i].w;
+        points[i].w /= points[i].w;
+    }
+    
+    bool LeftPlaneResult = true;
+    bool RightPlaneResult = true;
+    bool TopPlaneResult = true;
+    bool BottomPlaneResult = true;
+    bool FarPlaneResult = true;
+    bool NearPlaneResult = true;
+
+    for (int i = 0; i < 8; i++)
+    {
+        LeftPlaneResult = LeftPlaneResult && (points[i].x <= -1);
+        RightPlaneResult = RightPlaneResult && (points[i].x >= 1);
+
+        BottomPlaneResult = BottomPlaneResult && (points[i].y <= -1);
+        TopPlaneResult = TopPlaneResult && (points[i].y >= 1);
+
+        FarPlaneResult = FarPlaneResult && (points[i].z >= 1);
+        NearPlaneResult = NearPlaneResult && (points[i].z <= 0);
+    }
+    
+    bool inside = !(LeftPlaneResult || RightPlaneResult || TopPlaneResult || BottomPlaneResult || FarPlaneResult || NearPlaneResult);
+    return inside;
 }
