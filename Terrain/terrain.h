@@ -9,6 +9,7 @@
 #include <fstream>
 #include <stdio.h>
 #include "terrainCell.h"
+#include "frustum.h"
 
 using namespace std;
 using namespace DirectX;
@@ -54,12 +55,19 @@ public:
     // Function to clear all data from vertex and index buffers
     void Shutdown();
 
-    bool RenderCell(ID3D11DeviceContext*, int);
+    void Frame();
+
+
+    bool RenderCell(ID3D11DeviceContext* deviceContext, int cellId, Frustum* Frustum);
     void RenderCellLines(ID3D11DeviceContext* deviceContext, int cellId) { m_TerrainCells[cellId].RenderLineBuffers(deviceContext); };
 
     int GetCellIndexCount(int cellId) { return m_TerrainCells[cellId].GetIndexCount(); };
     int GetCellLinesIndexCount(int cellId) { return m_TerrainCells[cellId].GetLineBuffersIndexCount(); };
     int GetCellCount() { return m_cellCount; };
+
+    int GetRenderCount() { return m_renderCount; };
+    int GetCellsDrawn() { return m_cellsDrawn; };
+    int GetCellsCulled() { return m_cellsCulled; };
 private:
     // Function to read setup file
     bool LoadSetupFile(char* filename);
@@ -93,7 +101,7 @@ private:
     TerrainCell::ModelType* m_terrainModel;
 
     TerrainCell* m_TerrainCells;
-    int m_cellCount;
+    int m_cellCount, m_renderCount, m_cellsDrawn, m_cellsCulled;
 };
 
 #endif

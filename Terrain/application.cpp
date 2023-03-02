@@ -321,6 +321,7 @@ bool Application::Frame()
         str = "\nZ: ";
         str += std::to_string(z);
         ImGui::Text(str.c_str());
+
         m_Zone->GetRotation(x, y, z);
         str = "\nrX: ";
         str += std::to_string(x);
@@ -331,6 +332,18 @@ bool Application::Frame()
         str = "\nrZ: ";
         str += std::to_string(z);
         ImGui::Text(str.c_str());
+
+        m_Zone->GetCulling(x, y, z);
+        str = "\nPolygons: ";
+        str += std::to_string(x);
+        ImGui::Text(str.c_str());
+        str = "\nRendered: ";
+        str += std::to_string(y);
+        ImGui::Text(str.c_str());
+        str = "\nCulled: ";
+        str += std::to_string(z);
+        ImGui::Text(str.c_str());
+
 
         ImGui::End();
     }

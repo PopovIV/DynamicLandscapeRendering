@@ -96,14 +96,8 @@
     <ClInclude Include="font.h">
       <Filter>Файлы заголовков\Terrain\UserInterface</Filter>
     </ClInclude>
-    <ClInclude Include="texture.h">
-      <Filter>Файлы заголовков\Terrain\UserInterface</Filter>
-    </ClInclude>
     <ClInclude Include="zone.h">
       <Filter>Файлы заголовков\Terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="textureManager.h">
-      <Filter>Файлы заголовков\Terrain\UserInterface</Filter>
     </ClInclude>
     <ClInclude Include="textureShader.h">
       <Filter>Файлы заголовков\Shaders</Filter>
@@ -159,6 +153,15 @@
     <ClInclude Include="terrainCell.h">
       <Filter>Файлы заголовков\Terrain</Filter>
     </ClInclude>
+    <ClInclude Include="textureManager.h">
+      <Filter>Файлы заголовков\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>Файлы заголовков\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="frustum.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -210,12 +213,6 @@
       <Filter>Исходные файлы\Terrain\UserInterface</Filter>
     </ClCompile>
     <ClCompile Include="font.cpp">
-      <Filter>Исходные файлы\Terrain\UserInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="texture.cpp">
-      <Filter>Исходные файлы\Terrain\UserInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="textureManager.cpp">
       <Filter>Исходные файлы\Terrain\UserInterface</Filter>
     </ClCompile>
     <ClCompile Include="textureShader.cpp">
@@ -277,6 +274,15 @@
     </ClCompile>
     <ClCompile Include="terrainCell.cpp">
       <Filter>Исходные файлы\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="texture.cpp">
+      <Filter>Исходные файлы\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="textureManager.cpp">
+      <Filter>Исходные файлы\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="frustum.cpp">
+      <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

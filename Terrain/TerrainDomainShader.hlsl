@@ -65,8 +65,8 @@ PS_INPUT main(HS_CONSTANT_DATA_OUTPUT input, float3 uvwCoord : SV_DomainLocation
     vertexTangent = patch[0].tangent * uvwCoord.x + patch[1].tangent * uvwCoord.y + patch[2].tangent * uvwCoord.z;
     vertexBinormal = patch[0].binormal * uvwCoord.x + patch[1].binormal * uvwCoord.y + patch[2].binormal * uvwCoord.z;
     // To new coords
-    //float h = HeightMap.SampleLevel(SampleTypeNoMips, vertexPos / 1920, 0.0f).x * 8000000.0;
-    //vertexPos += vertexNormal * h;
+    float h = HeightMap.SampleLevel(SampleTypeNoMips, vertexPos / 1920, 0.0f).x * 3.0;
+    vertexPos += vertexNormal * h;
 
     output.position = mul(float4(vertexPos, 1.0), worldMatrix);
     output.worldPosition = output.position;

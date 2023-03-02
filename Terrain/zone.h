@@ -15,6 +15,7 @@
 #include "light.h"
 #include "position.h"
 #include "skydome.h"
+#include "frustum.h"
 #include "terrain.h"
 #include "renderTexture.h"
 #include "toneMap.h"
@@ -36,6 +37,7 @@ public:
 
     void GetPosition(float& x, float& y , float& z) { m_Position->GetPosition(x, y, z); };
     void GetRotation(float& x, float& y, float& z) { m_Position->GetRotation(x, y, z); };
+    void GetCulling(float& polygons, float& rendered, float& culled);
     XMFLOAT3 GetLighDirection(void) { return lightDir; };
     void ToggleWireFrame() { m_wireFrame = !m_wireFrame; };
     void ToggleDayNight() { m_dayNightCycle = !m_dayNightCycle; };
@@ -59,6 +61,7 @@ private:
     Terrain* m_Terrain;
     SkyDome* m_SkyDome;
     ToneMap* m_ToneMap;
+    Frustum* m_Frustum;
     XMFLOAT3 lightDir;
     XMFLOAT4 scales;
     float detailScale;

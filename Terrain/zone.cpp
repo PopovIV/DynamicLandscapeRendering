@@ -7,6 +7,7 @@ Zone::Zone() {
     m_RenderTexture = nullptr;
     m_Camera = nullptr;
     m_Light = nullptr;
+    m_Frustum = nullptr;
     m_Position = nullptr;
     m_SkyDome = nullptr;
     m_Terrain = nullptr;
@@ -66,8 +67,17 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
         return false;
 
     // Set the initial position and rotation.
-    m_Position->SetPosition(812.0f, 254.0f, 314.0f);
-    m_Position->SetRotation(2.0f, 61.0f, 0.0f);
+    m_Position->SetPosition(188.0f, 217.0f, 117.0f);
+    m_Position->SetRotation(11.0f, 355.0f, 0.0f);
+
+    // Create the frustum object.
+    m_Frustum = new Frustum;
+    if (!m_Frustum) {
+        return false;
+    }
+
+    // Initialize the frustum object.
+    m_Frustum->Initialize(screenDepth);
 
     // Create the sky dome object.
     m_SkyDome = new SkyDome;
@@ -110,7 +120,7 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     m_displayUI = false;
     m_wireFrame = false;
     m_dayNightCycle = false;
-    m_cellLines = true;
+    m_cellLines = false;
     return true;
 
 }
@@ -129,6 +139,11 @@ void Zone::Shutdown() {
         m_SkyDome->Shutdown();
         delete m_SkyDome;
         m_SkyDome = nullptr;
+    }
+
+    if (m_Frustum) {
+        delete m_Frustum;
+        m_Frustum = 0;
     }
 
     // Release the render to texture object.
@@ -171,7 +186,6 @@ void Zone::Shutdown() {
 }
 // Function to update frame each second
 bool Zone::Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager, TextureManager* TextureManager, float frameTime, int fps, XMFLOAT4 scales, float detailScale, XMFLOAT3 lightDir) {
-
     bool result;
     float posX, posY, posZ, rotX, rotY, rotZ;
 
@@ -190,6 +204,7 @@ bool Zone::Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager,
     if (!result)
         return false;
 
+    m_Terrain->Frame();
 
     // Render the graphics.
     result = Render(Direct3D, ShaderManager, TextureManager);
@@ -197,8 +212,8 @@ bool Zone::Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager,
         return false;
 
     return true;
-
 }
+
 // Function to handle user input from keyboard/mouse
 void Zone::HandleMovementInput(Input* Input, float frameTime) {
 
@@ -252,6 +267,12 @@ void Zone::HandleMovementInput(Input* Input, float frameTime) {
 
 }
 
+void Zone::GetCulling(float& polygons, float& rendered, float& culled) {
+    polygons = m_Terrain->GetRenderCount();
+    rendered = m_Terrain->GetCellsDrawn();
+    culled = m_Terrain->GetCellsCulled();
+};
+
 // Render function
 bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManager* TextureManager) {
 
@@ -274,6 +295,9 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
 
     // Get the position of the camera.
     cameraPosition = m_Camera->GetPosition();
+
+    // Construct the frustum.
+    m_Frustum->ConstructFrustum(projectionMatrix, viewMatrix);
 
     // SKYDOME
     // Turn off back face culling and turn off the Z buffer.
@@ -333,24 +357,22 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
     // Render the terrain cells (and cell lines if needed).
     for (int i = 0; i < m_Terrain->GetCellCount(); i++) {
         // Put the terrain cell buffers on the pipeline.
-        result = m_Terrain->RenderCell(Direct3D->GetDeviceContext(), i);
-        if (!result) {
-            return false;
-        }
-
-        // Render the cell buffers using the terrain shader.
-        result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetCellIndexCount(i), worldMatrix, viewMatrix,
+        result = m_Terrain->RenderCell(Direct3D->GetDeviceContext(), i, m_Frustum);
+        if (result) {
+            // Render the cell buffers using the terrain shader.
+            result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetCellIndexCount(i), worldMatrix, viewMatrix,
                 projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps, roughMaps, aoMaps, m_Light, scales, detailScale);
-        if (!result) {
-            return false;
-        }
-
-        // If needed then render the bounding box around this terrain cell using the color shader. 
-        if (m_cellLines) {
-            m_Terrain->RenderCellLines(Direct3D->GetDeviceContext(), i);
-            ShaderManager->RenderColorShader(Direct3D->GetDeviceContext(), m_Terrain->GetCellLinesIndexCount(i), worldMatrix, viewMatrix, projectionMatrix);
             if (!result) {
                 return false;
+            }
+
+            // If needed then render the bounding box around this terrain cell using the color shader. 
+            if (m_cellLines) {
+                m_Terrain->RenderCellLines(Direct3D->GetDeviceContext(), i);
+                ShaderManager->RenderColorShader(Direct3D->GetDeviceContext(), m_Terrain->GetCellLinesIndexCount(i), worldMatrix, viewMatrix, projectionMatrix);
+                if (!result) {
+                    return false;
+                }
             }
         }
     }
