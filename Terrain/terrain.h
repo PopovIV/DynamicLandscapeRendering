@@ -68,6 +68,8 @@ public:
     int GetRenderCount() { return m_renderCount; };
     int GetCellsDrawn() { return m_cellsDrawn; };
     int GetCellsCulled() { return m_cellsCulled; };
+
+    bool GetHeightAtPosition(float inputX, float inputZ, float& height);
 private:
     // Function to read setup file
     bool LoadSetupFile(char* filename);
@@ -84,6 +86,8 @@ private:
     bool BuildTerrainModel();
     // Release the terrain model
     void ShutdownTerrainModel();
+
+    bool CheckHeightOfTriangle(float x, float z, float& height, float v0[3], float v1[3], float v2[3]);
 
     // Function to calculate terrain vectors
     void CalculateTerrainVectors();

@@ -67,8 +67,8 @@ void Position::MoveForward(bool keydown) {
     // Update the forward speed movement based on the frame time and whether the user is holding the key down or not.
     if (keydown) {
         m_forwardSpeed += m_frameTime * 1.0f;
-        if (m_forwardSpeed > (m_frameTime * 50.0f))
-            m_forwardSpeed = m_frameTime * 50.0f;
+        if (m_forwardSpeed > (m_frameTime * 15.0f))
+            m_forwardSpeed = m_frameTime * 15.0f;
     }
     else {
         m_forwardSpeed -= m_frameTime * 0.5f;
@@ -94,8 +94,8 @@ void Position::MoveBackward(bool keydown) {
     // Update the backward speed movement based on the frame time and whether the user is holding the key down or not.
     if (keydown) {
         m_backwardSpeed += m_frameTime * 1.0f;
-        if (m_backwardSpeed > (m_frameTime * 50.0f))
-            m_backwardSpeed = m_frameTime * 50.0f;
+        if (m_backwardSpeed > (m_frameTime * 15.0f))
+            m_backwardSpeed = m_frameTime * 15.0f;
     }
     else{
         m_backwardSpeed -= m_frameTime * 0.5f;
@@ -119,8 +119,8 @@ void Position::MoveUpward(bool keydown) {
     // Update the upward speed movement based on the frame time and whether the user is holding the key down or not.
     if (keydown) {
         m_upwardSpeed += m_frameTime * 1.5f;
-        if (m_upwardSpeed > (m_frameTime * 15.0f))
-            m_upwardSpeed = m_frameTime * 15.0f;
+        if (m_upwardSpeed > (m_frameTime * 10.0f))
+            m_upwardSpeed = m_frameTime * 10.0f;
     }
     else {
         m_upwardSpeed -= m_frameTime * 0.5f;
@@ -139,8 +139,8 @@ void Position::MoveDownward(bool keydown) {
     // Update the downward speed movement based on the frame time and whether the user is holding the key down or not.
     if (keydown) {
         m_downwardSpeed += m_frameTime * 1.5f;
-        if (m_downwardSpeed > (m_frameTime * 15.0f))
-            m_downwardSpeed = m_frameTime * 15.0f;
+        if (m_downwardSpeed > (m_frameTime * 10.0f))
+            m_downwardSpeed = m_frameTime * 10.0f;
     }
     else {
         m_downwardSpeed -= m_frameTime * 0.5f;
@@ -161,8 +161,8 @@ void Position::MoveLeft(bool keydown) {
     // Update the upward speed movement based on the frame time and whether the user is holding the key down or not.
     if (keydown) {
         m_leftSpeed += m_frameTime * 1.0f;
-        if (m_leftSpeed > (m_frameTime * 50.0f))
-            m_leftSpeed = m_frameTime * 50.0f;
+        if (m_leftSpeed > (m_frameTime * 10.0f))
+            m_leftSpeed = m_frameTime * 10.0f;
     }
     else {
         m_leftSpeed -= m_frameTime * 0.5f;
@@ -186,8 +186,8 @@ void Position::MoveRight(bool keydown) {
     // Update the upward speed movement based on the frame time and whether the user is holding the key down or not.
     if (keydown) {
         m_rightSpeed += m_frameTime * 1.0f;
-        if (m_rightSpeed > (m_frameTime * 50.0f))
-            m_rightSpeed = m_frameTime * 50.0f;
+        if (m_rightSpeed > (m_frameTime * 10.0f))
+            m_rightSpeed = m_frameTime * 10.0f;
     }
     else {
         m_rightSpeed -= m_frameTime * 0.5f;
@@ -209,8 +209,8 @@ void Position::TurnLeft(bool keydown) {
     // Update the left turn speed movement based on the frame time and whether the user is holding the key down or not.
     if (keydown) {
         m_leftTurnSpeed += m_frameTime * 5.0f;
-        if (m_leftTurnSpeed > (m_frameTime * 150.0f))
-            m_leftTurnSpeed = m_frameTime * 150.0f;
+        if (m_leftTurnSpeed > (m_frameTime * 75.0f))
+            m_leftTurnSpeed = m_frameTime * 75.0f;
     }
     else {
         m_leftTurnSpeed -= m_frameTime * 3.5f;
@@ -233,8 +233,8 @@ void Position::TurnRight(bool keydown) {
     // Update the right turn speed movement based on the frame time and whether the user is holding the key down or not.
     if (keydown) {
         m_rightTurnSpeed += m_frameTime * 5.0f;
-        if (m_rightTurnSpeed > (m_frameTime * 150.0f))
-           m_rightTurnSpeed = m_frameTime * 150.0f;
+        if (m_rightTurnSpeed > (m_frameTime * 75.0f))
+           m_rightTurnSpeed = m_frameTime * 75.0f;
     }
     else {
         m_rightTurnSpeed -= m_frameTime * 3.5f;

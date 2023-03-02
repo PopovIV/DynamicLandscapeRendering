@@ -295,3 +295,18 @@ bool Input::IsF4Toggled() {
 
     return false;
 }
+
+// Function to check if Space key is pressed
+bool Input::IsSpaceToggled() {
+    // Do a bitwise and on the keyboard state to check if the key is currently being pressed.
+    if (m_keyboardState[DIK_SPACE] & 0x80) {
+        if (m_Space_released) {
+            m_Space_released = false;
+            return true;
+        }
+    }
+    else
+        m_Space_released = true;
+
+    return false;
+}

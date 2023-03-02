@@ -42,8 +42,10 @@ public:
     void ToggleWireFrame() { m_wireFrame = !m_wireFrame; };
     void ToggleDayNight() { m_dayNightCycle = !m_dayNightCycle; };
     void ToggleCulling() { m_culling = !m_culling; };
+    void ToggleHeightLocked() { m_heightLocked = !m_heightLocked; };
     bool GetWireFrame() { return m_wireFrame; };
     bool GetDayNight() { return m_dayNightCycle; };
+    bool GetHeightLocked() { return m_heightLocked; };
 
 private:
     bool RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManager* TextureManager);
@@ -66,7 +68,7 @@ private:
     XMFLOAT3 lightDir;
     XMFLOAT4 scales;
     float detailScale;
-    bool m_displayUI, m_wireFrame, m_dayNightCycle, m_cellLines, m_culling;
+    bool m_displayUI, m_wireFrame, m_dayNightCycle, m_cellLines, m_culling, m_heightLocked;
 };
 
 #endif

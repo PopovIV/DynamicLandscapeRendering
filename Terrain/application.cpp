@@ -263,6 +263,7 @@ bool Application::Frame()
     static bool demoWindow = false;
     static bool wireframe = false;
     static bool dayNight = false;
+    static bool heightLocked = true;
     static bool culling = true;
     static bool myWindow = true;
     static int grassScale = 40;
@@ -288,6 +289,9 @@ bool Application::Frame()
 
         if (ImGui::Checkbox("WireFrame Mode", &wireframe))
             m_Zone->ToggleWireFrame();
+
+        if (ImGui::Checkbox("Height locked", &heightLocked))
+            m_Zone->ToggleHeightLocked();
 
         if (ImGui::Checkbox("DayNight Cycle", &dayNight))
             m_Zone->ToggleDayNight();
