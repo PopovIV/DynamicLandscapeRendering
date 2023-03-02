@@ -49,7 +49,7 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
     m_Light->SetDirection(27.0f, -56.0f, 10.0f);
     m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
-    m_Light->SetSpecularPower(400.0f);
+    m_Light->SetSpecularPower(300.0f);
 
     m_RenderTexture = new RenderTexture();
     if (!m_RenderTexture) {
