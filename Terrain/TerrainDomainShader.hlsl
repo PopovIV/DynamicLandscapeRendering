@@ -38,6 +38,7 @@ struct HS_CONSTANT_DATA_OUTPUT
 {
     float EdgeTessFactor[3]         : SV_TessFactor;
     float InsideTessFactor : SV_InsideTessFactor;
+    float3 bezierPoints[10] : BEZIERPOS;
 };
 
 [domain("tri")]
@@ -51,19 +52,44 @@ PS_INPUT main(HS_CONSTANT_DATA_OUTPUT input, float3 uvwCoord : SV_DomainLocation
     float3 vertexBinormal;
 
     float3 position, projection0, projection1, projection2, projectedPosition;
-
     position = patch[0].position * uvwCoord.x + patch[1].position * uvwCoord.y + patch[2].position * uvwCoord.z;
-    projection0 = position - dot(position - patch[0].position, patch[0].normal) * patch[0].normal;
-    projection1 = position - dot(position - patch[1].position, patch[1].normal) * patch[1].normal;
-    projection2 = position - dot(position - patch[2].position, patch[2].normal) * patch[2].normal;
-    projectedPosition = projection0 * uvwCoord.x + projection1 * uvwCoord.y + projection2 * uvwCoord.z;
 
-    // Find new vertex pos
+    // Phong Tessellation
+    //projection0 = position - dot(position - patch[0].position, patch[0].normal) * patch[0].normal;
+    //projection1 = position - dot(position - patch[1].position, patch[1].normal) * patch[1].normal;
+    //projection2 = position - dot(position - patch[2].position, patch[2].normal) * patch[2].normal;
+    //projectedPosition = projection0 * uvwCoord.x + projection1 * uvwCoord.y + projection2 * uvwCoord.z;
+    //vertexPos = lerp(position, projectedPosition, 0.9);
+
+    // Bezier position
+    projectedPosition =
+        patch[0].position * (uvwCoord.x * uvwCoord.x * uvwCoord.x) +
+        patch[1].position * (uvwCoord.y * uvwCoord.y * uvwCoord.y) +
+        patch[2].position * (uvwCoord.z * uvwCoord.z * uvwCoord.z) +
+        input.bezierPoints[0] * (3 * uvwCoord.x * uvwCoord.x * uvwCoord.y) +
+        input.bezierPoints[1] * (3 * uvwCoord.y * uvwCoord.y * uvwCoord.x) +
+        input.bezierPoints[2] * (3 * uvwCoord.y * uvwCoord.y * uvwCoord.z) +
+        input.bezierPoints[3] * (3 * uvwCoord.z * uvwCoord.z * uvwCoord.y) +
+        input.bezierPoints[4] * (3 * uvwCoord.z * uvwCoord.z * uvwCoord.x) +
+        input.bezierPoints[5] * (3 * uvwCoord.x * uvwCoord.x * uvwCoord.z) +
+        input.bezierPoints[6] * (6 * uvwCoord.x * uvwCoord.y * uvwCoord.z);
     vertexPos = lerp(position, projectedPosition, 0.9);
-    vertexTex = patch[0].tex * uvwCoord.x + patch[1].tex * uvwCoord.y + patch[2].tex * uvwCoord.z;
-    vertexNormal = patch[0].normal * uvwCoord.x + patch[1].normal * uvwCoord.y + patch[2].normal * uvwCoord.z;
+
+    float3 normal, projectedNormal;
+    normal = patch[0].normal * uvwCoord.x + patch[1].normal * uvwCoord.y + patch[2].normal * uvwCoord.z;
+    projectedNormal =
+        patch[0].normal * (uvwCoord.x * uvwCoord.x) +
+        patch[1].normal * (uvwCoord.y * uvwCoord.y) +
+        patch[2].normal * (uvwCoord.z * uvwCoord.z) +
+        input.bezierPoints[7] * (2 * uvwCoord.x * uvwCoord.y) +
+        input.bezierPoints[8] * (2 * uvwCoord.y * uvwCoord.z) +
+        input.bezierPoints[9] * (2 * uvwCoord.z * uvwCoord.x);
+    vertexNormal = normalize(lerp(normal, projectedNormal, 0.9));
     vertexTangent = patch[0].tangent * uvwCoord.x + patch[1].tangent * uvwCoord.y + patch[2].tangent * uvwCoord.z;
-    vertexBinormal = patch[0].binormal * uvwCoord.x + patch[1].binormal * uvwCoord.y + patch[2].binormal * uvwCoord.z;
+    vertexBinormal = cross(vertexNormal, vertexTangent);
+    vertexTangent = normalize(cross(vertexBinormal, vertexNormal));;
+
+    vertexTex = patch[0].tex * uvwCoord.x + patch[1].tex * uvwCoord.y + patch[2].tex * uvwCoord.z;
     // To new coords
     float h = HeightMap.SampleLevel(SampleTypeNoMips, vertexPos / 1920, 0.0f).x * 3.0;
     vertexPos += vertexNormal * h;
