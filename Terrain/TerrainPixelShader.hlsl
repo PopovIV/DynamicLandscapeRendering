@@ -143,9 +143,9 @@ float4 CalculateColor(Texture2D diffuseTexture, Texture2D normalTexture, Texture
     float3 pos, float3 normal, float3 tangent, float3 binormal, float3 L, float3 V, float scale) {
     float4 albedo = SampleTriplanar(diffuseTexture, pos, normal, scale, SampleType);
     float4 bumpMap = SampleTriplanar(normalTexture, pos, normal, scale, SampleType) * 2.0f - 1.0f;
-    float4 detailBumpMap = SampleTriplanar(detailNormalMap, pos, normal,  1 / detailScale, SampleType) * 2.0f - 1.0f;
+    float4 detailBumpMap = SampleTriplanar(detailNormalMap, pos, normal, 1 / detailScale, SampleType) * 2.0f - 1.0f;
     bumpMap.x += detailBumpMap.x;
-    bumpMap.z += detailBumpMap.z;
+    bumpMap.y += detailBumpMap.y;
     float rough = SampleTriplanar(roughTexture, pos, normal, scale, SampleType).r;
     float ao = SampleTriplanar(aoTexture, pos, normal, scale, SampleType).r;
     float3 N = (bumpMap.x * tangent) + (bumpMap.y * binormal) + (bumpMap.z * normal);
