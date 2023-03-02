@@ -58,7 +58,7 @@ public:
     void Frame();
 
 
-    bool RenderCell(ID3D11DeviceContext* deviceContext, int cellId, Frustum* Frustum);
+    bool RenderCell(ID3D11DeviceContext* deviceContext, int cellId, Frustum* Frustum, bool culling);
     void RenderCellLines(ID3D11DeviceContext* deviceContext, int cellId) { m_TerrainCells[cellId].RenderLineBuffers(deviceContext); };
 
     int GetCellIndexCount(int cellId) { return m_TerrainCells[cellId].GetIndexCount(); };

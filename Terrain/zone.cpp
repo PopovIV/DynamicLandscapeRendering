@@ -121,6 +121,7 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     m_wireFrame = false;
     m_dayNightCycle = false;
     m_cellLines = false;
+    m_culling = true;
     return true;
 
 }
@@ -357,7 +358,7 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
     // Render the terrain cells (and cell lines if needed).
     for (int i = 0; i < m_Terrain->GetCellCount(); i++) {
         // Put the terrain cell buffers on the pipeline.
-        result = m_Terrain->RenderCell(Direct3D->GetDeviceContext(), i, m_Frustum);
+        result = m_Terrain->RenderCell(Direct3D->GetDeviceContext(), i, m_Frustum, m_culling);
         if (result) {
             // Render the cell buffers using the terrain shader.
             result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetCellIndexCount(i), worldMatrix, viewMatrix,

@@ -41,6 +41,7 @@ public:
     XMFLOAT3 GetLighDirection(void) { return lightDir; };
     void ToggleWireFrame() { m_wireFrame = !m_wireFrame; };
     void ToggleDayNight() { m_dayNightCycle = !m_dayNightCycle; };
+    void ToggleCulling() { m_culling = !m_culling; };
     bool GetWireFrame() { return m_wireFrame; };
     bool GetDayNight() { return m_dayNightCycle; };
 
@@ -65,7 +66,7 @@ private:
     XMFLOAT3 lightDir;
     XMFLOAT4 scales;
     float detailScale;
-    bool m_displayUI, m_wireFrame, m_dayNightCycle, m_cellLines;
+    bool m_displayUI, m_wireFrame, m_dayNightCycle, m_cellLines, m_culling;
 };
 
 #endif

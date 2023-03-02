@@ -263,6 +263,7 @@ bool Application::Frame()
     static bool demoWindow = false;
     static bool wireframe = false;
     static bool dayNight = false;
+    static bool culling = true;
     static bool myWindow = true;
     static int grassScale = 40;
     static int rockScale = 32;
@@ -290,6 +291,9 @@ bool Application::Frame()
 
         if (ImGui::Checkbox("DayNight Cycle", &dayNight))
             m_Zone->ToggleDayNight();
+
+        if (ImGui::Checkbox("Culling", &culling))
+            m_Zone->ToggleCulling();
 
         
         ImGui::SliderInt("Grass scales", &grassScale, 1, 64, "%d", 0);
@@ -335,13 +339,13 @@ bool Application::Frame()
 
         m_Zone->GetCulling(x, y, z);
         str = "\nPolygons: ";
-        str += std::to_string(x);
+        str += std::to_string((int)x);
         ImGui::Text(str.c_str());
         str = "\nRendered: ";
-        str += std::to_string(y);
+        str += std::to_string((int)y);
         ImGui::Text(str.c_str());
         str = "\nCulled: ";
-        str += std::to_string(z);
+        str += std::to_string((int)z);
         ImGui::Text(str.c_str());
 
 
