@@ -1,22 +1,11 @@
 #include "terraincell.h"
 
-TerrainCell::TerrainCell() {
-    m_vertexList = nullptr;
-    m_vertexBuffer = nullptr;
-    m_indexBuffer = nullptr;
-    m_lineVertexBuffer = nullptr;
-    m_lineIndexBuffer = nullptr;
-}
-
-bool TerrainCell::Initialize(ID3D11Device * device, ModelType* terrainModelPtr, int nodeIndexX, int nodeIndexY, int cellHeight, int cellWidth, int terrainWidth) {
-    ModelType* terrainModel;
-    bool result;
-
+bool TerrainCell::Initialize(ID3D11Device * device, void* terrainModelPtr, int nodeIndexX, int nodeIndexY, int cellHeight, int cellWidth, int terrainWidth) {
     // Coerce the pointer to the terrain model into the model type.
-    //terrainModel = (ModelType*)terrainModelPtr;
+    ModelType* terrainModel = (ModelType*)terrainModelPtr;
 
     // Load the rendering buffers with the terrain data for this cell index.
-    result = InitializeBuffers(device, nodeIndexX, nodeIndexY, cellHeight, cellWidth, terrainWidth, terrainModelPtr);
+    bool result = InitializeBuffers(device, nodeIndexX, nodeIndexY, cellHeight, cellWidth, terrainWidth, terrainModel);
     if (!result) {
         return false;
     }
@@ -45,13 +34,6 @@ void TerrainCell::Shutdown() {
 }
 
 bool TerrainCell::InitializeBuffers(ID3D11Device* device, int nodeIndexX, int nodeIndexY, int cellHeight, int cellWidth, int terrainWidth, ModelType* terrainModel) {
-    VertexType* vertices;
-    unsigned long* indices;
-    int i, j, modelIndex, index;
-    D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
-    D3D11_SUBRESOURCE_DATA vertexData, indexData;
-    HRESULT result;
-
     // Calculate the number of vertices in this terrain cell.
     m_vertexCount = (cellHeight - 1) * (cellWidth - 1) * 6;
 
@@ -59,24 +41,24 @@ bool TerrainCell::InitializeBuffers(ID3D11Device* device, int nodeIndexX, int no
     m_indexCount = m_vertexCount;
 
     // Create the vertex array.
-    vertices = new VertexType[m_vertexCount];
+    VertexType* vertices = new VertexType[m_vertexCount];
     if (!vertices) {
         return false;
     }
 
     // Create the index array.
-    indices = new unsigned long[m_indexCount];
+    unsigned long* indices = new unsigned long[m_indexCount];
     if (!indices) {
         return false;
     }
 
     // Setup the indexes into the terrain model data and the local vertex/index array.
-    modelIndex = ((nodeIndexX * (cellWidth - 1)) + (nodeIndexY * (cellHeight - 1) * (terrainWidth - 1))) * 6;
-    index = 0;
+    int modelIndex = ((nodeIndexX * (cellWidth - 1)) + (nodeIndexY * (cellHeight - 1) * (terrainWidth - 1))) * 6;
+    int index = 0;
 
     // Load the vertex array and index array with data.
-    for (j = 0; j < (cellHeight - 1); j++) {
-        for (i = 0; i < ((cellWidth - 1) * 6); i++) {
+    for (int j = 0; j < (cellHeight - 1); j++) {
+        for (int i = 0; i < ((cellWidth - 1) * 6); i++) {
             vertices[index].position = XMFLOAT3(terrainModel[modelIndex].x, terrainModel[modelIndex].y, terrainModel[modelIndex].z);
             vertices[index].texture = XMFLOAT2(terrainModel[modelIndex].tu, terrainModel[modelIndex].tv);
             vertices[index].normal = XMFLOAT3(terrainModel[modelIndex].nx, terrainModel[modelIndex].ny, terrainModel[modelIndex].nz);
@@ -91,6 +73,7 @@ bool TerrainCell::InitializeBuffers(ID3D11Device* device, int nodeIndexX, int no
     }
 
     // Set up the description of the static vertex buffer.
+    D3D11_BUFFER_DESC vertexBufferDesc;
     vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
     vertexBufferDesc.ByteWidth = sizeof(VertexType) * m_vertexCount;
     vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -99,17 +82,19 @@ bool TerrainCell::InitializeBuffers(ID3D11Device* device, int nodeIndexX, int no
     vertexBufferDesc.StructureByteStride = 0;
 
     // Give the subresource structure a pointer to the vertex data.
+    D3D11_SUBRESOURCE_DATA vertexData;
     vertexData.pSysMem = vertices;
     vertexData.SysMemPitch = 0;
     vertexData.SysMemSlicePitch = 0;
 
     // Now create the vertex buffer.
-    result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer);
+    HRESULT result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer);
     if (FAILED(result)) {
         return false;
     }
 
     // Set up the description of the static index buffer.
+    D3D11_BUFFER_DESC indexBufferDesc;
     indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
     indexBufferDesc.ByteWidth = sizeof(unsigned long) * m_indexCount;
     indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
@@ -118,6 +103,7 @@ bool TerrainCell::InitializeBuffers(ID3D11Device* device, int nodeIndexX, int no
     indexBufferDesc.StructureByteStride = 0;
 
     // Give the subresource structure a pointer to the index data.
+    D3D11_SUBRESOURCE_DATA indexData;
     indexData.pSysMem = indices;
     indexData.SysMemPitch = 0;
     indexData.SysMemSlicePitch = 0;
@@ -135,7 +121,7 @@ bool TerrainCell::InitializeBuffers(ID3D11Device* device, int nodeIndexX, int no
     }
 
     // Keep a local copy of the vertex position data for this cell.
-    for (i = 0; i < m_vertexCount; i++) {
+    for (int i = 0; i < m_vertexCount; i++) {
         m_vertexList[i].x = vertices[i].position.x;
         m_vertexList[i].y = vertices[i].position.y;
         m_vertexList[i].z = vertices[i].position.z;
@@ -143,10 +129,10 @@ bool TerrainCell::InitializeBuffers(ID3D11Device* device, int nodeIndexX, int no
 
     // Release the arrays now that the buffers have been created and loaded.
     delete[] vertices;
-    vertices = 0;
+    vertices = nullptr;
 
     delete[] indices;
-    indices = 0;
+    indices = nullptr;
 
     return true;
 }
@@ -155,29 +141,26 @@ void TerrainCell::ShutdownBuffers() {
     // Release the public vertex list.
     if (m_vertexList) {
         delete[] m_vertexList;
-        m_vertexList = 0;
+        m_vertexList = nullptr;
     }
 
     // Release the index buffer.
     if (m_indexBuffer) {
         m_indexBuffer->Release();
-        m_indexBuffer = 0;
+        m_indexBuffer = nullptr;
     }
 
     // Release the vertex buffer.
     if (m_vertexBuffer) {
         m_vertexBuffer->Release();
-        m_vertexBuffer = 0;
+        m_vertexBuffer = nullptr;
     }
 }
 
 void TerrainCell::RenderBuffers(ID3D11DeviceContext* deviceContext) {
-    unsigned int stride;
-    unsigned int offset;
-
     // Set vertex buffer stride and offset.
-    stride = sizeof(VertexType);
-    offset = 0;
+    unsigned int stride = sizeof(VertexType);
+    unsigned int offset = 0;
 
     // Set the vertex buffer to active in the input assembler so it can be rendered.
     deviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
@@ -190,9 +173,6 @@ void TerrainCell::RenderBuffers(ID3D11DeviceContext* deviceContext) {
 }
 
 void TerrainCell::CalculateCellDimensions() {
-    int i;
-    float width, height, depth;
-
     // Initialize the dimensions of the node.
     m_maxWidth = -1000000.0f;
     m_maxHeight = -1000000.0f;
@@ -202,10 +182,10 @@ void TerrainCell::CalculateCellDimensions() {
     m_minHeight = 1000000.0f;
     m_minDepth = 1000000.0f;
 
-    for (i = 0; i < m_vertexCount; i++) {
-        width = m_vertexList[i].x;
-        height = m_vertexList[i].y;
-        depth = m_vertexList[i].z;
+    for (int i = 0; i < m_vertexCount; i++) {
+        float width = m_vertexList[i].x;
+        float height = m_vertexList[i].y;
+        float depth = m_vertexList[i].z;
 
         // Check if the width exceeds the minimum or maximum.
         if (width > m_maxWidth) {
@@ -239,36 +219,29 @@ void TerrainCell::CalculateCellDimensions() {
 }
 
 bool TerrainCell::BuildLineBuffers(ID3D11Device* device) {
-    ColorVertexType* vertices;
-    unsigned long* indices;
-    D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
-    D3D11_SUBRESOURCE_DATA vertexData, indexData;
-    HRESULT result;
-    XMFLOAT4 lineColor;
-    int index, vertexCount, indexCount;
-
     // Set the color of the lines to orange.
-    lineColor = XMFLOAT4(1.0f, 0.7f, 0.0f, 1.0f);
+    XMFLOAT4 lineColor = XMFLOAT4(1.0f, 0.7f, 0.0f, 1.0f);
 
     // Set the number of vertices in the vertex array.
-    vertexCount = 24;
+    int vertexCount = 24;
 
     // Set the number of indices in the index array.
-    indexCount = vertexCount;
+    int indexCount = vertexCount;
 
     // Create the vertex array.
-    vertices = new ColorVertexType[vertexCount];
+    ColorVertexType*  vertices = new ColorVertexType[vertexCount];
     if (!vertices) {
         return false;
     }
 
     // Create the index array.
-    indices = new unsigned long[indexCount];
+    unsigned long* indices = new unsigned long[indexCount];
     if (!indices) {
         return false;
     }
 
     // Set up the description of the vertex buffer.
+    D3D11_BUFFER_DESC vertexBufferDesc;
     vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
     vertexBufferDesc.ByteWidth = sizeof(ColorVertexType) * vertexCount;
     vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
@@ -277,11 +250,13 @@ bool TerrainCell::BuildLineBuffers(ID3D11Device* device) {
     vertexBufferDesc.StructureByteStride = 0;
 
     // Give the subresource structure a pointer to the vertex data.
+    D3D11_SUBRESOURCE_DATA vertexData;
     vertexData.pSysMem = vertices;
     vertexData.SysMemPitch = 0;
     vertexData.SysMemSlicePitch = 0;
 
     // Set up the description of the index buffer.
+    D3D11_BUFFER_DESC indexBufferDesc;
     indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
     indexBufferDesc.ByteWidth = sizeof(unsigned long) * indexCount;
     indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
@@ -290,12 +265,13 @@ bool TerrainCell::BuildLineBuffers(ID3D11Device* device) {
     indexBufferDesc.StructureByteStride = 0;
 
     // Give the subresource structure a pointer to the index data.
+    D3D11_SUBRESOURCE_DATA indexData;
     indexData.pSysMem = indices;
     indexData.SysMemPitch = 0;
     indexData.SysMemSlicePitch = 0;
 
     // Load the vertex and index array with data.
-    index = 0;
+    int index = 0;
 
     // 8 Horizontal lines.
     vertices[index].position = XMFLOAT3(m_minWidth, m_minHeight, m_minDepth);
@@ -419,7 +395,7 @@ bool TerrainCell::BuildLineBuffers(ID3D11Device* device) {
     indices[index] = index;
 
     // Create the vertex buffer.
-    result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &m_lineVertexBuffer);
+    HRESULT result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &m_lineVertexBuffer);
     if (FAILED(result)) {
         return false;
     }
@@ -458,12 +434,9 @@ void TerrainCell::ShutdownLineBuffers() {
 }
 
 void TerrainCell::RenderLineBuffers(ID3D11DeviceContext* deviceContext) {
-    unsigned int stride;
-    unsigned int offset;
-
     // Set vertex buffer stride and offset.
-    stride = sizeof(ColorVertexType);
-    offset = 0;
+    unsigned int stride = sizeof(ColorVertexType);
+    unsigned int offset = 0;
 
     // Set the vertex buffer to active in the input assembler so it can be rendered.
     deviceContext->IASetVertexBuffers(0, 1, &m_lineVertexBuffer, &stride, &offset);

@@ -1,29 +1,21 @@
 #include "texture.h"
 
-Texture::Texture() {
-
-    m_targaData = nullptr;
-    m_texture = nullptr;
-    m_textureView = nullptr;
-
-}
-
 // Function to initialize texture
 bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* filename, TextureType type, bool sRGB) {
-
-    bool result;
     int height, width;
     D3D11_TEXTURE2D_DESC textureDesc;
     HRESULT hResult;
     unsigned int rowPitch;
     D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+    bool result;
     memset(&srvDesc, 0, sizeof(srvDesc));
     // Load the targa image data into memory.
     switch (type) {
       case Texture::Targa:
         result = LoadTarga(filename, height, width);
-        if (!result)
+        if (!result) {
             return false;
+        }
 
         // Setup the description of the texture.
         textureDesc.Height = height;
@@ -40,8 +32,9 @@ bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
 
         // Create the empty texture.
         hResult = device->CreateTexture2D(&textureDesc, NULL, &m_texture);
-        if (FAILED(hResult))
+        if (FAILED(hResult)) {
             return false;
+        }
 
         // Set the row pitch of the targa image data.
         rowPitch = (width * 4) * sizeof(unsigned char);
@@ -57,28 +50,25 @@ bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
 
         // Create the shader resource view for the texture.
         hResult = device->CreateShaderResourceView(m_texture, &srvDesc, &m_textureView);
-        if (FAILED(hResult))
+        if (FAILED(hResult)) {
             return false;
+        }
 
         // Generate mipmaps for this texture.
         deviceContext->GenerateMips(m_textureView);
 
         // Release the targa image data now that the image data has been loaded into the texture.
         delete[] m_targaData;
-        m_targaData = 0;
+        m_targaData = nullptr;
 
         return true;
       case Texture::DDS:
-        // Load the Texture
-        //hResult = DirectX::CreateDDSTextureFromFile(device, filename, nullptr, &m_textureView);
-      
         hResult = DirectX::CreateDDSTextureFromFileEx(device, nullptr, filename, 0,
             D3D11_USAGE_DEFAULT, D3D11_BIND_SHADER_RESOURCE, 0, 0, sRGB, nullptr, &m_textureView, 0);
  
-        if (FAILED(hResult))
+        if (FAILED(hResult)) {
             return false;
-        // Generate mipmaps for this texture.
-        //deviceContext->GenerateMips(m_textureView);
+        }
 
         return true;
       default:
@@ -103,12 +93,14 @@ bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
         srvDesc.Texture2D.MipLevels = -1;
 
         hResult = device->CreateTexture2D(&desc, nullptr, &m_texture);
-        if (FAILED(hResult))
+        if (FAILED(hResult)) {
             return false;
+        }
 
         hResult = device->CreateShaderResourceView(m_texture, &srvDesc, &m_textureView);
-        if (FAILED(hResult))
-          return false;
+        if (FAILED(hResult)) {
+            return false;
+        }
         
         deviceContext->UpdateSubresource(m_texture, 0, 0, image, initData.SysMemPitch, 0);
         
@@ -117,12 +109,10 @@ bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
 
         return true;
     }
-    
 }
 
 // Function to realese texture
 void Texture::Shutdown() {
-
     // Release the texture view resource.
     if (m_textureView) {
         m_textureView->Release();
@@ -140,11 +130,9 @@ void Texture::Shutdown() {
        delete[] m_targaData;
        m_targaData = nullptr;
     }
-
 }
 
 bool Texture::LoadTarga(const wchar_t* filename, int& height, int& width) {
-
     int error, bpp, imageSize, index, i, j, k;
     FILE* filePtr;
     unsigned int count;
@@ -222,5 +210,4 @@ bool Texture::LoadTarga(const wchar_t* filename, int& height, int& width) {
     targaImage = 0;
 
     return true;
-
 }

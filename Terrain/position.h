@@ -4,19 +4,14 @@
 
 #ifndef _POSITION_H_
 #define _POSITION_H_
-#include <math.h>
 
+#include <math.h>
 #include <directxmath.h>
+
 using namespace DirectX;
 
 class Position {
-public:
-    // constructors
-    Position();
-    Position(const Position& other) {};
-    // destructor
-    ~Position() {};
-
+  public:
     // Function to set position for viever/camera
     void SetPosition(float x, float y, float z);
     // Function to set rotation for viever/camera
@@ -53,17 +48,17 @@ public:
     // Function to calculate turn using mouse
     void TurnMouse(XMFLOAT2 mouseMove);
 
-private:
-    float m_positionX, m_positionY, m_positionZ;
-    float m_rotationX, m_rotationY, m_rotationZ;
+  private:
+    float m_positionX = 0.0f, m_positionY = 0.0f, m_positionZ = 0.0f;
+    float m_rotationX = 0.0f, m_rotationY = 0.0f, m_rotationZ = 0.0f;
 
-    float m_frameTime;
+    float m_frameTime = 0.0f;
 
-    float m_forwardSpeed, m_backwardSpeed;
-    float m_rightSpeed, m_leftSpeed;
-    float m_upwardSpeed, m_downwardSpeed;
-    float m_leftTurnSpeed, m_rightTurnSpeed;
-    float m_lookUpSpeed, m_lookDownSpeed;
+    float m_forwardSpeed = 0.0f, m_backwardSpeed = 0.0f;
+    float m_rightSpeed = 0.0f, m_leftSpeed = 0.0f;
+    float m_upwardSpeed = 0.0f, m_downwardSpeed = 0.0f;
+    float m_leftTurnSpeed = 0.0f, m_rightTurnSpeed = 0.0f;
+    float m_lookUpSpeed = 0.0f, m_lookDownSpeed = 0.0f;
 };
 
 #endif

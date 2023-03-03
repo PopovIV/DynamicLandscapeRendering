@@ -1,38 +1,21 @@
 #include "camera.h"
 
-Camera::Camera() {
-
-    m_positionX = 0.0f;
-    m_positionY = 0.0f;
-    m_positionZ = 0.0f;
-
-    m_rotationX = 0.0f;
-    m_rotationY = 0.0f;
-    m_rotationZ = 0.0f;
-
-}
-
 // Function to set camera position
 void Camera::SetPosition(float x, float y, float z) {
-
     m_positionX = x;
     m_positionY = y;
     m_positionZ = z;
-
 }
 
 // Function to set camera rotation
 void Camera::SetRotation(float x, float y, float z) {
-
     m_rotationX = x;
     m_rotationY = y;
     m_rotationZ = z;
-
 }
 
 // Render function
 void Camera::Render() {
-
     XMFLOAT3 up, position, lookAt;
     XMVECTOR upVector, positionVector, lookAtVector;
     float yaw, pitch, roll;
@@ -79,12 +62,10 @@ void Camera::Render() {
 
     // Finally create the view matrix from the three updated vectors.
     m_viewMatrix = XMMatrixLookAtLH(positionVector, lookAtVector, upVector);
-
 }
 
 // Function to get right view Matrix
 void Camera::RenderBaseViewMatrix() {
-
     XMFLOAT3 up, position, lookAt;
     XMVECTOR upVector, positionVector, lookAtVector;
     float yaw, pitch, roll;
@@ -131,5 +112,4 @@ void Camera::RenderBaseViewMatrix() {
 
     // Finally create the view matrix from the three updated vectors.
     m_baseViewMatrix = XMMatrixLookAtLH(positionVector, lookAtVector, upVector);
-
 }

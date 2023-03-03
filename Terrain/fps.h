@@ -10,13 +10,7 @@
 #include <mmsystem.h>
 
 class Fps {
-public:
-    // constructors 
-    Fps() {};
-    Fps(const Fps& other) {};
-    // destructor
-    ~Fps() {};
-
+  public:
     // Function to initialize Fps counter
     void Initialize();
     // Function to update fps per frame
@@ -24,7 +18,7 @@ public:
     // Function to get FPS
     int GetFps() { return m_fps; };
 
-private:
+  private:
     int m_fps, m_count;
     unsigned long m_startTime;
 };

@@ -172,8 +172,6 @@ float4 main(PS_INPUT input) : SV_TARGET
     float alpha = noise.Sample(SampleType, input.tex2).r;
     grassTexture = (alpha * grassTexture) + ((1.0 - alpha) * grassTexture2);
 
-    //resColor = resColor / (resColor + float3(1.0f, 1.0f, 1.0f));
-    //resColor = pow(resColor, float3(1.0 / 2.2, 1.0 / 2.2, 1.0 / 2.2));
 
     // Setup the rock material
     float4 rockTexture = CalculateColor(rockDiffuseTexture, rockNormalTexture, rockRoughTexture, rockAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, rockScale);
@@ -183,10 +181,6 @@ float4 main(PS_INPUT input) : SV_TARGET
 
     // Setup the grass material
     float4 snowTexture = CalculateColor(snowDiffuseTexture, snowNormalTexture, snowRoughTexture, snowAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, snowScale);
-
-    // 
-    //float4 splat = splatMap.Sample(SampleType, input.worldPosition.xz / 1024 * -1);
-    //return splat.r * grassTexture + splat.g * rockTexture + splat.b * snowTexture;
 
     // Determine which material to use based on slope.
     float4 baseColor;

@@ -1,8 +1,6 @@
 A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\ColorPixelShader.cso
 A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\ColorVertexShader.cso
 A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\CopyPixelShader.cso
-A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\FontPixelShader.cso
-A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\FontVertexShader.cso
 A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\LightPixelShader.cso
 A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\LightVertexShader.cso
 A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\LuminancePixelShader.cso

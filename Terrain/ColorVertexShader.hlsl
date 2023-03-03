@@ -5,7 +5,6 @@ cbuffer MatrixBuffer
     matrix projectionMatrix;
 };
 
-
 struct VS_INPUT
 {
     float4 position : POSITION;
@@ -19,10 +18,6 @@ struct PS_INPUT
     float4 color : COLOR;
 };
 
-
-////////////////////////////////////////////////////////////////////////////////
-// Vertex Shader
-////////////////////////////////////////////////////////////////////////////////
 PS_INPUT main(VS_INPUT input)
 {
     PS_INPUT output;

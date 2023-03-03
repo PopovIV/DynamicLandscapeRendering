@@ -5,16 +5,11 @@
 #define _LIGHT_H_
 
 #include <directxmath.h>
+
 using namespace DirectX;
 
 class Light {
-public:
-    // constructors
-    Light() {};
-    Light(const Light& other) {};
-    // destructors
-    ~Light() {};
-
+  public:
     // Function to set ambient light
     void SetAmbientColor(float red, float green, float blue, float alpha);
     // Function to set diffuse light
@@ -41,7 +36,7 @@ public:
     // Function to get power of specular light
     float GetSpecularPower() { return m_specularPower; };
 
-private:
+  private:
     XMFLOAT4 m_ambientColor;
     XMFLOAT4 m_diffuseColor;
     XMFLOAT4 m_specularColor;

@@ -3,34 +3,30 @@
 
 // Function to initialize aplication instanc and window class
 bool System::Initialize() {
-
-    int screenWidth, screenHeight;
-    bool result;
-
     // Initialize the width and height of the screen to zero before sending the variables into the function.
-    screenWidth = 0;
-    screenHeight = 0;
+    int screenWidth = 0;
+    int screenHeight = 0;
 
     // Initialize the windows api.
     InitializeWindows(screenWidth, screenHeight);
 
     // Create the application wrapper object.
     m_Application = new Application;
-    if (!m_Application)
+    if (!m_Application) {
         return false;
+    }
 
     // Initialize the application wrapper object.
-    result = m_Application->Initialize(m_hinstance, m_hwnd, screenWidth, screenHeight);
-    if (!result)
+    bool result = m_Application->Initialize(m_hinstance, m_hwnd, screenWidth, screenHeight);
+    if (!result) {
         return false;
+    }
 
     return true;
-
 }
 
 // Function to clear all stuff that was created in initialize function
 void System::Shutdown() {
-
     // Release the application wrapper object.
     if (m_Application) {
         m_Application->Shutdown();
@@ -40,20 +36,16 @@ void System::Shutdown() {
 
     // Shutdown the window.
     ShutdownWindows();
-
 }
 
 // Main cycle function. MSG handling happens here
 void System::Run() {
-
-    MSG msg;
-    bool done, result;
-
     // Initialize the message structure.
+    MSG msg;
     ZeroMemory(&msg, sizeof(MSG));
 
     // Loop until there is a quit message from the window or the user.
-    done = false;
+    bool done = false;
     while (!done) {
         // Handle the windows messages.
         if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
@@ -62,45 +54,36 @@ void System::Run() {
         }
 
         // If windows signals to end the application then exit out.
-        if (msg.message == WM_QUIT)
+        if (msg.message == WM_QUIT) {
             done = true;
+        }
         else{
             // Otherwise do the frame processing.
-           result = Frame();
+           bool result = Frame();
            if (!result)
                done = true;
         }
     }
-
 }
 
 // Function to update frame each second
 bool System::Frame() {
-
-    bool result;
-
     // Do the frame processing for the application object.
-    result = m_Application->Frame();
-    if (!result)
+    bool result = m_Application->Frame();
+    if (!result) {
         return false;
+    }
 
     return true;
-
 }
 
 
 LRESULT CALLBACK System::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam) {
     return DefWindowProc(hwnd, umsg, wparam, lparam);
-
 }
 
 // Function to clear all stuff that was created in initialize windows function
 void System::InitializeWindows(int& screenWidth, int& screenHeight) {
-
-    WNDCLASSEX wc;
-    DEVMODE dmScreenSettings;
-    int posX, posY;
-
     // Get an external pointer to this object.	
     ApplicationHandle = this;
 
@@ -111,6 +94,7 @@ void System::InitializeWindows(int& screenWidth, int& screenHeight) {
     m_applicationName = L"Terrain renderer";
 
     // Setup the windows class with default settings.
+    WNDCLASSEX wc;
     wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
     wc.lpfnWndProc = WndProc;
     wc.cbClsExtra = 0;
@@ -132,6 +116,8 @@ void System::InitializeWindows(int& screenWidth, int& screenHeight) {
     screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
     // Setup the screen settings depending on whether it is running in full screen or in windowed mode.
+    DEVMODE dmScreenSettings;
+    int posX, posY;
     if (FULL_SCREEN) {
         // If full screen set the screen to maximum size of the users desktop and 32bit.
         memset(&dmScreenSettings, 0, sizeof(dmScreenSettings));
@@ -148,7 +134,6 @@ void System::InitializeWindows(int& screenWidth, int& screenHeight) {
         posX = posY = 0;
     }
     else {
-        // If windowed then set it to 800x600 resolution.
         screenWidth = 1920;
         screenHeight = 1080;
 
@@ -166,21 +151,14 @@ void System::InitializeWindows(int& screenWidth, int& screenHeight) {
     ShowWindow(m_hwnd, SW_SHOW);
     SetForegroundWindow(m_hwnd);
     SetFocus(m_hwnd);
-
-    // Hide the mouse cursor.
-    //ShowCursor(false);
-
 }
 
 // Function to clear all window data
 void System::ShutdownWindows() {
-
-    // Show the mouse cursor.
-    //ShowCursor(true);
-
     // Fix the display settings if leaving full screen mode.
-    if (FULL_SCREEN)
+    if (FULL_SCREEN) {
         ChangeDisplaySettings(NULL, 0);
+    }
 
     // Remove the window.
     DestroyWindow(m_hwnd);
@@ -192,16 +170,14 @@ void System::ShutdownWindows() {
 
     // Release the pointer to this class.
     ApplicationHandle = NULL;
-
 }
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-
 LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam) {
-
-    if (ImGui_ImplWin32_WndProcHandler(hwnd, umessage, wparam, lparam))
+    if (ImGui_ImplWin32_WndProcHandler(hwnd, umessage, wparam, lparam)) {
         return true;
+    }
 
     switch (umessage) {
         // Check if the window is being destroyed.
@@ -217,5 +193,4 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
        default:
            return ApplicationHandle->MessageHandler(hwnd, umessage, wparam, lparam);
     }
-
 }

@@ -5,7 +5,6 @@
 // work is done
 //--------------------------------------------------------------------------------------
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline, int iCmdshow) {
-
     System* system;
     bool result;
 
@@ -26,5 +25,4 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
     system = nullptr;
 
     return 0;
-
 }

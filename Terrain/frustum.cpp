@@ -1,15 +1,14 @@
 #include "frustum.h"
 
+// Function to build frustum
 void Frustum::ConstructFrustum(XMMATRIX projectionMatrix, XMMATRIX viewMatrix) {
-    XMFLOAT4X4 pMatrix, matrix;
-    float zMinimum, r, length;
-
     // Convert the projection matrix into a 4x4 float type.
+    XMFLOAT4X4 pMatrix;
     XMStoreFloat4x4(&pMatrix, projectionMatrix);
 
     // Calculate the minimum Z distance in the frustum.
-    zMinimum = -pMatrix._43 / pMatrix._33;
-    r = m_screenDepth / (m_screenDepth - zMinimum);
+    float zMinimum = -pMatrix._43 / pMatrix._33;
+    float r = m_screenDepth / (m_screenDepth - zMinimum);
 
     // Load the updated values back into the projection matrix.
     pMatrix._33 = r;
@@ -20,6 +19,7 @@ void Frustum::ConstructFrustum(XMMATRIX projectionMatrix, XMMATRIX viewMatrix) {
     m_finalMatrix = XMMatrixMultiply(viewMatrix, projectionMatrix);
 
     // Convert the final matrix into a 4x4 float type.
+    XMFLOAT4X4 matrix;
     XMStoreFloat4x4(&matrix, m_finalMatrix);
 
     // Calculate near plane of frustum.
@@ -29,7 +29,7 @@ void Frustum::ConstructFrustum(XMMATRIX projectionMatrix, XMMATRIX viewMatrix) {
     m_planes[0][3] = matrix._44 + matrix._43;
 
     // Normalize the near plane.
-    length = sqrtf((m_planes[0][0] * m_planes[0][0]) + (m_planes[0][1] * m_planes[0][1]) + (m_planes[0][2] * m_planes[0][2]));
+    float length = sqrtf((m_planes[0][0] * m_planes[0][0]) + (m_planes[0][1] * m_planes[0][1]) + (m_planes[0][2] * m_planes[0][2]));
     m_planes[0][0] /= length;
     m_planes[0][1] /= length;
     m_planes[0][2] /= length;
@@ -101,6 +101,7 @@ void Frustum::ConstructFrustum(XMMATRIX projectionMatrix, XMMATRIX viewMatrix) {
     m_planes[5][3] /= length;
 }
 
+// Function to check if point is in frustum
 bool Frustum::CheckPoint(float x, float y, float z) {
     // Check each of the six planes to make sure the point is inside all of them and hence inside the frustum.
     for (int i = 0; i < 6; i++) {
@@ -116,7 +117,7 @@ bool Frustum::CheckPoint(float x, float y, float z) {
     return true;
 }
 
-
+// Function to check if cube is in frustum
 bool Frustum::CheckCube(float xCenter, float yCenter, float zCenter, float radius) {
     // Check each of the six planes to see if the cube is inside the frustum.
     for (int i = 0; i < 6; i++) {
@@ -167,6 +168,7 @@ bool Frustum::CheckCube(float xCenter, float yCenter, float zCenter, float radiu
     return true;
 }
 
+// Function to check if sphere is in frustum
 bool Frustum::CheckSphere(float xCenter, float yCenter, float zCenter, float radius) {
     // Check the six planes to see if the sphere is inside them or not.
     for (int i = 0; i < 6; i++) {
@@ -179,7 +181,7 @@ bool Frustum::CheckSphere(float xCenter, float yCenter, float zCenter, float rad
     return true;
 }
 
-
+// Functions to check if rectengle is in frustum
 bool Frustum::CheckRectangle(float xCenter, float yCenter, float zCenter, float xSize, float ySize, float zSize) {
     // Check each of the six planes to see if the rectangle is in the frustum or not.
     for (int i = 0; i < 6; i++) {
@@ -228,7 +230,6 @@ bool Frustum::CheckRectangle(float xCenter, float yCenter, float zCenter, float 
 
     return true;
 }
-
 
 bool Frustum::CheckRectangle2(float maxWidth, float maxHeight, float maxDepth, float minWidth, float minHeight, float minDepth) {
     // Check if any of the 6 planes of the rectangle are inside the view frustum.
@@ -282,8 +283,9 @@ bool Frustum::CheckRectangle2(float maxWidth, float maxHeight, float maxDepth, f
 bool Frustum::CheckRectangle3(float maxWidth, float maxHeight, float maxDepth, float minWidth, float minHeight, float minDepth) {
     static XMMATRIX vp;
 
-    if (!LOCK_VIEW)
+    if (!m_lockView) {
         vp = m_finalMatrix;
+    }
 
     XMFLOAT4 points[8] = {
         {maxWidth, maxHeight, maxDepth, 1},
@@ -296,8 +298,7 @@ bool Frustum::CheckRectangle3(float maxWidth, float maxHeight, float maxDepth, f
         {minWidth, minHeight, minDepth, 1}
     };
 
-    for (int i = 0; i < 8; i++)
-    {
+    for (int i = 0; i < 8; i++) {
         XMStoreFloat4(&points[i], XMVector4Transform(XMLoadFloat4(&points[i]), vp));
         points[i].x /= points[i].w;
         points[i].y /= points[i].w;

@@ -4,6 +4,7 @@
 
 #ifndef _TERRAIN_H_
 #define _TERRAIN_H_
+
 #include <d3d11.h>
 #include <directxmath.h>
 #include <fstream>
@@ -15,8 +16,7 @@ using namespace std;
 using namespace DirectX;
 
 class Terrain {
-private:
-
+  private:
     struct VertexType {
         XMFLOAT3 position;
         XMFLOAT2 texture;
@@ -24,6 +24,15 @@ private:
         XMFLOAT3 tangent;
         XMFLOAT3 binormal;
         XMFLOAT2 texture2;
+    };
+
+    struct ModelType {
+        float x, y, z;
+        float tu, tv;
+        float nx, ny, nz;
+        float tx, ty, tz;
+        float bx, by, bz;
+        float tu2, tv2;
     };
 
     struct HeightMapType {
@@ -43,13 +52,7 @@ private:
         float nx, ny, nz;
     };
 
-public:
-    // constructors
-    Terrain();
-    Terrain(const Terrain& other) {};
-    // destructor
-    ~Terrain() {};
-
+  public:
     // Function to initialize the vertex and index buffers
     bool Initialize(ID3D11Device* device, char* setupFilename);
     // Function to clear all data from vertex and index buffers
@@ -70,7 +73,7 @@ public:
     int GetCellsCulled() { return m_cellsCulled; };
 
     bool GetHeightAtPosition(float inputX, float inputZ, float& height);
-private:
+  private:
     // Function to read setup file
     bool LoadSetupFile(char* filename);
 
@@ -97,14 +100,14 @@ private:
     bool LoadTerrainCells(ID3D11Device* device);
     void ShutdownTerrainCells();
 
-private:
+  private:
     int m_terrainHeight, m_terrainWidth, m_vertexCount;
     float m_heightScale;
     char* m_terrainFilename;
-    HeightMapType* m_heightMap;
-    TerrainCell::ModelType* m_terrainModel;
+    HeightMapType* m_heightMap = nullptr;
+    ModelType* m_terrainModel = nullptr;
 
-    TerrainCell* m_TerrainCells;
+    TerrainCell* m_TerrainCells = nullptr;
     int m_cellCount, m_renderCount, m_cellsDrawn, m_cellsCulled;
 };
 

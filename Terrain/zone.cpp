@@ -2,24 +2,13 @@
 #include "imgui.h"
 #include "imgui_impl_dx11.h"
 
-Zone::Zone() {
-    m_RenderTexture = nullptr;
-    m_Camera = nullptr;
-    m_Light = nullptr;
-    m_Frustum = nullptr;
-    m_Position = nullptr;
-    m_SkyDome = nullptr;
-    m_Terrain = nullptr;
-}
-
 // Function to initialize user interface, camera, position and grid
 bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screenHeight, float screenDepth) {
-    bool result;
-
     // Create the camera object.
     m_Camera = new Camera;
-    if (!m_Camera)
+    if (!m_Camera) {
         return false;
+    }
 
     // Set the initial position of the camera and build the matrices needed for rendering.
     m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
@@ -28,8 +17,9 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
 
     // Create the light object.
     m_Light = new Light;
-    if (!m_Light)
+    if (!m_Light) {
         return false;
+    }
 
     // Initialize the light object.
     m_Light->SetAmbientColor(0.7f, 0.7f, 0.7f, 1.0f);
@@ -43,15 +33,16 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
         return false;
     }
 
-    result = m_RenderTexture->Initialize(Direct3D->GetDevice(), screenWidth, screenHeight);
+    bool result = m_RenderTexture->Initialize(Direct3D->GetDevice(), screenWidth, screenHeight);
     if (!result) {
         return false;
     }
 
     // Create the position object.
     m_Position = new Position;
-    if (!m_Position)
+    if (!m_Position) {
         return false;
+    }
 
     // Set the initial position and rotation.
     m_Position->SetPosition(188.0f, 217.0f, 117.0f);
@@ -68,8 +59,9 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
 
     // Create the sky dome object.
     m_SkyDome = new SkyDome;
-    if (!m_SkyDome)
+    if (!m_SkyDome) {
         return false;
+    }
 
     // Initialize the sky dome object.
     result = m_SkyDome->Initialize(Direct3D->GetDevice());
@@ -80,13 +72,15 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
 
     // Create the terrain object.
     m_Terrain = new Terrain;
-    if (!m_Terrain)
+    if (!m_Terrain) {
         return false;
+    }
 
     // Initialize toneMap object.
     m_ToneMap = new ToneMap;
-    if (!m_ToneMap)
+    if (!m_ToneMap) {
         return false;
+    }
     result = m_ToneMap->Initialize(Direct3D->GetDevice(), hwnd, screenWidth, screenHeight);
     if (!result) {
         MessageBox(hwnd, L"Could not initialize the tone map object.", L"Error", MB_OK);
@@ -94,7 +88,6 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     }
 
     // Initialize the terrain object.
-
     result = m_Terrain->Initialize(Direct3D->GetDevice(), (char*)"data/setup.txt");
     if (!result) {
         MessageBox(hwnd, L"Could not initialize the terrain object.", L"Error", MB_OK);
@@ -111,12 +104,11 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     m_culling = true;
     // Set the user locked to the terrain height for movement.
     m_heightLocked = true;
-    return true;
 
+    return true;
 }
 // Function to clear all stuff that was created in initialize function
 void Zone::Shutdown() {
-
     // Release the terrain object.
     if (m_Terrain) {
         m_Terrain->Shutdown();
@@ -133,14 +125,14 @@ void Zone::Shutdown() {
 
     if (m_Frustum) {
         delete m_Frustum;
-        m_Frustum = 0;
+        m_Frustum = nullptr;
     }
 
     // Release the render to texture object.
     if (m_RenderTexture) {
         m_RenderTexture->Shutdown();
         delete m_RenderTexture;
-        m_RenderTexture = 0;
+        m_RenderTexture = nullptr;
     }
 
     // Release the position object.
@@ -165,17 +157,15 @@ void Zone::Shutdown() {
         delete m_ToneMap;
         m_ToneMap = nullptr;
     }
-
 }
+
 // Function to update frame each second
 bool Zone::Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager, TextureManager* TextureManager, float frameTime, int fps, XMFLOAT4 scales, float detailScale, XMFLOAT3 lightDir) {
-    bool result, foundHeight;
-    float posX, posY, posZ, rotX, rotY, rotZ, height;
-
     // Do the frame input processing.
     HandleMovementInput(Input, frameTime);
 
     // Get the view point position/rotation.
+    float posX, posY, posZ, rotX, rotY, rotZ, height;
     m_Position->GetPosition(posX, posY, posZ);
     m_Position->GetRotation(rotX, rotY, rotZ);
     this->scales = scales;
@@ -187,7 +177,7 @@ bool Zone::Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager,
     // If the height is locked to the terrain then position the camera on top of it.
     if (m_heightLocked) {
         // Get the height of the triangle that is directly underneath the given camera position.
-        foundHeight = m_Terrain->GetHeightAtPosition(posX, posZ, height);
+        bool foundHeight = m_Terrain->GetHeightAtPosition(posX, posZ, height);
         if (foundHeight) {
             // If there was a triangle under the camera then position the camera just above it by one meter.
             m_Position->SetPosition(posX, height + 5.0f, posZ);
@@ -196,22 +186,19 @@ bool Zone::Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager,
     }
 
     // Render the graphics.
-    result = Render(Direct3D, ShaderManager, TextureManager);
-    if (!result)
+    bool result = Render(Direct3D, ShaderManager, TextureManager);
+    if (!result) {
         return false;
+    }
 
     return true;
 }
 
 // Function to handle user input from keyboard/mouse
 void Zone::HandleMovementInput(Input* Input, float frameTime) {
-
-    bool keyDown;
-    float posX, posY, posZ, rotX, rotY, rotZ;
-
     // Set the frame time for calculating the updated position.
     m_Position->SetFrameTime(frameTime);
-
+    bool keyDown;
     // Handle the input.
     keyDown = Input->IsLeftPressed();
     m_Position->MoveLeft(keyDown);
@@ -228,6 +215,7 @@ void Zone::HandleMovementInput(Input* Input, float frameTime) {
     XMFLOAT2 mouseMove = Input->IsMouseUsed();
     m_Position->TurnMouse(mouseMove);
 
+    float posX, posY, posZ, rotX, rotY, rotZ;
     // Get the view point position/rotation.
     m_Position->GetPosition(posX, posY, posZ);
     m_Position->GetRotation(rotX, rotY, rotZ);
@@ -237,42 +225,38 @@ void Zone::HandleMovementInput(Input* Input, float frameTime) {
     m_Camera->SetRotation(rotX, rotY, rotZ);
 
     // Determine if the user interface should be displayed or not.
-    if (Input->IsF1Toggled())
+    if (Input->IsF1Toggled()) {
         m_displayUI = !m_displayUI;
+    }
 
     // Determine if the terrain should be rendered in wireframe or not.
-    if (Input->IsF2Toggled())
+    if (Input->IsF2Toggled()) {
         m_wireFrame = !m_wireFrame;
+    }
 
     // Determine day/night cycle off/on.
-    if (Input->IsF3Toggled())
+    if (Input->IsF3Toggled()) {
         m_dayNightCycle = !m_dayNightCycle;
+    }
 
     // Determine if we should render the lines around each terrain cell.
-    if (Input->IsF4Toggled())
-    {
+    if (Input->IsF4Toggled()) {
         m_cellLines = !m_cellLines;
     }
-    if (Input->IsSpaceToggled())
-    {
+
+    if (Input->IsSpaceToggled()) {
         m_heightLocked = !m_heightLocked;
     }
-
 }
 
 void Zone::GetCulling(float& polygons, float& rendered, float& culled) {
-    polygons = m_Terrain->GetRenderCount();
-    rendered = m_Terrain->GetCellsDrawn();
-    culled = m_Terrain->GetCellsCulled();
+    polygons = (float)m_Terrain->GetRenderCount();
+    rendered = (float)m_Terrain->GetCellsDrawn();
+    culled = (float)m_Terrain->GetCellsCulled();
 };
 
 // Render function
 bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManager* TextureManager) {
-
-    XMMATRIX worldMatrix, viewMatrix, projectionMatrix, baseViewMatrix, orthoMatrix;
-    bool result;
-    XMFLOAT3 cameraPosition;
-
     m_RenderTexture->SetRenderTarget(Direct3D->GetDeviceContext(), Direct3D->GetDepthStencilView());
     m_RenderTexture->ClearRenderTarget(Direct3D->GetDeviceContext(), Direct3D->GetDepthStencilView(), 0.0f, 0.0f, 1.0f, 1.0f);
 
@@ -280,6 +264,7 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
     m_Camera->Render();
 
     // Get the world, view, and projection matrices from the camera and d3d objects.
+    XMMATRIX worldMatrix, viewMatrix, projectionMatrix, baseViewMatrix, orthoMatrix;
     Direct3D->GetWorldMatrix(worldMatrix);
     m_Camera->GetViewMatrix(viewMatrix);
     Direct3D->GetProjectionMatrix(projectionMatrix);
@@ -287,7 +272,7 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
     Direct3D->GetOrthoMatrix(orthoMatrix);
 
     // Get the position of the camera.
-    cameraPosition = m_Camera->GetPosition();
+    XMFLOAT3 cameraPosition = m_Camera->GetPosition();
 
     // Construct the frustum.
     m_Frustum->ConstructFrustum(projectionMatrix, viewMatrix);
@@ -302,7 +287,7 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
 
     // Render the sky dome using the sky dome shader.
     m_SkyDome->Render(Direct3D->GetDeviceContext());
-    result = ShaderManager->RenderSkyDomeShader(Direct3D->GetDeviceContext(), m_SkyDome->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_SkyDome->GetApexColor(), m_SkyDome->GetCenterColor());
+    bool result = ShaderManager->RenderSkyDomeShader(Direct3D->GetDeviceContext(), m_SkyDome->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_SkyDome->GetApexColor(), m_SkyDome->GetCenterColor());
     if (!result)
         return false;
 
@@ -314,8 +299,9 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
     Direct3D->TurnOnCulling();
 
     // Determine if the terrain should be rendered in wireframe or not.
-    if (m_wireFrame)
+    if (m_wireFrame) {
         Direct3D->EnableWireframe();
+    }
 
     // Render the terrain grid using the color shader.
     float posX, posY, posZ;
@@ -331,8 +317,9 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
     static ULONGLONG timeStart = 0;
     if (m_dayNightCycle) {
         ULONGLONG timeCur = GetTickCount64();
-        if (timeStart == 0)
+        if (timeStart == 0) {
             timeStart = timeCur;
+        }
         t = (timeCur - timeStart) / 1000.0f;
 
         XMVECTOR vec = XMLoadFloat3(&lightDir);
@@ -350,6 +337,7 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
     // Render the terrain cells (and cell lines if needed).
     for (int i = 0; i < m_Terrain->GetCellCount(); i++) {
         // Put the terrain cell buffers on the pipeline.
+        m_Frustum->SetLockView(m_lockView);
         result = m_Terrain->RenderCell(Direct3D->GetDeviceContext(), i, m_Frustum, m_culling);
         if (result) {
             // Render the cell buffers using the terrain shader.
@@ -371,8 +359,9 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
     }
 
     // Determine if the terrain should be rendered in wireframe or not.
-    if (m_wireFrame)
+    if (m_wireFrame) {
         Direct3D->DisableWireframe();
+    }
 
     Direct3D->SetBackBufferRenderTarget();
     return true;
@@ -381,10 +370,7 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
 
 // Render function
 bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManager* TextureManager) {
-
-    bool result;
-
-    result = RenderToTexture(Direct3D, ShaderManager, TextureManager);
+    bool result = RenderToTexture(Direct3D, ShaderManager, TextureManager);
     if (!result) {
         return false;
     }
@@ -399,5 +385,4 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
     Direct3D->EndScene();
 
     return true;
-
 }

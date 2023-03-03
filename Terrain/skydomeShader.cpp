@@ -1,19 +1,11 @@
 #include "skydomeshader.h"
 
-SkyDomeShader::SkyDomeShader() {
-    m_vertexShader = nullptr;
-    m_pixelShader = nullptr;
-    m_layout = nullptr;
-    m_matrixBuffer = nullptr;
-    m_colorBuffer = nullptr;
-}
-
-
 bool SkyDomeShader::Initialize(ID3D11Device* device, HWND hwnd) {
     // Initialize the vertex and pixel shaders.
     bool result = InitializeShader(device, hwnd, L"SkyDomeVertexShader.hlsl", L"SkyDomePixelShader.hlsl");
-    if (!result)
+    if (!result) {
         return false;
+    }
 
     return true;
 }
@@ -26,8 +18,9 @@ void SkyDomeShader::Shutdown() {
 bool SkyDomeShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT4 apexColor, XMFLOAT4 centerColor) {
     // Set the shader parameters that it will use for rendering.
     bool result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, apexColor, centerColor);
-    if (!result)
+    if (!result) {
         return false;
+    }
 
     // Now render the prepared buffers with the shader.
     RenderShader(deviceContext, indexCount);
@@ -36,32 +29,25 @@ bool SkyDomeShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, X
 }
 
 bool SkyDomeShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wchar_t* vsFilename, const wchar_t* psFilename) {
-    HRESULT result;
-    ID3D10Blob* errorMessage;
-    ID3D10Blob* vertexShaderBuffer;
-    ID3D10Blob* pixelShaderBuffer;
-    D3D11_INPUT_ELEMENT_DESC polygonLayout[1];
-    unsigned int numElements;
-    D3D11_BUFFER_DESC matrixBufferDesc;
-    D3D11_BUFFER_DESC colorBufferDesc;
-
     // Initialize the pointers this function will use to null.
-    errorMessage = 0;
-    vertexShaderBuffer = 0;
-    pixelShaderBuffer = 0;
+    ID3D10Blob* errorMessage = 0;
+    ID3D10Blob* vertexShaderBuffer = 0;
+    ID3D10Blob* pixelShaderBuffer = 0;
 
     int flags = 0;
 #ifdef _DEBUG
     flags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
     // Compile the vertex shader code.
-    result = D3DCompileFromFile(vsFilename, NULL, NULL, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage);
+    HRESULT result = D3DCompileFromFile(vsFilename, NULL, NULL, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage);
     if (FAILED(result)) {
         // If the shader failed to compile it should have writen something to the error message.
-        if (errorMessage)
+        if (errorMessage) {
             OutputShaderErrorMessage(errorMessage, hwnd, vsFilename);
-        else
+        }
+        else {
             MessageBox(hwnd, vsFilename, L"Missing Shader File", MB_OK);
+        }
         return false;
     }
 
@@ -69,24 +55,29 @@ bool SkyDomeShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wcha
     result = D3DCompileFromFile(psFilename, NULL, NULL, "main", "ps_5_0", flags, 0,	&pixelShaderBuffer, &errorMessage);
     if (FAILED(result)) {
         // If the shader failed to compile it should have writen something to the error message.
-        if (errorMessage)
+        if (errorMessage) {
             OutputShaderErrorMessage(errorMessage, hwnd, psFilename);
-        else
+        }
+        else {
             MessageBox(hwnd, psFilename, L"Missing Shader File", MB_OK);
+        }
         return false;
     }
 
     // Create the vertex shader from the buffer.
     result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader);
-    if (FAILED(result))
+    if (FAILED(result)) {
         return false;
+    }
 
     // Create the pixel shader from the buffer.
     result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pixelShader);
-    if (FAILED(result))
+    if (FAILED(result)) {
         return false;
+    }
 
     // Create the vertex input layout description.
+    D3D11_INPUT_ELEMENT_DESC polygonLayout[1];
     polygonLayout[0].SemanticName = "POSITION";
     polygonLayout[0].SemanticIndex = 0;
     polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -96,12 +87,13 @@ bool SkyDomeShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wcha
     polygonLayout[0].InstanceDataStepRate = 0;
 
     // Get a count of the elements in the layout.
-    numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
+    unsigned int numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
 
     // Create the vertex input layout.
     result = device->CreateInputLayout(polygonLayout, numElements, vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), &m_layout);
-    if (FAILED(result))
+    if (FAILED(result)) {
         return false;
+    }
 
     // Release the vertex shader buffer and pixel shader buffer since they are no longer needed.
     vertexShaderBuffer->Release();
@@ -111,6 +103,7 @@ bool SkyDomeShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wcha
     pixelShaderBuffer = 0;
 
     // Setup the description of the dynamic constant buffer that is in the vertex shader.
+    D3D11_BUFFER_DESC matrixBufferDesc;
     matrixBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
     matrixBufferDesc.ByteWidth = sizeof(MatrixBufferType);
     matrixBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -120,10 +113,12 @@ bool SkyDomeShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wcha
 
     // Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
     result = device->CreateBuffer(&matrixBufferDesc, NULL, &m_matrixBuffer);
-    if (FAILED(result))
+    if (FAILED(result)) {
         return false;
+    }
 
     // Setup the description of the dynamic pixel constant buffer that is in the pixel shader.
+    D3D11_BUFFER_DESC colorBufferDesc;
     colorBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
     colorBufferDesc.ByteWidth = sizeof(ColorBufferType);
     colorBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -133,8 +128,9 @@ bool SkyDomeShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wcha
 
     // Create the pixel constant buffer pointer so we can access the pixel shader constant buffer from within this class.
     result = device->CreateBuffer(&colorBufferDesc, NULL, &m_colorBuffer);
-    if (FAILED(result))
+    if (FAILED(result)) {
         return false;
+    }
 
     return true;
 }
@@ -144,52 +140,47 @@ void SkyDomeShader::ShutdownShader() {
     // Release the pixel constant buffer.
     if (m_colorBuffer) {
         m_colorBuffer->Release();
-        m_colorBuffer = 0;
+        m_colorBuffer = nullptr;
     }
 
     // Release the matrix constant buffer.
     if (m_matrixBuffer) {
         m_matrixBuffer->Release();
-        m_matrixBuffer = 0;
+        m_matrixBuffer = nullptr;
     }
 
     // Release the layout.
     if (m_layout) {
         m_layout->Release();
-        m_layout = 0;
+        m_layout = nullptr;
     }
 
     // Release the pixel shader.
     if (m_pixelShader) {
         m_pixelShader->Release();
-        m_pixelShader = 0;
+        m_pixelShader = nullptr;
     }
 
     // Release the vertex shader.
     if (m_vertexShader) {
         m_vertexShader->Release();
-        m_vertexShader = 0;
+        m_vertexShader = nullptr;
     }
-
 }
 
-
 void SkyDomeShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, const wchar_t* shaderFilename) {
-    char* compileErrors;
-    unsigned __int64 bufferSize, i;
-    ofstream fout;
-
     // Get a pointer to the error message text buffer.
-    compileErrors = (char*)(errorMessage->GetBufferPointer());
+    char* compileErrors = (char*)(errorMessage->GetBufferPointer());
 
     // Get the length of the message.
-    bufferSize = errorMessage->GetBufferSize();
+    unsigned __int64 bufferSize = errorMessage->GetBufferSize();
 
     // Open a file to write the error message to.
+    ofstream fout;
     fout.open("shader-error.txt");
 
     // Write out the error message.
-    for (i = 0; i < bufferSize; i++) {
+    for (unsigned __int64 i = 0; i < bufferSize; i++) {
         fout << compileErrors[i];
     }
 
@@ -202,29 +193,22 @@ void SkyDomeShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd
 
     // Pop a message up on the screen to notify the user to check the text file for compile errors.
     MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
-
 }
 
-
 bool SkyDomeShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT4 apexColor, XMFLOAT4 centerColor) {
-    HRESULT result;
-    D3D11_MAPPED_SUBRESOURCE mappedResource;
-    MatrixBufferType* dataPtr;
-    unsigned int bufferNumber;
-    ColorBufferType* dataPtr2;
-
     // Transpose the matrices to prepare them for the shader.
     worldMatrix = XMMatrixTranspose(worldMatrix);
     viewMatrix = XMMatrixTranspose(viewMatrix);
     projectionMatrix = XMMatrixTranspose(projectionMatrix);
 
     // Lock the matrix constant buffer so it can be written to.
-    result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    D3D11_MAPPED_SUBRESOURCE mappedResource;
+    HRESULT result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
     if (FAILED(result))
         return false;
 
     // Get a pointer to the data in the matrix constant buffer.
-    dataPtr = (MatrixBufferType*)mappedResource.pData;
+    MatrixBufferType* dataPtr = (MatrixBufferType*)mappedResource.pData;
 
     // Copy the matrices into the matrix constant buffer.
     dataPtr->world = worldMatrix;
@@ -235,18 +219,19 @@ bool SkyDomeShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
     deviceContext->Unmap(m_matrixBuffer, 0);
 
     // Set the position of the constant buffer in the vertex shader.
-    bufferNumber = 0;
+    unsigned int bufferNumber = 0;
 
     // Now set the matrix constant buffer in the vertex shader with the updated values.
     deviceContext->VSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
     // Lock the color constant buffer so it can be written to.
     result = deviceContext->Map(m_colorBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
-    if (FAILED(result))
+    if (FAILED(result)) {
         return false;
+    }
 
     // Get a pointer to the data in the color constant buffer.
-    dataPtr2 = (ColorBufferType*)mappedResource.pData;
+    ColorBufferType* dataPtr2 = (ColorBufferType*)mappedResource.pData;
 
     // Copy the color data into the color constant buffer.
     dataPtr2->apexColor = apexColor;

@@ -2,7 +2,6 @@
 
 // Function to initialize timer
 bool Timer::Initialize() {
-
     INT64 frequency;
 
     // Get the cycles per second speed for this system.
@@ -17,12 +16,10 @@ bool Timer::Initialize() {
     QueryPerformanceCounter((LARGE_INTEGER*)&m_startTime);
 
     return true;
-
 }
 
 // Function to initialize timer
 void Timer::Frame() {
-
     INT64 currentTime;
     INT64 elapsedTicks;
 
@@ -37,5 +34,4 @@ void Timer::Frame() {
  
     // Restart the timer.
     m_startTime = currentTime;
-
 }
