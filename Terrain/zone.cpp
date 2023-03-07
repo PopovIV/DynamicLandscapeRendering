@@ -154,6 +154,7 @@ void Zone::Shutdown() {
     }
 
     if (m_ToneMap) {
+        m_ToneMap->Shutdown();
         delete m_ToneMap;
         m_ToneMap = nullptr;
     }

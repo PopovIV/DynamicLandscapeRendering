@@ -177,4 +177,10 @@ void ToneMap::Shutdown() {
         m_luminanceBuffer->Release();
         m_luminanceBuffer = nullptr;
     }
+
+    if (m_averageLuminance) {
+        m_averageLuminance->Shutdown();
+        delete m_averageLuminance;
+        m_averageLuminance = nullptr;
+    }
 }

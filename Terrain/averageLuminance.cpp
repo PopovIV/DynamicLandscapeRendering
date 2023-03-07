@@ -266,9 +266,11 @@ void AverageLuminance::Shutdown() {
     }
 
     for (auto t : m_renderTextures) {
+        t->Shutdown();
         delete t;
     }
     m_renderTextures.clear();
+    
 
     if (m_luminanceTexture) {
         m_luminanceTexture->Release();
