@@ -283,10 +283,10 @@ bool Application::Frame() {
     static int rockScale = 32;
     static int slopeScale = 32;
     static int snowScale = 2;
-    static int detailScale = 2;
-    static int lightX = m_Zone->GetLighDirection().x;
-    static int lightY = m_Zone->GetLighDirection().y;
-    static int lightZ = m_Zone->GetLighDirection().z;
+    static int detailScale = 4;
+    static int lightX = (int)m_Zone->GetLighDirection().x;
+    static int lightY = (int)m_Zone->GetLighDirection().y;
+    static int lightZ = (int)m_Zone->GetLighDirection().z;
     if (demoWindow) {
         ImGui::ShowDemoWindow(&demoWindow);
     }
@@ -376,19 +376,16 @@ bool Application::Frame() {
         str += std::to_string((int)z);
         ImGui::Text(str.c_str());
 
-        str = "\nDraw Time: ";
-        str += std::to_string(m_Zone->GetDrawTime()) + " ms";
-        ImGui::Text(str.c_str());
-        str = "\nTDraw To Texture Time: ";
+        str = "\nDraw To Texture Time: ";
         str += std::to_string(m_Zone->GetDrawToTextureTime()) + " ms";
         ImGui::Text(str.c_str());
         str = "\nTone Mapping Time: ";
         str += std::to_string(m_Zone->GetToneMappingTime()) + " ms";
         ImGui::Text(str.c_str());
         str = "\nGPU Time: ";
-        str += std::to_string(m_Zone->GetGPUTime()) + " ms";
+        str += std::to_string(m_Zone->GetDrawTime()) + " ms";
         ImGui::Text(str.c_str());
-        str = "\nGPU Time: ";
+        str = "\nCPU Time: ";
         str += std::to_string(m_Zone->GetCPUTime()) + " ms";
         ImGui::Text(str.c_str());
 
@@ -409,7 +406,7 @@ bool Application::Frame() {
     ImGui::Render();
 
     // Do the zone frame processing.
-    result = m_Zone->Frame(m_Direct3D, m_Input, m_ShaderManager, m_TextureManager, m_Timer->GetTime(), m_Fps->GetFps(), scales, (float)detailScale, XMFLOAT3(lightX, lightY, lightZ));
+    result = m_Zone->Frame(m_Direct3D, m_Input, m_ShaderManager, m_TextureManager, m_Timer->GetTime(), m_Fps->GetFps(), scales, (float)detailScale, XMFLOAT3((float)lightX, (float)lightY, (float)lightZ));
     if (!result) {
         return false;
     }

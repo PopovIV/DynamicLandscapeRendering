@@ -90,12 +90,6 @@
     <ClInclude Include="zone.h">
       <Filter>Файлы заголовков\Terrain</Filter>
     </ClInclude>
-    <ClInclude Include="textureShader.h">
-      <Filter>Файлы заголовков\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="lightShader.h">
-      <Filter>Файлы заголовков\Shaders</Filter>
-    </ClInclude>
     <ClInclude Include="terrainShader.h">
       <Filter>Файлы заголовков\Shaders</Filter>
     </ClInclude>
@@ -195,12 +189,6 @@
       <Filter>Исходные файлы\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="colorShader.cpp">
-      <Filter>Исходные файлы\Shaders</Filter>
-    </ClCompile>
-    <ClCompile Include="textureShader.cpp">
-      <Filter>Исходные файлы\Shaders</Filter>
-    </ClCompile>
-    <ClCompile Include="lightShader.cpp">
       <Filter>Исходные файлы\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="terrainShader.cpp">

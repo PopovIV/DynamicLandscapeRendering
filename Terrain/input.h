@@ -70,11 +70,11 @@ class Input {
     int m_screenWidth = 0, m_screenHeight = 0;
     int m_mouseX = 0, m_mouseY = 0;
 
-    bool m_F1_released;
-    bool m_F2_released;
-    bool m_F3_released;
-    bool m_F4_released;
-    bool m_Space_released;
+    bool m_F1_released = false;
+    bool m_F2_released = false;
+    bool m_F3_released = false;
+    bool m_F4_released = false;
+    bool m_Space_released = false;
 };
 
 #endif

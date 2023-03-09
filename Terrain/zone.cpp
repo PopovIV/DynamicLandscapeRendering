@@ -395,7 +395,6 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
     LARGE_INTEGER fr, t1, t2;
     QueryPerformanceCounter(&t1);
 
-    auto startTime = timeGetTime();
     bool result = RenderToTexture(Direct3D, ShaderManager, TextureManager);
     if (!result) {
         return false;
@@ -418,7 +417,6 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
     m_drawTime = 1000.0f * dTDrawTotal;
     m_drawToTextureTime = 1000.0f * m_Profiler->DtAvg(GTS_DrawToTexture);
     m_toneMappingTime = 1000.0f * m_Profiler->DtAvg(GTS_ToneMapping);
-    m_GPUTime = 1000.0f * (dTDrawTotal + m_Profiler->DtAvg(GTS_EndFrame));
 
     QueryPerformanceCounter(&t2);
     QueryPerformanceFrequency(&fr);

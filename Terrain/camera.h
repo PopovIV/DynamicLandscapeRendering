@@ -32,7 +32,7 @@ class Camera {
   private:
     float m_positionX = 0.0f, m_positionY = 0.0f, m_positionZ = 0.0f;
     float m_rotationX = 0.0f, m_rotationY = 0.0f, m_rotationZ = 0.0f;
-    XMMATRIX m_viewMatrix, m_baseViewMatrix;
+    XMMATRIX m_viewMatrix = XMMATRIX(), m_baseViewMatrix = XMMATRIX();
 };
 
 #endif

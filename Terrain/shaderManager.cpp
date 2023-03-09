@@ -14,30 +14,6 @@ bool ShaderManager::Initialize(ID3D11Device* device, HWND hwnd) {
         return false;
     }
 
-    // Create the texture shader object.
-    m_TextureShader = new TextureShader;
-    if (!m_TextureShader) {
-        return false;
-    }
-
-    // Initialize the texture shader object.
-    result = m_TextureShader->Initialize(device, hwnd);
-    if (!result) {
-        return false;
-    }
-
-    // Create the light shader object.
-    m_LightShader = new LightShader;
-    if (!m_LightShader) {
-        return false;
-    }
-
-    // Initialize the light shader object.
-    result = m_LightShader->Initialize(device, hwnd);
-    if (!result) {
-        return false;
-    }
-
     // Create the sky dome shader object.
     m_SkyDomeShader = new SkyDomeShader;
     if (!m_SkyDomeShader) {
@@ -81,20 +57,6 @@ void ShaderManager::Shutdown() {
         m_SkyDomeShader = nullptr;
     }
 
-    // Release the light shader object.
-    if (m_LightShader) {
-        m_LightShader->Shutdown();
-        delete m_LightShader;
-        m_LightShader = nullptr;
-    }
-
-    // Release the texture shader object.
-    if (m_TextureShader) {
-        m_TextureShader->Shutdown();
-        delete m_TextureShader;
-        m_TextureShader = nullptr;
-    }
-
     // Release the color shader object.
     if (m_ColorShader) {
         m_ColorShader->Shutdown();
@@ -107,17 +69,6 @@ void ShaderManager::Shutdown() {
 bool ShaderManager::RenderColorShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix) {
     return m_ColorShader->Render(deviceContext, indexCount, worldMatrix, viewMatrix, projectionMatrix);
 }
-
-// Function to render for Texture shader
-bool ShaderManager::RenderTextureShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix,  XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture) {
-    return m_TextureShader->Render(deviceContext, indexCount, worldMatrix, viewMatrix, projectionMatrix, texture);
-}
-
-// Function to render for Light shader
-bool ShaderManager::RenderLightShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix,XMMATRIX projectionMatrix, ID3D11ShaderResourceView* texture, XMFLOAT3 lightDirection, XMFLOAT4 diffuseColor) {
-    return m_LightShader->Render(deviceContext, indexCount, worldMatrix, viewMatrix, projectionMatrix, texture, lightDirection, diffuseColor);
-}
-
 
 bool ShaderManager::RenderSkyDomeShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT4 apexColor, XMFLOAT4 centerColor) {
     return m_SkyDomeShader->Render(deviceContext, indexCount, worldMatrix, viewMatrix, projectionMatrix, apexColor, centerColor);

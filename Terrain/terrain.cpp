@@ -203,6 +203,12 @@ void Terrain::SetTerrainCoordinates() {
 
             // Scale the height.
             m_heightMap[index].y /= m_heightScale;
+
+
+            float presition = 1024.0;
+            m_heightMap[index].x = float(int(m_heightMap[index].x * presition) / presition);
+            m_heightMap[index].y = float(int(m_heightMap[index].y * presition) / presition);
+            m_heightMap[index].z = float(int(m_heightMap[index].z * presition) / presition);
         }
     }
 }
@@ -239,12 +245,11 @@ bool Terrain::BuildTerrainModel() {
             int index3 = (m_terrainWidth * (j + 1)) + i;      // Bottom left.
             int index4 = (m_terrainWidth * (j + 1)) + (i + 1);  // Bottom right.
 
-            float eps = 1e-6;
             // Now create two triangles for that quad.
             // Triangle 1 - Upper left.
-            m_terrainModel[index].x = m_heightMap[index1].x - eps;
+            m_terrainModel[index].x = m_heightMap[index1].x;
             m_terrainModel[index].y = m_heightMap[index1].y;
-            m_terrainModel[index].z = m_heightMap[index1].z + eps;
+            m_terrainModel[index].z = m_heightMap[index1].z;
             m_terrainModel[index].tu = 0.0f;
             m_terrainModel[index].tv = 0.0f;
             m_terrainModel[index].nx = m_heightMap[index1].nx;
@@ -255,9 +260,9 @@ bool Terrain::BuildTerrainModel() {
             index++;
 
             // Triangle 1 - Upper right.
-            m_terrainModel[index].x = m_heightMap[index2].x + eps;
+            m_terrainModel[index].x = m_heightMap[index2].x;
             m_terrainModel[index].y = m_heightMap[index2].y;
-            m_terrainModel[index].z = m_heightMap[index2].z + eps;
+            m_terrainModel[index].z = m_heightMap[index2].z;
             m_terrainModel[index].tu = 1.0f;
             m_terrainModel[index].tv = 0.0f;
             m_terrainModel[index].nx = m_heightMap[index2].nx;
@@ -268,9 +273,9 @@ bool Terrain::BuildTerrainModel() {
             index++;
 
             // Triangle 1 - Bottom left.
-            m_terrainModel[index].x = m_heightMap[index3].x - eps;
+            m_terrainModel[index].x = m_heightMap[index3].x;
             m_terrainModel[index].y = m_heightMap[index3].y;
-            m_terrainModel[index].z = m_heightMap[index3].z - eps;
+            m_terrainModel[index].z = m_heightMap[index3].z;
             m_terrainModel[index].tu = 0.0f;
             m_terrainModel[index].tv = 1.0f;
             m_terrainModel[index].nx = m_heightMap[index3].nx;
@@ -281,9 +286,9 @@ bool Terrain::BuildTerrainModel() {
             index++;
 
             // Triangle 2 - Bottom left.
-            m_terrainModel[index].x = m_heightMap[index3].x - eps;
+            m_terrainModel[index].x = m_heightMap[index3].x;
             m_terrainModel[index].y = m_heightMap[index3].y;
-            m_terrainModel[index].z = m_heightMap[index3].z - eps;
+            m_terrainModel[index].z = m_heightMap[index3].z;
             m_terrainModel[index].tu = 0.0f;
             m_terrainModel[index].tv = 1.0f;
             m_terrainModel[index].nx = m_heightMap[index3].nx;
@@ -294,9 +299,9 @@ bool Terrain::BuildTerrainModel() {
             index++;
 
             // Triangle 2 - Upper right.
-            m_terrainModel[index].x = m_heightMap[index2].x + eps;
+            m_terrainModel[index].x = m_heightMap[index2].x;
             m_terrainModel[index].y = m_heightMap[index2].y;
-            m_terrainModel[index].z = m_heightMap[index2].z + eps;
+            m_terrainModel[index].z = m_heightMap[index2].z;
             m_terrainModel[index].tu = 1.0f;
             m_terrainModel[index].tv = 0.0f;
             m_terrainModel[index].nx = m_heightMap[index2].nx;
@@ -308,9 +313,9 @@ bool Terrain::BuildTerrainModel() {
             index++;
 
             // Triangle 2 - Bottom right.
-            m_terrainModel[index].x = m_heightMap[index4].x + eps;
+            m_terrainModel[index].x = m_heightMap[index4].x;
             m_terrainModel[index].y = m_heightMap[index4].y;
-            m_terrainModel[index].z = m_heightMap[index4].z - eps;
+            m_terrainModel[index].z = m_heightMap[index4].z;
             m_terrainModel[index].tu = 1.0f;
             m_terrainModel[index].tv = 1.0f;
             m_terrainModel[index].nx = m_heightMap[index4].nx;
@@ -579,8 +584,8 @@ void Terrain::CalculateTangentBinormal(TempVertexType vertex1, TempVertexType ve
 
 bool Terrain::LoadTerrainCells(ID3D11Device* device) {
     // Set the height and width of each terrain cell to a fixed 33x33 vertex array.
-    int cellHeight = 33;
-    int cellWidth = 33;
+    int cellHeight = 129;
+    int cellWidth = 129;
 
     // Calculate the number of cells needed to store the terrain data.
     int cellRowCount = (m_terrainWidth - 1) / (cellWidth - 1);
@@ -625,9 +630,11 @@ bool Terrain::RenderCell(ID3D11DeviceContext* deviceContext, int cellId, Frustum
     // Get the dimensions of the terrain cell.
     m_TerrainCells[cellId].GetCellDimensions(maxWidth, maxHeight, maxDepth, minWidth, minHeight, minDepth);
 
+    // eps for better culling
+    float eps = 1;
     if (culling) {
         // Check if the cell is visible.  If it is not visible then just return and don't render it.
-        bool result = Frustum->CheckRectangle2(maxWidth, maxHeight, maxDepth, minWidth, minHeight, minDepth);
+        bool result = Frustum->CheckRectangle2(maxWidth + eps, maxHeight + eps, maxDepth + eps, minWidth - eps, minHeight - eps, minDepth - eps);
         if (!result) {
             // Increment the number of cells that were culled.
             m_cellsCulled++;

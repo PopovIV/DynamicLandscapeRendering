@@ -41,10 +41,10 @@ class SkyDome {
     void RenderBuffers(ID3D11DeviceContext* deviceContext);
 
     ModelType* m_model = nullptr;
-    int m_vertexCount, m_indexCount;
+    int m_vertexCount = 0, m_indexCount = 0;
     ID3D11Buffer* m_vertexBuffer = nullptr;
     ID3D11Buffer* m_indexBuffer = nullptr;
-    XMFLOAT4 m_apexColor, m_centerColor;
+    XMFLOAT4 m_apexColor = XMFLOAT4(), m_centerColor = XMFLOAT4();
 };
 
 #endif

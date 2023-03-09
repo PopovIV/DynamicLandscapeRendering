@@ -46,7 +46,6 @@ class Zone {
     float GetDrawTime() { return m_drawTime; };
     float GetDrawToTextureTime() { return m_drawToTextureTime; };
     float GetToneMappingTime() { return m_toneMappingTime; };
-    float GetGPUTime() { return m_GPUTime; };
     float GetCPUTime() { return m_CPUTime; };
 
   private:
@@ -70,7 +69,7 @@ class Zone {
     XMFLOAT4 scales = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     float detailScale;
 
-    float m_drawTime = 0.0f, m_drawToTextureTime = 0.0f, m_toneMappingTime = 0.0f, m_GPUTime = 0.0f, m_CPUTime = 0.0f;
+    float m_drawTime = 0.0f, m_drawToTextureTime = 0.0f, m_toneMappingTime = 0.0f, m_CPUTime = 0.0f;
 
     bool m_displayUI, m_wireFrame, m_dayNightCycle, m_cellLines, m_culling, m_heightLocked, m_lockView;
 };

@@ -70,7 +70,7 @@ HS_CONSTANT_DATA_OUTPUT constantsHullShader(InputPatch<HS_INPUT, NUM_CONTROL_POI
     output.EdgeFactors[1] = p1factor;
     output.EdgeFactors[2] = p2factor;
     output.InsideFactor = (output.EdgeFactors[0] + output.EdgeFactors[1] + output.EdgeFactors[2]) / 3.0f;
-
+    /*
     output.bezierPoints[0] = CalculateBezierControlPoint(patch[0].position, patch[0].normal, patch[1].position, patch[1].normal);
     output.bezierPoints[1] = CalculateBezierControlPoint(patch[1].position, patch[1].normal, patch[0].position, patch[0].normal);
     output.bezierPoints[2] = CalculateBezierControlPoint(patch[1].position, patch[1].normal, patch[2].position, patch[2].normal);
@@ -84,6 +84,14 @@ HS_CONSTANT_DATA_OUTPUT constantsHullShader(InputPatch<HS_INPUT, NUM_CONTROL_POI
     avgBezier /= 6.0;
     float3 avgControl = (patch[0].position + patch[1].position + patch[2].position) / 3.0;
     output.bezierPoints[6] = avgBezier + (avgBezier - avgControl) / 2.0;
+    */
+    output.bezierPoints[0] = 2. / 3. * patch[0].position + 1. / 3. * patch[1].position;
+    output.bezierPoints[1] = 1. / 3. * patch[0].position + 2. / 3. * patch[1].position;
+    output.bezierPoints[2] = 2. / 3. * patch[1].position + 1. / 3. * patch[2].position;
+    output.bezierPoints[3] = 1. / 3. * patch[1].position + 2. / 3. * patch[2].position;
+    output.bezierPoints[4] = 2. / 3. * patch[2].position + 1. / 3. * patch[0].position;;
+    output.bezierPoints[5] = 1. / 3. * patch[2].position + 2. / 3. * patch[0].position;;
+    output.bezierPoints[6] = 1. / 3. * patch[0].position + 1. / 3. * patch[1].position + 1. / 3. * patch[2].position;
 
     output.bezierPoints[7] = CalculateBezierControlNormal(patch[0].position, patch[0].normal, patch[1].position, patch[1].normal);
     output.bezierPoints[8] = CalculateBezierControlNormal(patch[1].position, patch[1].normal, patch[2].position, patch[2].normal);

@@ -35,7 +35,7 @@ class CGpuProfiler {
     float Time();
 
     float Dt(GTS gts) { return m_adT[gts]; }
-    float DtAvg(GTS gts) { return m_adTAvg[gts]; }
+    float DtAvg( GTS gts) { return m_adTAvg[gts]; }
   private:
     int m_iFrameQuery;                          // Which of the two sets of queries are we currently issuing?
     int m_iFrameCollect;                        // Which of the two did we last collect?
