@@ -14,16 +14,8 @@
 using namespace DirectX;
 using namespace std;
 
-
 class AverageLuminance {
-
-public:
-    // constructors
-    AverageLuminance();
-    AverageLuminance(const AverageLuminance& other) {};
-    // destructor
-    ~AverageLuminance() {};
-
+  public:
     // Function to initialize
     bool Initialize(ID3D11Device* device, HWND hwnd, int screenWidth, int screenHeight);
     // Function to realese
@@ -31,25 +23,25 @@ public:
     // Render function
     float Process(ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* sourceTexture);
 
-private:
+  private:
     void CopyTexture(ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* sourceTexture, RenderTexture& dst, ID3D11PixelShader* pixelShader);
 
     bool CreateTextures(ID3D11Device* device, int width, int height);
 
     // Function to initialize
-    bool InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psCopyFilename, WCHAR* psFilename);
+    bool InitializeShader(ID3D11Device* device, HWND hwnd, const wchar_t* vsFilename, const wchar_t* psCopyFilename, const wchar_t* psFilename);
 
-    void OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename);
+    void OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, const wchar_t* shaderFilename);
 
     std::vector<RenderTexture*> m_renderTextures;
 
-    ID3D11VertexShader* m_vertexShader;
-    ID3D11PixelShader* m_copyPixelShader;
-    ID3D11PixelShader* m_pixelShader;
-    ID3D11SamplerState* m_sampleState;
-    ID3D11Texture2D* m_luminanceTexture;
+    ID3D11VertexShader* m_vertexShader = nullptr;
+    ID3D11PixelShader* m_copyPixelShader = nullptr;
+    ID3D11PixelShader* m_pixelShader = nullptr;
+    ID3D11SamplerState* m_sampleState = nullptr;
+    ID3D11Texture2D* m_luminanceTexture = nullptr;
 
-    float m_adaptedLuminance;
+    float m_adaptedLuminance = 0.0f;
 
     LARGE_INTEGER m_qpcFrequency;
     LARGE_INTEGER m_qpcLastTime;

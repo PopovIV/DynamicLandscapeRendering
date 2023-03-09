@@ -4,15 +4,13 @@ RenderTexture::RenderTexture() {
     m_renderTargetTexture = nullptr;
     m_renderTargetView = nullptr;
     m_shaderResourceView = nullptr;
+    ZeroMemory(&m_viewport, sizeof(D3D11_VIEWPORT));
 }
 
+// Function to initialize render texture class
 bool RenderTexture::Initialize(ID3D11Device* device, int textureWidth, int textureHeight) {
-    D3D11_TEXTURE2D_DESC textureDesc;
-    HRESULT result;
-    D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
-    D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-
     // Initialize the render target texture description.
+    D3D11_TEXTURE2D_DESC textureDesc;
     ZeroMemory(&textureDesc, sizeof(textureDesc));
 
     // Setup the render target texture description.
@@ -28,12 +26,13 @@ bool RenderTexture::Initialize(ID3D11Device* device, int textureWidth, int textu
     textureDesc.MiscFlags = 0;
 
     // Create the render target texture.
-    result = device->CreateTexture2D(&textureDesc, NULL, &m_renderTargetTexture);
+    HRESULT result = device->CreateTexture2D(&textureDesc, NULL, &m_renderTargetTexture);
     if (FAILED(result)) {
         return false;
     }
 
     // Setup the description of the render target view.
+    D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
     renderTargetViewDesc.Format = textureDesc.Format;
     renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
     renderTargetViewDesc.Texture2D.MipSlice = 0;
@@ -45,6 +44,7 @@ bool RenderTexture::Initialize(ID3D11Device* device, int textureWidth, int textu
     }
 
     // Setup the description of the shader resource view.
+    D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
     shaderResourceViewDesc.Format = textureDesc.Format;
     shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
     shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
@@ -66,6 +66,7 @@ bool RenderTexture::Initialize(ID3D11Device* device, int textureWidth, int textu
     return true;
 }
 
+// Function to realese render texture class
 void RenderTexture::Shutdown() {
     if (m_shaderResourceView) {
         m_shaderResourceView->Release();
@@ -81,13 +82,14 @@ void RenderTexture::Shutdown() {
         m_renderTargetTexture->Release();
         m_renderTargetTexture = nullptr;
     }
+
+    ZeroMemory(&m_viewport, sizeof(D3D11_VIEWPORT));
 }
 
-
+// Function to clear render target
 void RenderTexture::ClearRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView, float red, float green, float blue, float alpha) {
-    float color[4];
-
     // Setup the color to clear the buffer to.
+    float color[4];
     color[0] = red;
     color[1] = green;
     color[2] = blue;
@@ -98,5 +100,4 @@ void RenderTexture::ClearRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11
 
     // Clear the depth buffer.
     deviceContext->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
-
 }

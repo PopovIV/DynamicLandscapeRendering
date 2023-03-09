@@ -5,20 +5,21 @@
 // work is done
 //--------------------------------------------------------------------------------------
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline, int iCmdshow) {
-
     System* system;
     bool result;
 
     // Create the system object.
     system = new System;
-    if (!system)
+    if (!system) {
         return 0;
+    }
 
     // Initialize and run the system object.
     result = system->Initialize();
 
-    if (result)
+    if (result) {
         system->Run();
+    }
 
     // Shutdown and release the system object.
     system->Shutdown();
@@ -26,5 +27,4 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
     system = nullptr;
 
     return 0;
-
 }

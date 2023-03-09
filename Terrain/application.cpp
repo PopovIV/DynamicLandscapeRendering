@@ -3,29 +3,16 @@
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
 
-
-Application::Application() {
-    m_Input = nullptr;
-    m_Direct3D = nullptr;
-    m_Timer = nullptr;
-    m_Fps = nullptr;
-    m_ShaderManager = nullptr;
-    m_TextureManager = nullptr;
-    m_Zone = nullptr;
-}
-
 // Function to initialize application instance and all it's subclasses
 bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeight) {
-
-    bool result;
-
     // Create the input object.
     m_Input = new Input;
-    if (!m_Input)
+    if (!m_Input) {
         return false;
+    }
 
     // Initialize the input object.
-    result = m_Input->Initialize(hinstance, hwnd, screenWidth, screenHeight);
+    bool result = m_Input->Initialize(hinstance, hwnd, screenWidth, screenHeight);
     if (!result) {
         MessageBox(hwnd, L"Could not initialize the input object.", L"Error", MB_OK);
         return false;
@@ -33,8 +20,9 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
 
     // Create the Direct3D object.
     m_Direct3D = new D3DClass;
-    if (!m_Direct3D)
+    if (!m_Direct3D) {
         return false;
+    }
 
     // Initialize the Direct3D object.
     result = m_Direct3D->Initialize(screenWidth, screenHeight, VSYNC_ENABLED, hwnd, FULL_SCREEN, SCREEN_DEPTH, SCREEN_NEAR);
@@ -45,8 +33,9 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
 
     // Create the shader manager object.
     m_ShaderManager = new ShaderManager;
-    if (!m_ShaderManager)
+    if (!m_ShaderManager) {
         return false;
+    }
 
     // Initialize the shader manager object.
     result = m_ShaderManager->Initialize(m_Direct3D->GetDevice(), hwnd);
@@ -57,8 +46,9 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
 
     // Create the texture manager object.
     m_TextureManager = new TextureManager;
-    if (!m_TextureManager)
+    if (!m_TextureManager) {
         return false;
+    }
 
     // Initialize the texture manager object.
     result = m_TextureManager->Initialize(30);
@@ -69,83 +59,109 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
 
     // Load textures into the texture manager.
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/grass_diffuse.dds", 0, Texture::DDS, true);
-    if (!result)
+    if (!result) {
         return false;
+    }
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/grass_normal.dds", 1, Texture::DDS);
-    if (!result)
+    if (!result) {
         return false;
+    }
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/grass_rough.dds", 2, Texture::DDS);
-    if (!result)
+    if (!result) {
         return false;
+    }
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/grass_ao.dds", 3, Texture::DDS);
-    if (!result)
+    if (!result) {
         return false;
-
+    }
 
     // Load textures into the texture manager.
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/grass_diffuse2.dds", 4, Texture::DDS, true);
-    if (!result)
+    if (!result) {
         return false;
+    }
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/grass_normal2.dds", 5, Texture::DDS);
-    if (!result)
+    if (!result) {
         return false;
+    }
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/grass_rough2.dds", 6, Texture::DDS);
-    if (!result)
+    if (!result) {
         return false;
+    }
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/grass_ao2.dds", 7, Texture::DDS);
-    if (!result)
+    if (!result) {
         return false;
+    }
 
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/rock_diffuse.dds", 8, Texture::DDS, true);
-    if (!result)
+    if (!result) {
         return false;
+    }
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/rock_normal.dds", 9, Texture::DDS);
-    if (!result)
+    if (!result) {
         return false;
+    }
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/rock_rough.dds", 10, Texture::DDS);
-    if (!result)
+    if (!result) {
         return false;
+    }
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/rock_ao.dds", 11, Texture::DDS);
-    if (!result)
+    if (!result) {
         return false;
+    }
 
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/slope_diffuse.dds", 12, Texture::DDS, true);
-    if (!result)
+    if (!result) {
         return false;
+    }
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/slope_normal.dds", 13, Texture::DDS);
-    if (!result)
+    if (!result) {
         return false;
+    }
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/slope_rough.dds", 14, Texture::DDS);
-    if (!result)
+    if (!result) {
         return false;
+    }
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/slope_ao.dds", 15, Texture::DDS);
-    if (!result)
+    if (!result) {
         return false;
+    }
 
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/snow_diffuse.dds", 16, Texture::DDS, true);
-    if (!result)
+    if (!result) {
         return false;
+    }
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/snow_normal.dds", 17, Texture::DDS);
-    if (!result)
+    if (!result) {
         return false;
+    }
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/snow_rough.dds", 18, Texture::DDS);
-    if (!result)
+    if (!result) {
         return false;
+    }
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/snow_ao.dds", 19, Texture::DDS);
-    if (!result)
+    if (!result) {
         return false;
+    }
 
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/detailNormalMap.dds", 20, Texture::DDS);
-    if (!result)
+    if (!result) {
         return false;
+    }
     result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/noise.dds", 21, Texture::DDS);
-    if (!result)
+    if (!result) {
         return false;
+    }
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/HM.dds", 22, Texture::DDS);
+    if (!result) {
+        return false;
+    }
 
     // Create the timer object.
     m_Timer = new Timer;
-    if (!m_Timer)
+    if (!m_Timer) {
         return false;
+    }
 
     // Initialize the timer object.
     result = m_Timer->Initialize();
@@ -156,16 +172,18 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
 
     // Create the fps object.
     m_Fps = new Fps;
-    if (!m_Fps)
+    if (!m_Fps) {
         return false;
+    }
 
     // Initialize the fps object.
     m_Fps->Initialize();
 
     // Create the zone object.
     m_Zone = new Zone;
-    if (!m_Zone)
+    if (!m_Zone) {
         return false;
+    }
 
     // Initialize the zone object.
     result = m_Zone->Initialize(m_Direct3D, hwnd, screenWidth, screenHeight, SCREEN_DEPTH);
@@ -185,7 +203,6 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
     ImGui_ImplDX11_Init(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext());
 
     return true;
-
 }
 
 // Function to clear all stuff that was created in initialize function
@@ -244,9 +261,7 @@ void Application::Shutdown() {
 }
 
 // Function to update frame each second
-bool Application::Frame()
-{
-    bool result;
+bool Application::Frame() {
 
     // Start the Dear ImGui frame
     ImGui_ImplDX11_NewFrame();
@@ -260,43 +275,63 @@ bool Application::Frame()
     static bool demoWindow = false;
     static bool wireframe = false;
     static bool dayNight = false;
+    static bool heightLocked = true;
+    static bool culling = true;
+    static bool lockView = true;
     static bool myWindow = true;
     static int grassScale = 40;
     static int rockScale = 32;
     static int slopeScale = 32;
     static int snowScale = 2;
-    static int detailScale = 2;
-    static int lightX = m_Zone->GetLighDirection().x;
-    static int lightY = m_Zone->GetLighDirection().y;
-    static int lightZ = m_Zone->GetLighDirection().z;
-    if (demoWindow)
+    static int detailScale = 4;
+    static int lightX = (int)m_Zone->GetLighDirection().x;
+    static int lightY = (int)m_Zone->GetLighDirection().y;
+    static int lightZ = (int)m_Zone->GetLighDirection().z;
+    if (demoWindow) {
         ImGui::ShowDemoWindow(&demoWindow);
+    }
 
-    if (myWindow)
-    {
+    if (myWindow) {
         ImGui::Begin("ImGui", &myWindow);
         
         dayNight = m_Zone->GetDayNight();
         wireframe = m_Zone->GetWireFrame();
+        lockView = m_Zone->GetLockView();
 
-        if (ImGui::Button("Open demo"))
+        if (ImGui::Button("Open demo")) {
             demoWindow = true;
+        }
 
-        if (ImGui::Checkbox("WireFrame Mode", &wireframe))
+        if (ImGui::Checkbox("WireFrame Mode", &wireframe)) {
             m_Zone->ToggleWireFrame();
+        }
 
-        if (ImGui::Checkbox("DayNight Cycle", &dayNight))
+        if (ImGui::Checkbox("Height locked", &heightLocked)) {
+            m_Zone->ToggleHeightLocked();
+        }
+
+        if (ImGui::Checkbox("DayNight Cycle", &dayNight)) {
             m_Zone->ToggleDayNight();
+        }
 
+        if (ImGui::Checkbox("Culling", &culling)) {
+            m_Zone->ToggleCulling();
+        }
+
+        if (culling) {
+            if (ImGui::Checkbox("Lock View", &lockView)) {
+                m_Zone->ToggleLockView();
+            }
+        }
         
         ImGui::SliderInt("Grass scales", &grassScale, 1, 64, "%d", 0);
-        scales.x = grassScale;
+        scales.x = (float)grassScale;
         ImGui::SliderInt("Rock scales", &rockScale, 1, 64, "%d", 0);
-        scales.y = rockScale;
+        scales.y = (float)rockScale;
         ImGui::SliderInt("Slope scales", &slopeScale, 1, 64, "%d", 0);
-        scales.z = slopeScale;
+        scales.z = (float)slopeScale;
         ImGui::SliderInt("Snow scales", &snowScale, 1, 64, "%d", 0);
-        scales.w = snowScale;
+        scales.w = (float)snowScale;
         ImGui::SliderInt("Detail scales", &detailScale, 1, 64, "%d", 0);
 
         ImGui::SliderInt("Light position X", &lightX, -100, 100, "%d", 0);
@@ -318,6 +353,7 @@ bool Application::Frame()
         str = "\nZ: ";
         str += std::to_string(z);
         ImGui::Text(str.c_str());
+
         m_Zone->GetRotation(x, y, z);
         str = "\nrX: ";
         str += std::to_string(x);
@@ -329,25 +365,51 @@ bool Application::Frame()
         str += std::to_string(z);
         ImGui::Text(str.c_str());
 
+        m_Zone->GetCulling(x, y, z);
+        str = "\nPolygons: ";
+        str += std::to_string((int)x);
+        ImGui::Text(str.c_str());
+        str = "\nRendered: ";
+        str += std::to_string((int)y);
+        ImGui::Text(str.c_str());
+        str = "\nCulled: ";
+        str += std::to_string((int)z);
+        ImGui::Text(str.c_str());
+
+        str = "\nDraw To Texture Time: ";
+        str += std::to_string(m_Zone->GetDrawToTextureTime()) + " ms";
+        ImGui::Text(str.c_str());
+        str = "\nTone Mapping Time: ";
+        str += std::to_string(m_Zone->GetToneMappingTime()) + " ms";
+        ImGui::Text(str.c_str());
+        str = "\nGPU Time: ";
+        str += std::to_string(m_Zone->GetDrawTime()) + " ms";
+        ImGui::Text(str.c_str());
+        str = "\nCPU Time: ";
+        str += std::to_string(m_Zone->GetCPUTime()) + " ms";
+        ImGui::Text(str.c_str());
+
         ImGui::End();
     }
 
     // Do the input frame processing.
-    result = m_Input->Frame();
-    if (!result)
+    bool result = m_Input->Frame();
+    if (!result) {
         return false;
+    }
 
     // Check if the user pressed escape and wants to exit the application.
-    if (m_Input->IsEscapePressed() == true)
+    if (m_Input->IsEscapePressed() == true) {
         return false;
+    }
 
     ImGui::Render();
 
     // Do the zone frame processing.
-    result = m_Zone->Frame(m_Direct3D, m_Input, m_ShaderManager, m_TextureManager, m_Timer->GetTime(), m_Fps->GetFps(), scales, detailScale, XMFLOAT3(lightX, lightY, lightZ));
-    if (!result)
+    result = m_Zone->Frame(m_Direct3D, m_Input, m_ShaderManager, m_TextureManager, m_Timer->GetTime(), m_Fps->GetFps(), scales, (float)detailScale, XMFLOAT3((float)lightX, (float)lightY, (float)lightZ));
+    if (!result) {
         return false;
+    }
 
     return result;
-
 }

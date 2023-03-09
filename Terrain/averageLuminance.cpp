@@ -1,54 +1,41 @@
 #include "averageLuminance.h"
 
-// Constructor
-AverageLuminance::AverageLuminance() {
-    m_vertexShader = nullptr;
-    m_copyPixelShader = nullptr;
-    m_pixelShader = nullptr;
-    m_sampleState = nullptr;
-    m_luminanceTexture = nullptr;
+// Function to initialize
+bool AverageLuminance::Initialize(ID3D11Device* device, HWND hwnd, int textureWidth, int textureHeight) {
 
     QueryPerformanceFrequency(&m_qpcFrequency);
     QueryPerformanceCounter(&m_qpcLastTime);
 
-    m_adaptedLuminance = 0.0f;
-}
-
-// Function to initialize
-bool AverageLuminance::Initialize(ID3D11Device* device, HWND hwnd, int textureWidth, int textureHeight) {
     bool result;
     // Initialize the vertex and pixel shaders.
     result = InitializeShader(device, hwnd, L"ToneMapVertexShader.hlsl", L"CopyPixelShader.hlsl", L"LuminancePixelShader.hlsl");
-    if (!result)
+    if (!result) {
         return false;
+    }
 
     return CreateTextures(device, textureWidth, textureHeight);
 }
 
-bool AverageLuminance::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psCopyFilename, WCHAR* psFilename) {
-    HRESULT result;
-    ID3D10Blob* errorMessage;
-    ID3D10Blob* vertexShaderBuffer;
-    ID3D10Blob* copyPixelShaderBuffer;
-    ID3D10Blob* pixelShaderBuffer;
- 
+bool AverageLuminance::InitializeShader(ID3D11Device* device, HWND hwnd, const wchar_t* vsFilename, const wchar_t* psCopyFilename, const wchar_t* psFilename) {
     // Initialize the pointers this function will use to null.
-    errorMessage = nullptr;
-    vertexShaderBuffer = nullptr;
-    copyPixelShaderBuffer = nullptr;
-    pixelShaderBuffer = nullptr;
+    ID3D10Blob* errorMessage = nullptr;
+    ID3D10Blob* vertexShaderBuffer = nullptr;
+    ID3D10Blob* copyPixelShaderBuffer = nullptr;
+    ID3D10Blob* pixelShaderBuffer = nullptr;
 
     int flags = D3D10_SHADER_ENABLE_STRICTNESS | D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION;
 
     // Compile the vertex shader code.
-    result = D3DCompileFromFile(vsFilename, NULL, NULL, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage);
+    HRESULT result = D3DCompileFromFile(vsFilename, NULL, NULL, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage);
     if (FAILED(result)) {
         // If the shader failed to compile it should have writen something to the error message.
-        if (errorMessage)
+        if (errorMessage) {
             OutputShaderErrorMessage(errorMessage, hwnd, vsFilename);
+        }
         // If there was nothing in the error message then it simply could not find the shader file itself.
-        else
+        else {
             MessageBox(hwnd, vsFilename, L"Missing Shader File", MB_OK);
+        }
         return false;
     }
 
@@ -56,12 +43,13 @@ bool AverageLuminance::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* 
     result = D3DCompileFromFile(psCopyFilename, NULL, NULL, "main", "ps_5_0", flags, 0, &copyPixelShaderBuffer, &errorMessage);
     if (FAILED(result)) {
         // If the shader failed to compile it should have writen something to the error message.
-        if (errorMessage)
+        if (errorMessage) {
             OutputShaderErrorMessage(errorMessage, hwnd, psFilename);
+        }
         // If there was nothing in the error message then it simply could not find the file itself.
-        else
+        else {
             MessageBox(hwnd, psFilename, L"Missing Shader File", MB_OK);
-
+        }
         return false;
     }
 
@@ -69,39 +57,43 @@ bool AverageLuminance::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* 
     result = D3DCompileFromFile(psFilename, NULL, NULL, "main", "ps_5_0", flags, 0, &pixelShaderBuffer, &errorMessage);
     if (FAILED(result)) {
         // If the shader failed to compile it should have writen something to the error message.
-        if (errorMessage)
+        if (errorMessage) {
             OutputShaderErrorMessage(errorMessage, hwnd, psFilename);
+        }
         // If there was nothing in the error message then it simply could not find the file itself.
-        else
+        else {
             MessageBox(hwnd, psFilename, L"Missing Shader File", MB_OK);
-
+        }
         return false;
     }
 
     // Create the vertex shader from the buffer.
     result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader);
-    if (FAILED(result))
+    if (FAILED(result)) {
         return false;
+    }
 
     // Create the pixel shader from the buffer.
     result = device->CreatePixelShader(copyPixelShaderBuffer->GetBufferPointer(), copyPixelShaderBuffer->GetBufferSize(), NULL, &m_copyPixelShader);
-    if (FAILED(result))
+    if (FAILED(result)) {
         return false;
+    }
 
     // Create the pixel shader from the buffer.
     result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pixelShader);
-    if (FAILED(result))
+    if (FAILED(result)) {
         return false;
+    }
 
     // Release the vertex shader buffer and pixel shader buffer since they are no longer needed.
     vertexShaderBuffer->Release();
-    vertexShaderBuffer = 0;
+    vertexShaderBuffer = nullptr;
 
     copyPixelShaderBuffer->Release();
-    copyPixelShaderBuffer = 0;
+    copyPixelShaderBuffer = nullptr;
 
     pixelShaderBuffer->Release();
-    pixelShaderBuffer = 0;
+    pixelShaderBuffer = nullptr;
 
     // Create the sampler state
     D3D11_SAMPLER_DESC samplerDesc;
@@ -117,8 +109,9 @@ bool AverageLuminance::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* 
 
     // Create the texture sampler state.
     result = device->CreateSamplerState(&samplerDesc, &m_sampleState);
-    if (FAILED(result))
+    if (FAILED(result)) {
         return false;
+    }
 
     CD3D11_TEXTURE2D_DESC ltd(
         DXGI_FORMAT_R32G32B32A32_FLOAT,
@@ -132,8 +125,9 @@ bool AverageLuminance::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* 
     );
 
     result = device->CreateTexture2D(&ltd, nullptr, &m_luminanceTexture);
-    if (FAILED(result))
+    if (FAILED(result)) {
         return false;
+    }
 
     return true;
 }
@@ -176,10 +170,10 @@ bool AverageLuminance::CreateTextures(ID3D11Device* device, int width, int heigh
 }
 
 float AverageLuminance::Process(ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* sourceTexture) {
-
     float backgroundColour[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-    for (size_t i = 0; i < m_renderTextures.size(); i++)
+    for (size_t i = 0; i < m_renderTextures.size(); i++) {
         deviceContext->ClearRenderTargetView(m_renderTextures[i]->GetRenderTargetView(), backgroundColour);
+    }
 
     deviceContext->IASetInputLayout(nullptr);
     deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
@@ -189,7 +183,6 @@ float AverageLuminance::Process(ID3D11DeviceContext* deviceContext, ID3D11Shader
     deviceContext->DSSetShader(nullptr, nullptr, 0);
 
     deviceContext->PSSetSamplers(0, 1, &m_sampleState);
-
 
     CopyTexture(deviceContext, sourceTexture, *m_renderTextures[0], m_copyPixelShader);
     CopyTexture(deviceContext, m_renderTextures[0]->GetShaderResourceView(), *m_renderTextures[1], m_pixelShader);
@@ -219,24 +212,21 @@ float AverageLuminance::Process(ID3D11DeviceContext* deviceContext, ID3D11Shader
 }
 
 // Function to print errors to file
-void AverageLuminance::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename) {
-
-    char* compileErrors;
-    unsigned long long bufferSize, i;
-    ofstream fout;
-
+void AverageLuminance::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, const wchar_t* shaderFilename) {
     // Get a pointer to the error message text buffer.
-    compileErrors = (char*)(errorMessage->GetBufferPointer());
+    char* compileErrors = (char*)(errorMessage->GetBufferPointer());
 
     // Get the length of the message.
-    bufferSize = errorMessage->GetBufferSize();
+    unsigned long long bufferSize = errorMessage->GetBufferSize();
 
     // Open a file to write the error message to.
+    ofstream fout;
     fout.open("shader-error.txt");
 
     // Write out the error message.
-    for (i = 0; i < bufferSize; i++)
+    for (unsigned long long i = 0; i < bufferSize; i++) {
         fout << compileErrors[i];
+    }
 
     // Close the file.
     fout.close();
@@ -247,7 +237,6 @@ void AverageLuminance::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND h
 
     // Pop a message up on the screen to notify the user to check the text file for compile errors.
     MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
-
 }
 
 // Function to release
@@ -277,12 +266,14 @@ void AverageLuminance::Shutdown() {
     }
 
     for (auto t : m_renderTextures) {
+        t->Shutdown();
         delete t;
     }
+    m_renderTextures.clear();
+    
 
     if (m_luminanceTexture) {
         m_luminanceTexture->Release();
         m_luminanceTexture = nullptr;
     }
-
 }

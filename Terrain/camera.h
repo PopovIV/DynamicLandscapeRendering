@@ -5,16 +5,11 @@
 #define _CAMERA_H_
 
 #include <directxmath.h>
+
 using namespace DirectX;
 
 class Camera {
-public:
-    // constructors
-    Camera();
-    Camera(const Camera& other) {};
-    // destructor
-    ~Camera() {};
-
+  public:
     // Function to set camera position
     void SetPosition(float x, float y, float z);
     // Function to set camera rotation
@@ -34,10 +29,10 @@ public:
     // Function to get base view matrix
     void GetBaseViewMatrix(XMMATRIX& baseViewMatrix) { baseViewMatrix = m_baseViewMatrix; };
 
-private:
-    float m_positionX, m_positionY, m_positionZ;
-    float m_rotationX, m_rotationY, m_rotationZ;
-    XMMATRIX m_viewMatrix, m_baseViewMatrix;
+  private:
+    float m_positionX = 0.0f, m_positionY = 0.0f, m_positionZ = 0.0f;
+    float m_rotationX = 0.0f, m_rotationY = 0.0f, m_rotationZ = 0.0f;
+    XMMATRIX m_viewMatrix = XMMATRIX(), m_baseViewMatrix = XMMATRIX();
 };
 
 #endif

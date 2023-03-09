@@ -10,38 +10,28 @@ using namespace DirectX;
 using namespace std;
 
 __declspec(align(16))
-struct LuminanceConstantBuffer
-{
+struct LuminanceConstantBuffer {
     float AverageLuminance;
 };
 
 class ToneMap {
-
-public:
-    // constructors
-    ToneMap();
-    ToneMap(const ToneMap& other) {};
-    // destructor
-    ~ToneMap() {};
-
+  public:
     // Function to initialize
     bool Initialize(ID3D11Device* device, HWND hwnd, int textureWidth, int textureHeight);
     // Function to realese
     void Shutdown();
     // Render function
     void Process(ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* sourceTexture, ID3D11RenderTargetView* renderTarget, D3D11_VIEWPORT viewport);
-
-private:
+  private:
     // Function to initialize
-    bool InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilenam);
+    bool InitializeShader(ID3D11Device* device, HWND hwnd, const wchar_t* vsFilename, const wchar_t* psFilenam);
+    // Function to print error if error happened
+    void OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, const wchar_t* shaderFilename);
 
-    void OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename);
-
-    AverageLuminance* m_averageLuminance;
-    ID3D11VertexShader* m_vertexShader;
-    ID3D11PixelShader* m_pixelShader;
-    ID3D11SamplerState* m_sampleState;
-    ID3D11Buffer* m_luminanceBuffer;
-
+    AverageLuminance* m_averageLuminance = nullptr;
+    ID3D11VertexShader* m_vertexShader = nullptr;
+    ID3D11PixelShader* m_pixelShader = nullptr;
+    ID3D11SamplerState* m_sampleState = nullptr;
+    ID3D11Buffer* m_luminanceBuffer = nullptr;
 };
 #endif

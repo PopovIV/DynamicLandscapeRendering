@@ -9,7 +9,7 @@
 #include "stb_image.h"
 
 class Texture {
-private:
+  private:
     struct TargaHeader {
         unsigned char data1[12];
         unsigned short width;
@@ -18,18 +18,12 @@ private:
         unsigned char data2;
     };
 
-public:
+  public:
     enum TextureType {
         Targa,
         DDS,
         ANY,
     };
-
-    // constructors
-    Texture();
-    Texture(const Texture&) {};
-    // destructor
-    ~Texture() {};
 
     // Function to initialize texture
     bool Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* filename, TextureType type, bool sRGB = false);
@@ -38,14 +32,12 @@ public:
 
     ID3D11ShaderResourceView* GetTexture() { return m_textureView; };
 
-private:
+  private:
     bool LoadTarga(const wchar_t* filename, int& height, int& width);
 
-private:
-    unsigned char* m_targaData;
-    ID3D11Texture2D* m_texture;
-    ID3D11ShaderResourceView* m_textureView;
-
+    unsigned char* m_targaData = nullptr;
+    ID3D11Texture2D* m_texture = nullptr;
+    ID3D11ShaderResourceView* m_textureView = nullptr;
 };
 
 #endif

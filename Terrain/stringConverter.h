@@ -8,10 +8,10 @@
 #include<string>
 
 class StringConverter {
-public:
+  public:
     // Function to convert wchar_t* to std string
     static std::string wstr2str(const wchar_t* ws);
-private:
+  private:
     // Disallow creating an instance of this object
     StringConverter() {};
 };

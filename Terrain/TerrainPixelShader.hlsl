@@ -1,4 +1,5 @@
-SamplerState SampleType;
+SamplerState SampleType : register(s0);
+SamplerState SampleTypeNoMips : register(s1);
 
 Texture2D grassDiffuseTexture : register(t0);
 Texture2D grassNormalTexture : register(t1);
@@ -74,32 +75,17 @@ float4 blend(float4 texture1, float a1, float4 texture2, float a2)
     return float4((texture1.rgb * b1 + texture2.rgb * b2) / (b1 + b2), 1.0f);
 }
 
-float4 SampleTriplanar(Texture2D tex, float3 pos, float3 N, float input_scale) {
+float4 SampleTriplanar(Texture2D tex, float3 pos, float3 N, float input_scale, SamplerState Sampler) {
     float tighten = 0.4679f;
     float3 blending = saturate(abs(N) - tighten);
     float b = blending.x + blending.y + blending.z;
     blending /= float3(b, b, b);;
     blending = abs(blending);
     float scale = 1.0f / input_scale;
-    float4 x = tex.Sample(SampleType, pos.yz * scale);
-    float4 y = tex.Sample(SampleType, pos.xz * scale);
-    float4 z = tex.Sample(SampleType, pos.xy * scale);
+    float4 x = tex.Sample(Sampler, pos.yz * scale);
+    float4 y = tex.Sample(Sampler, pos.xz * scale);
+    float4 z = tex.Sample(Sampler, pos.xy * scale);
     return x * blending.x + y * blending.y + z * blending.z;
-}
-
-// TODO: FIX NORMALS
-float4 SampleTriplanarNorm(Texture2D tex, float3 pos, float3 N, float input_scale) { 
-    float tighten = 0.4679f;
-    float3 blending = saturate(abs(N) - tighten);
-    float b = blending.x + blending.y + blending.z;
-    blending /= float3(b, b, b);
-    blending = abs(blending);
-    float scale = 1.0f / input_scale;
-    float4 x = tex.Sample(SampleType, pos.yz * scale);
-    float4 y = tex.Sample(SampleType, pos.xz * scale);
-    float4 z = tex.Sample(SampleType, pos.xy * scale);
-    float4 tmp = x * blending.x + y * blending.y + z * blending.z;
-    return tmp;
 }
 
 float CalculateLightIntensity(float4 bumpMap, float3 normal, float3 tangent, float3 binormal, float3 viewDirection, float specPower) {
@@ -150,18 +136,18 @@ float3 CalculatePBR(float3 N, float3 L, float3 V, float3 H, float alpha, float3 
     float3 cookTorrance = cookTorranceNumerator / cookTorranceDenominator;
 
     float3 BRDF = Kd * lambert + cookTorrance;
-    return  BRDF * diffuseColor * max(dot(L, N), 0.0f) * ao;//4
+    return  BRDF * diffuseColor * max(dot(L, N), 0.2f) * ao;//4
 }
 
 float4 CalculateColor(Texture2D diffuseTexture, Texture2D normalTexture, Texture2D roughTexture, Texture2D aoTexture,
     float3 pos, float3 normal, float3 tangent, float3 binormal, float3 L, float3 V, float scale) {
-    float4 albedo = SampleTriplanar(diffuseTexture, pos, normal, scale);
-    float4 bumpMap = SampleTriplanarNorm(normalTexture, pos, normal, scale) * 2.0f - 1.0f;
-    float4 detailBumpMap = SampleTriplanarNorm(detailNormalMap, pos, normal,  1 / detailScale) * 2.0f - 1.0f;
+    float4 albedo = SampleTriplanar(diffuseTexture, pos, normal, scale, SampleType);
+    float4 bumpMap = SampleTriplanar(normalTexture, pos, normal, scale, SampleType) * 2.0f - 1.0f;
+    float4 detailBumpMap = SampleTriplanar(detailNormalMap, pos, normal, 1 / detailScale, SampleType) * 2.0f - 1.0f;
     bumpMap.x += detailBumpMap.x;
-    bumpMap.z += detailBumpMap.z;
-    float rough = SampleTriplanar(roughTexture, pos, normal, scale).r;
-    float ao = SampleTriplanar(aoTexture, pos, normal, scale).r;
+    bumpMap.y += detailBumpMap.y;
+    float rough = SampleTriplanar(roughTexture, pos, normal, scale, SampleType).r;
+    float ao = SampleTriplanar(aoTexture, pos, normal, scale, SampleType).r;
     float3 N = (bumpMap.x * tangent) + (bumpMap.y * binormal) + (bumpMap.z * normal);
     N = normalize(N);
     float3 H = normalize(V + L);
@@ -181,13 +167,11 @@ float4 main(PS_INPUT input) : SV_TARGET
     input.binormal = normalize(input.binormal);
 
     // Setup the grass material
-    float4 grassTexture2 = CalculateColor(grassDiffuseTexture, grassNormalTexture, grassRoughTexture, grassAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, grassScale / 2);
-    float4 grassTexture = CalculateColor(grassDiffuse2Texture, grassNormal2Texture, grassRough2Texture, grassAo2Texture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, grassScale * 2);
+    float4 grassTexture2 = CalculateColor(grassDiffuseTexture, grassNormalTexture, grassRoughTexture, grassAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, grassScale / 2);// /2
+    float4 grassTexture = CalculateColor(grassDiffuse2Texture, grassNormal2Texture, grassRough2Texture, grassAo2Texture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, grassScale * 2);//*2
     float alpha = noise.Sample(SampleType, input.tex2).r;
     grassTexture = (alpha * grassTexture) + ((1.0 - alpha) * grassTexture2);
 
-    //resColor = resColor / (resColor + float3(1.0f, 1.0f, 1.0f));
-    //resColor = pow(resColor, float3(1.0 / 2.2, 1.0 / 2.2, 1.0 / 2.2));
 
     // Setup the rock material
     float4 rockTexture = CalculateColor(rockDiffuseTexture, rockNormalTexture, rockRoughTexture, rockAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, rockScale);
@@ -197,10 +181,6 @@ float4 main(PS_INPUT input) : SV_TARGET
 
     // Setup the grass material
     float4 snowTexture = CalculateColor(snowDiffuseTexture, snowNormalTexture, snowRoughTexture, snowAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, snowScale);
-
-    // 
-    //float4 splat = splatMap.Sample(SampleType, input.worldPosition.xz / 1024 * -1);
-    //return splat.r * grassTexture + splat.g * rockTexture + splat.b * snowTexture;
 
     // Determine which material to use based on slope.
     float4 baseColor;

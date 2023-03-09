@@ -7,13 +7,7 @@
 #include <windows.h>
 
 class Timer {
-public:
-    // constructors
-    Timer() {};
-    Timer(const Timer& other) {};
-    // destructor
-    ~Timer() {};
-
+  public:
     // Function to initialize timer
     bool Initialize();
     // Function to initialize timer
@@ -25,8 +19,8 @@ public:
     void StartTimer() { QueryPerformanceCounter((LARGE_INTEGER*)&m_beginTime); };
     // Function to stop timer
     void StopTimer() { QueryPerformanceCounter((LARGE_INTEGER*)&m_endTime); };
-
-private:
+    float GetTimer() { return (m_endTime - m_beginTime) / m_frequency; };
+  private:
     float m_frequency;
     INT64 m_startTime;
     float m_frameTime;

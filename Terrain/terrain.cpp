@@ -1,105 +1,77 @@
 #include "terrain.h"
 
-Terrain::Terrain() {
-
-    m_vertexBuffer = nullptr;
-    m_indexBuffer = nullptr;
-    m_terrainFilename = nullptr;
-    m_heightMap = nullptr;
-    m_terrainModel = nullptr;
-
-}
-
 // Function to initialize the vertex and index buffers
 bool Terrain::Initialize(ID3D11Device * device, char* setupFilename) {
-
-    bool result;
-
     // Get the terrain filename, dimensions, and so forth from the setup file.
-    result = LoadSetupFile(setupFilename);
-     if (!result)
+    bool result = LoadSetupFile(setupFilename);
+    if (!result) {
         return false;
+    }
 
      // Initialize the terrain height map with the data from the raw file.
      result = LoadRawHeightMap();
-     if (!result)
+     if (!result) {
          return false;
+     }
 
     // Setup the X and Z coordinates for the height map as well as scale the terrain height by the height scale value.
     SetTerrainCoordinates();
 
     // Calculate the normals for the terrain data.
     result = CalculateNormals();
-    if (!result)
+    if (!result) {
         return false;
+    }
 
     // Now build the 3D model of the terrain.
     result = BuildTerrainModel();
-    if (!result)
+    if (!result) {
         return false;
-
-    // Calculate the tangent and binormal for the terrain model.
-    CalculateTerrainVectors();
+    }
 
     // We can now release the height map since it is no longer needed in memory once the 3D terrain model has been built.
     ShutdownHeightMap();
 
-    // Load the rendering buffers with the terrain data.
-    result = InitializeBuffers(device);
-    if (!result)
+    // Calculate the tangent and binormal for the terrain model.
+    CalculateTerrainVectors();
+
+    // Create and load the cells with the terrain data.
+    result = LoadTerrainCells(device);
+    if (!result) {
         return false;
+    }
 
     ShutdownTerrainModel();
 
     return true;
-
 }
 
 // Function to clear all data from vertex and index buffers
 void Terrain::Shutdown() {
-
-    // Release the rendering buffers.
-    ShutdownBuffers();
+    // Release the terrain cells.
+    ShutdownTerrainCells();
     // Release the terrain model.
     ShutdownTerrainModel();
     // Release the height map.
     ShutdownHeightMap();
-
-}
-
-// Render function
-bool Terrain::Render(ID3D11DeviceContext* deviceContext) {
-
-    // Put the vertex and index buffers on the graphics pipeline to prepare them for drawing.
-    RenderBuffers(deviceContext);
-
-    return true;
-
 }
 
 // Function to read setup file
 bool Terrain::LoadSetupFile(char* filename) {
-
-    int stringLength;
-    ifstream fin;
-    char input;
-
     // Initialize the string that will hold the terrain file name.
-    stringLength = 256;
+    int stringLength = 256;
     m_terrainFilename = new char[stringLength];
     if (!m_terrainFilename)
         return false;
 
-    //m_colorMapFilename = new char[stringLength];
-    //if (!m_colorMapFilename)
-    //    return false;
-
     // Open the setup file.  If it could not open the file then exit.
+    ifstream fin;
     fin.open(filename);
     if (fin.fail())
         return false;
 
     // Read up to the terrain file name.
+    char input;
     fin.get(input);
     while (input != ':')
         fin.get(input);
@@ -139,32 +111,30 @@ bool Terrain::LoadSetupFile(char* filename) {
 
 // Function to load raw height map
 bool Terrain::LoadRawHeightMap() {
-
-    int error, i, j, index;
-    FILE* filePtr;
-    unsigned long long imageSize, count;
-    unsigned short* rawImage;
-
     // Create the float array to hold the height map data.
-    m_heightMap = new HeightMapType[m_terrainWidth * m_terrainHeight];
+    m_heightMap = new HeightMapType[(unsigned long long)m_terrainWidth * m_terrainHeight];
     if (!m_heightMap)
         return false;
 
     // Open the 16 bit raw height map file for reading in binary.
-    error = fopen_s(&filePtr, m_terrainFilename, "rb");
+    FILE* filePtr;
+    int error = fopen_s(&filePtr, m_terrainFilename, "rb");
     if (error != 0)
         return false;
 
     // Calculate the size of the raw image data.
-    imageSize = m_terrainHeight * m_terrainWidth;
+    unsigned long long imageSize = (unsigned long long)m_terrainHeight * m_terrainWidth;
 
     // Allocate memory for the raw image data.
-    rawImage = new unsigned short[imageSize];
+    unsigned short* rawImage = new unsigned short[imageSize];
     if (!rawImage)
         return false;
 
     // Read in the raw image data.
-    count = fread(rawImage, sizeof(unsigned short), imageSize, filePtr);
+    if (filePtr == 0) {
+        return false;
+    }
+    unsigned long long count = fread(rawImage, sizeof(unsigned short), imageSize, filePtr);
     if (count != imageSize)
         return false;
 
@@ -174,9 +144,9 @@ bool Terrain::LoadRawHeightMap() {
         return false;
 
     // Copy the image data into the height map array.
-    for (j = 0; j < m_terrainHeight; j++) {
-        for (i = 0; i < m_terrainWidth; i++) {
-            index = (m_terrainWidth * j) + i;
+    for (int j = 0; j < m_terrainHeight; j++) {
+        for (int i = 0; i < m_terrainWidth; i++) {
+            int index = (m_terrainWidth * j) + i;
             // Store the height at this point in the height map array.
             m_heightMap[index].y = (float)rawImage[index];
         }
@@ -188,143 +158,37 @@ bool Terrain::LoadRawHeightMap() {
 
     // Release the terrain filename now that it has been read in.
     delete[] m_terrainFilename;
-    m_terrainFilename = 0;
+    m_terrainFilename = nullptr;
 
     return true;
-
 }
 
 // Release the terrain model
 void Terrain::ShutdownTerrainModel() {
-
     // Release the terrain model data.
     if (m_terrainModel) {
         delete[] m_terrainModel;
-        m_terrainModel = 0;
+        m_terrainModel = nullptr;
     }
-
 }
 
-// Function to initialize buffers
-bool Terrain::InitializeBuffers(ID3D11Device* device) {
-
-    VertexType* vertices;
-    unsigned long* indices;
-    D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
-    D3D11_SUBRESOURCE_DATA vertexData, indexData;
-    HRESULT result;
-    int i, j, terrainWidth, terrainHeight, index;
-    XMFLOAT4 color;
-    float positionX, positionZ;
-
-
-    // Calculate the number of vertices in the terrain.
-    m_vertexCount = (m_terrainWidth - 1) * (m_terrainHeight - 1) * 6;
-
-    // Set the index count to the same as the vertex count.
-    m_indexCount = m_vertexCount;
-
-    // Create the vertex array.
-    vertices = new VertexType[m_vertexCount];
-    if (!vertices)
-        return false;
-
-    // Create the index array.
-    indices = new unsigned long[m_indexCount];
-    if (!indices)
-        return false;
-
-    // Load the vertex array and index array with 3D terrain model data.
-    for (i = 0; i < m_vertexCount; i++) {
-        vertices[i].position = XMFLOAT3(m_terrainModel[i].x, m_terrainModel[i].y, m_terrainModel[i].z);
-        vertices[i].texture = XMFLOAT2(m_terrainModel[i].tu, m_terrainModel[i].tv);
-        vertices[i].normal = XMFLOAT3(m_terrainModel[i].nx, m_terrainModel[i].ny, m_terrainModel[i].nz);
-        vertices[i].tangent = XMFLOAT3(m_terrainModel[i].tx, m_terrainModel[i].ty, m_terrainModel[i].tz);
-        vertices[i].binormal = XMFLOAT3(m_terrainModel[i].bx, m_terrainModel[i].by, m_terrainModel[i].bz);
-        vertices[i].texture2 = XMFLOAT2(m_terrainModel[i].tu2, m_terrainModel[i].tv2);
-        indices[i] = i;
-    }
-
-
-    // Set up the description of the static vertex buffer.
-    vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    vertexBufferDesc.ByteWidth = sizeof(VertexType) * m_vertexCount;
-    vertexBufferDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-    vertexBufferDesc.CPUAccessFlags = 0;
-    vertexBufferDesc.MiscFlags = 0;
-    vertexBufferDesc.StructureByteStride = 0;
-
-    // Give the subresource structure a pointer to the vertex data.
-    vertexData.pSysMem = vertices;
-    vertexData.SysMemPitch = 0;
-    vertexData.SysMemSlicePitch = 0;
-
-    // Now create the vertex buffer.
-    result = device->CreateBuffer(&vertexBufferDesc, &vertexData, &m_vertexBuffer);
-    if (FAILED(result))
-        return false;
-
-    // Set up the description of the static index buffer.
-    indexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-    indexBufferDesc.ByteWidth = sizeof(unsigned long) * m_indexCount;
-    indexBufferDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-    indexBufferDesc.CPUAccessFlags = 0;
-    indexBufferDesc.MiscFlags = 0;
-    indexBufferDesc.StructureByteStride = 0;
-
-    // Give the subresource structure a pointer to the index data.
-    indexData.pSysMem = indices;
-    indexData.SysMemPitch = 0;
-    indexData.SysMemSlicePitch = 0;
-
-    // Create the index buffer.
-    result = device->CreateBuffer(&indexBufferDesc, &indexData, &m_indexBuffer);
-    if (FAILED(result))
-        return false;
-
-    // Release the arrays now that the buffers have been created and loaded.
-    delete[] vertices;
-    vertices = nullptr;
-
-    delete[] indices;
-    indices = nullptr;
-
-    return true;
-
-}
-
-// Function to realese data from buffers
-void Terrain::ShutdownBuffers() {
-
-    // Release the index buffer.
-    if (m_indexBuffer) {
-        m_indexBuffer->Release();
-        m_indexBuffer = nullptr;
-    }
-
-    // Release the vertex buffer.
-    if (m_vertexBuffer) {
-        m_vertexBuffer->Release();
-        m_vertexBuffer = nullptr;
-    }
-
+void Terrain::Frame() {
+    m_renderCount = 0;
+    m_cellsDrawn = 0;
+    m_cellsCulled = 0;
 }
 
 // Release the height map.
 void Terrain::ShutdownHeightMap() {
-
     // Release the height map array.
-    if (m_heightMap)
-    {
+    if (m_heightMap) {
         delete[] m_heightMap;
-        m_heightMap = 0;
+        m_heightMap = nullptr;
     }
-
 }
 
 // Function to set x and z coords of terrain
 void Terrain::SetTerrainCoordinates() {
-
     // Loop through all the elements in the height map array and adjust their coordinates correctly.
     for (int j = 0; j < m_terrainHeight; j++) {
         for (int i = 0; i < m_terrainWidth; i++) {
@@ -339,17 +203,18 @@ void Terrain::SetTerrainCoordinates() {
 
             // Scale the height.
             m_heightMap[index].y /= m_heightScale;
+
+
+            float presition = 1024.0;
+            m_heightMap[index].x = float(int(m_heightMap[index].x * presition) / presition);
+            m_heightMap[index].y = float(int(m_heightMap[index].y * presition) / presition);
+            m_heightMap[index].z = float(int(m_heightMap[index].z * presition) / presition);
         }
     }
-
 }
 
 // Function to create model of terrain
 bool Terrain::BuildTerrainModel() {
-
-    int i, j, index, index1, index2, index3, index4;
-    float incrementSize, tu2Left, tu2Right, tv2Top, tv2Bottom;
-
     // Calculate the number of vertices in the 3D terrain model.
     m_vertexCount = (m_terrainHeight - 1) * (m_terrainWidth - 1) * 6;
 
@@ -359,26 +224,26 @@ bool Terrain::BuildTerrainModel() {
         return false;
 
     // Setup the increment size for the second set of textures (alpha map).
-    incrementSize = 1.0f / (float)(m_terrainWidth - 1);
+    float incrementSize = 1.0f / (float)(m_terrainWidth - 1);
 
     // Initialize the texture increments.
-    tu2Left = 0.0f;
-    tu2Right = incrementSize;
-    tv2Bottom = 1.0f;
-    tv2Top = 1.0f - incrementSize;
+    float tu2Left = 0.0f;
+    float tu2Right = incrementSize;
+    float tv2Bottom = 1.0f;
+    float tv2Top = 1.0f - incrementSize;
 
     // Initialize the index into the height map array.
-    index = 0;
+    int index = 0;
 
     // Load the 3D terrain model with the height map terrain data.
     // We will be creating 2 triangles for each of the four points in a quad.
-    for (j = 0; j < (m_terrainHeight - 1); j++) {
-        for (i = 0; i < (m_terrainWidth - 1); i++) {
+    for (int j = 0; j < (m_terrainHeight - 1); j++) {
+        for (int i = 0; i < (m_terrainWidth - 1); i++) {
             // Get the indexes to the four points of the quad.
-            index1 = (m_terrainWidth * j) + i;          // Upper left.
-            index2 = (m_terrainWidth * j) + (i + 1);      // Upper right.
-            index3 = (m_terrainWidth * (j + 1)) + i;      // Bottom left.
-            index4 = (m_terrainWidth * (j + 1)) + (i + 1);  // Bottom right.
+            int index1 = (m_terrainWidth * j) + i;          // Upper left.
+            int index2 = (m_terrainWidth * j) + (i + 1);      // Upper right.
+            int index3 = (m_terrainWidth * (j + 1)) + i;      // Bottom left.
+            int index4 = (m_terrainWidth * (j + 1)) + (i + 1);  // Bottom right.
 
             // Now create two triangles for that quad.
             // Triangle 1 - Upper left.
@@ -478,22 +343,20 @@ bool Terrain::BuildTerrainModel() {
 
 // Function to calculate normals from our height map
 bool Terrain::CalculateNormals() {
-
-    int i, j, index1, index2, index3, index;
-    float vertex1[3], vertex2[3], vertex3[3], vector1[3], vector2[3], sum[3], length;
-    VectorType* normals;
-
     // Create a temporary array to hold the face normal vectors.
-    normals = new VectorType[(m_terrainHeight - 1) * (m_terrainWidth - 1)];
-    if (!normals)
+    VectorType* normals = new VectorType[((unsigned long long)m_terrainHeight - 1) * ((unsigned long long)m_terrainWidth - 1)];
+    if (!normals) {
         return false;
+    }
 
     // Go through all the faces in the mesh and calculate their normals.
-    for (j = 0; j < (m_terrainHeight - 1); j++) {
-        for (i = 0; i < (m_terrainWidth - 1); i++) {
-            index1 = ((j + 1) * m_terrainWidth) + i;      // Bottom left vertex.
-            index2 = ((j + 1) * m_terrainWidth) + (i + 1);  // Bottom right vertex.
-            index3 = (j * m_terrainWidth) + i;          // Upper left vertex.
+    float vertex1[3], vertex2[3], vertex3[3], vector1[3], vector2[3], sum[3], length;
+    int index;
+    for (int j = 0; j < (m_terrainHeight - 1); j++) {
+        for (int i = 0; i < (m_terrainWidth - 1); i++) {
+            int index1 = ((j + 1) * m_terrainWidth) + i;      // Bottom left vertex.
+            int index2 = ((j + 1) * m_terrainWidth) + (i + 1);  // Bottom right vertex.
+            int index3 = (j * m_terrainWidth) + i;          // Upper left vertex.
 
             // Get three vertices from the face.
             vertex1[0] = m_heightMap[index1].x;
@@ -535,18 +398,15 @@ bool Terrain::CalculateNormals() {
     }
 
     // Now go through all the vertices and take a sum of the face normals that touch this vertex.
-    for (j = 0; j < m_terrainHeight; j++)
-    {
-        for (i = 0; i < m_terrainWidth; i++)
-        {
+    for (int j = 0; j < m_terrainHeight; j++) {
+        for (int i = 0; i < m_terrainWidth; i++) {
             // Initialize the sum.
             sum[0] = 0.0f;
             sum[1] = 0.0f;
             sum[2] = 0.0f;
 
             // Bottom left face.
-            if (((i - 1) >= 0) && ((j - 1) >= 0))
-            {
+            if (((i - 1) >= 0) && ((j - 1) >= 0)) {
                 index = ((j - 1) * (m_terrainWidth - 1)) + (i - 1);
 
                 sum[0] += normals[index].x;
@@ -555,8 +415,7 @@ bool Terrain::CalculateNormals() {
             }
 
             // Bottom right face.
-            if ((i < (m_terrainWidth - 1)) && ((j - 1) >= 0))
-            {
+            if ((i < (m_terrainWidth - 1)) && ((j - 1) >= 0)) {
                 index = ((j - 1) * (m_terrainWidth - 1)) + i;
 
                 sum[0] += normals[index].x;
@@ -565,8 +424,7 @@ bool Terrain::CalculateNormals() {
             }
 
             // Upper left face.
-            if (((i - 1) >= 0) && (j < (m_terrainHeight - 1)))
-            {
+            if (((i - 1) >= 0) && (j < (m_terrainHeight - 1))) {
                 index = (j * (m_terrainWidth - 1)) + (i - 1);
 
                 sum[0] += normals[index].x;
@@ -575,8 +433,7 @@ bool Terrain::CalculateNormals() {
             }
 
             // Upper right face.
-            if ((i < (m_terrainWidth - 1)) && (j < (m_terrainHeight - 1)))
-            {
+            if ((i < (m_terrainWidth - 1)) && (j < (m_terrainHeight - 1))) {
                 index = (j * (m_terrainWidth - 1)) + i;
 
                 sum[0] += normals[index].x;
@@ -599,28 +456,24 @@ bool Terrain::CalculateNormals() {
 
     // Release the temporary normals.
     delete[] normals;
-    normals = 0;
+    normals = nullptr;
 
     return true;
 
 }
 
-
 // Function to calculate terrain vectors
 void Terrain::CalculateTerrainVectors() {
-
-    int faceCount, i, index;
-    TempVertexType vertex1, vertex2, vertex3;
-    VectorType tangent, binormal;
-
     // Calculate the number of faces in the terrain model.
-    faceCount = m_vertexCount / 3;
+    int faceCount = m_vertexCount / 3;
 
     // Initialize the index to the model data.
-    index = 0;
+    int index = 0;
 
     // Go through all the faces and calculate the the tangent, binormal, and normal vectors.
-    for (i = 0; i < faceCount; i++) {
+    for (int i = 0; i < faceCount; i++) {
+        TempVertexType vertex1, vertex2, vertex3;
+        VectorType tangent, binormal;
         // Get the three vertices for this face from the terrain model.
         vertex1.x = m_terrainModel[index].x;
         vertex1.y = m_terrainModel[index].y;
@@ -677,16 +530,12 @@ void Terrain::CalculateTerrainVectors() {
         m_terrainModel[index - 3].by = binormal.y;
         m_terrainModel[index - 3].bz = binormal.z;
     }
-
 }
 
 // Function to calculate vertexes tangent and binormal
 void Terrain::CalculateTangentBinormal(TempVertexType vertex1, TempVertexType vertex2, TempVertexType vertex3, VectorType& tangent, VectorType& binormal) {
-
     float vector1[3], vector2[3];
     float tuVector[2], tvVector[2];
-    float den;
-    float length;
 
     // Calculate the two vectors for this face.
     vector1[0] = vertex2.x - vertex1.x;
@@ -705,7 +554,7 @@ void Terrain::CalculateTangentBinormal(TempVertexType vertex1, TempVertexType ve
     tvVector[1] = vertex3.tv - vertex1.tv;
 
     // Calculate the denominator of the tangent/binormal equation.
-    den = 1.0f / (tuVector[0] * tvVector[1] - tuVector[1] * tvVector[0]);
+    float den = 1.0f / (tuVector[0] * tvVector[1] - tuVector[1] * tvVector[0]);
 
     // Calculate the cross products and multiply by the coefficient to get the tangent and binormal.
     tangent.x = (tvVector[1] * vector1[0] - tvVector[0] * vector2[0]) * den;
@@ -717,7 +566,7 @@ void Terrain::CalculateTangentBinormal(TempVertexType vertex1, TempVertexType ve
     binormal.z = (tuVector[0] * vector2[2] - tuVector[1] * vector1[2]) * den;
 
     // Calculate the length of the tangent.
-    length = (float)sqrt((tangent.x * tangent.x) + (tangent.y * tangent.y) + (tangent.z * tangent.z));
+    float length = (float)sqrt((tangent.x * tangent.x) + (tangent.y * tangent.y) + (tangent.z * tangent.z));
 
     // Normalize the tangent and then store it.
     tangent.x = tangent.x / length;
@@ -731,26 +580,253 @@ void Terrain::CalculateTangentBinormal(TempVertexType vertex1, TempVertexType ve
     binormal.x = binormal.x / length;
     binormal.y = binormal.y / length;
     binormal.z = binormal.z / length;
-
 }
 
-// Function to put data on pipeline
-void Terrain::RenderBuffers(ID3D11DeviceContext* deviceContext) {
+bool Terrain::LoadTerrainCells(ID3D11Device* device) {
+    // Set the height and width of each terrain cell to a fixed 33x33 vertex array.
+    int cellHeight = 129;
+    int cellWidth = 129;
 
-    unsigned int stride;
-    unsigned int offset;
+    // Calculate the number of cells needed to store the terrain data.
+    int cellRowCount = (m_terrainWidth - 1) / (cellWidth - 1);
+    m_cellCount = cellRowCount * cellRowCount;
 
-    // Set vertex buffer stride and offset.
-    stride = sizeof(VertexType);
-    offset = 0;
+    // Create the terrain cell array.
+    m_TerrainCells = new TerrainCell[m_cellCount];
+    if (!m_TerrainCells) {
+        return false;
+    }
 
-    // Set the vertex buffer to active in the input assembler so it can be rendered.
-    deviceContext->IASetVertexBuffers(0, 1, &m_vertexBuffer, &stride, &offset);
+    // Loop through and initialize all the terrain cells.
+    for (int j = 0; j < cellRowCount; j++) {
+        for (int i = 0; i < cellRowCount; i++) {
+            int index = (cellRowCount * j) + i;
 
-    // Set the index buffer to active in the input assembler so it can be rendered.
-    deviceContext->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+            bool result = m_TerrainCells[index].Initialize(device, m_terrainModel, i, j, cellHeight, cellWidth, m_terrainWidth);
+            if (!result) {
+                return false;
+            }
+        }
+    }
 
-    // Set the type of primitive that should be rendered from this vertex buffer, in this case lines.
-    deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_3_CONTROL_POINT_PATCHLIST);
+    return true;
+}
 
+void Terrain::ShutdownTerrainCells() {
+    // Release the terrain cell array.
+    if (m_TerrainCells) {
+        for (int i = 0; i < m_cellCount; i++) {
+            m_TerrainCells[i].Shutdown();
+        }
+
+        delete[] m_TerrainCells;
+        m_TerrainCells = nullptr;
+    }
+}
+
+bool Terrain::RenderCell(ID3D11DeviceContext* deviceContext, int cellId, Frustum* Frustum, bool culling) {
+    float maxWidth, maxHeight, maxDepth, minWidth, minHeight, minDepth;
+
+    // Get the dimensions of the terrain cell.
+    m_TerrainCells[cellId].GetCellDimensions(maxWidth, maxHeight, maxDepth, minWidth, minHeight, minDepth);
+
+    // eps for better culling
+    float eps = 1;
+    if (culling) {
+        // Check if the cell is visible.  If it is not visible then just return and don't render it.
+        bool result = Frustum->CheckRectangle2(maxWidth + eps, maxHeight + eps, maxDepth + eps, minWidth - eps, minHeight - eps, minDepth - eps);
+        if (!result) {
+            // Increment the number of cells that were culled.
+            m_cellsCulled++;
+
+            return false;
+        }
+    }
+
+    // If it is visible then render it.
+    m_TerrainCells[cellId].Render(deviceContext);
+
+    // Add the polygons in the cell to the render count.
+    m_renderCount += (m_TerrainCells[cellId].GetVertexCount() / 3);
+
+    // Increment the number of cells that were actually drawn.
+    m_cellsDrawn++;
+
+    return true;
+}
+
+bool Terrain::GetHeightAtPosition(float inputX, float inputZ, float& height) {
+    // Loop through all of the terrain cells to find out which one the inputX and inputZ would be inside.
+    int cellId = -1;
+    for (int i = 0; i < m_cellCount; i++) {
+        float maxWidth, maxHeight, maxDepth, minWidth, minHeight, minDepth;
+
+        // Get the current cell dimensions.
+        m_TerrainCells[i].GetCellDimensions(maxWidth, maxHeight, maxDepth, minWidth, minHeight, minDepth);
+
+        // Check to see if the positions are in this cell.
+        if ((inputX < maxWidth) && (inputX > minWidth) && (inputZ < maxDepth) && (inputZ > minDepth)) {
+            cellId = i;
+            i = m_cellCount;
+        }
+    }
+
+    // If we didn't find a cell then the input position is off the terrain grid.
+    if (cellId == -1) {
+        return false;
+    }
+
+    // If this is the right cell then check all the triangles in this cell to see what the height of the triangle at this position is.
+    for (int i = 0; i < (m_TerrainCells[cellId].GetVertexCount() / 3); i++) {
+        float vertex1[3], vertex2[3], vertex3[3];
+
+        int index = i * 3;
+
+        vertex1[0] = m_TerrainCells[cellId].m_vertexList[index].x;
+        vertex1[1] = m_TerrainCells[cellId].m_vertexList[index].y;
+        vertex1[2] = m_TerrainCells[cellId].m_vertexList[index].z;
+        index++;
+
+        vertex2[0] = m_TerrainCells[cellId].m_vertexList[index].x;
+        vertex2[1] = m_TerrainCells[cellId].m_vertexList[index].y;
+        vertex2[2] = m_TerrainCells[cellId].m_vertexList[index].z;
+        index++;
+
+        vertex3[0] = m_TerrainCells[cellId].m_vertexList[index].x;
+        vertex3[1] = m_TerrainCells[cellId].m_vertexList[index].y;
+        vertex3[2] = m_TerrainCells[cellId].m_vertexList[index].z;
+
+        // Check to see if this is the polygon we are looking for.
+        bool foundHeight = CheckHeightOfTriangle(inputX, inputZ, height, vertex1, vertex2, vertex3);
+        if (foundHeight) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool Terrain::CheckHeightOfTriangle(float x, float z, float& height, float v0[3], float v1[3], float v2[3]) {
+    float startVector[3], directionVector[3], edge1[3], edge2[3], normal[3];
+    float Q[3], e1[3], e2[3], e3[3], edgeNormal[3], temp[3];
+
+    // Starting position of the ray that is being cast.
+    startVector[0] = x;
+    startVector[1] = 0.0f;
+    startVector[2] = z;
+
+    // The direction the ray is being cast.
+    directionVector[0] = 0.0f;
+    directionVector[1] = -1.0f;
+    directionVector[2] = 0.0f;
+
+    // Calculate the two edges from the three points given.
+    edge1[0] = v1[0] - v0[0];
+    edge1[1] = v1[1] - v0[1];
+    edge1[2] = v1[2] - v0[2];
+
+    edge2[0] = v2[0] - v0[0];
+    edge2[1] = v2[1] - v0[1];
+    edge2[2] = v2[2] - v0[2];
+
+    // Calculate the normal of the triangle from the two edges.
+    normal[0] = (edge1[1] * edge2[2]) - (edge1[2] * edge2[1]);
+    normal[1] = (edge1[2] * edge2[0]) - (edge1[0] * edge2[2]);
+    normal[2] = (edge1[0] * edge2[1]) - (edge1[1] * edge2[0]);
+
+    float magnitude = (float)sqrt((normal[0] * normal[0]) + (normal[1] * normal[1]) + (normal[2] * normal[2]));
+    normal[0] = normal[0] / magnitude;
+    normal[1] = normal[1] / magnitude;
+    normal[2] = normal[2] / magnitude;
+
+    // Find the distance from the origin to the plane.
+    float D = ((-normal[0] * v0[0]) + (-normal[1] * v0[1]) + (-normal[2] * v0[2]));
+
+    // Get the denominator of the equation.
+    float denominator = ((normal[0] * directionVector[0]) + (normal[1] * directionVector[1]) + (normal[2] * directionVector[2]));
+
+    // Make sure the result doesn't get too close to zero to prevent divide by zero.
+    if (fabs(denominator) < 0.0001f) {
+        return false;
+    }
+
+    // Get the numerator of the equation.
+    float numerator = -1.0f * (((normal[0] * startVector[0]) + (normal[1] * startVector[1]) + (normal[2] * startVector[2])) + D);
+
+    // Calculate where we intersect the triangle.
+    float t = numerator / denominator;
+
+    // Find the intersection vector.
+    Q[0] = startVector[0] + (directionVector[0] * t);
+    Q[1] = startVector[1] + (directionVector[1] * t);
+    Q[2] = startVector[2] + (directionVector[2] * t);
+
+    // Find the three edges of the triangle.
+    e1[0] = v1[0] - v0[0];
+    e1[1] = v1[1] - v0[1];
+    e1[2] = v1[2] - v0[2];
+
+    e2[0] = v2[0] - v1[0];
+    e2[1] = v2[1] - v1[1];
+    e2[2] = v2[2] - v1[2];
+
+    e3[0] = v0[0] - v2[0];
+    e3[1] = v0[1] - v2[1];
+    e3[2] = v0[2] - v2[2];
+
+    // Calculate the normal for the first edge.
+    edgeNormal[0] = (e1[1] * normal[2]) - (e1[2] * normal[1]);
+    edgeNormal[1] = (e1[2] * normal[0]) - (e1[0] * normal[2]);
+    edgeNormal[2] = (e1[0] * normal[1]) - (e1[1] * normal[0]);
+
+    // Calculate the determinant to see if it is on the inside, outside, or directly on the edge.
+    temp[0] = Q[0] - v0[0];
+    temp[1] = Q[1] - v0[1];
+    temp[2] = Q[2] - v0[2];
+
+    float determinant = ((edgeNormal[0] * temp[0]) + (edgeNormal[1] * temp[1]) + (edgeNormal[2] * temp[2]));
+
+    // Check if it is outside.
+    if (determinant > 0.001f) {
+        return false;
+    }
+
+    // Calculate the normal for the second edge.
+    edgeNormal[0] = (e2[1] * normal[2]) - (e2[2] * normal[1]);
+    edgeNormal[1] = (e2[2] * normal[0]) - (e2[0] * normal[2]);
+    edgeNormal[2] = (e2[0] * normal[1]) - (e2[1] * normal[0]);
+
+    // Calculate the determinant to see if it is on the inside, outside, or directly on the edge.
+    temp[0] = Q[0] - v1[0];
+    temp[1] = Q[1] - v1[1];
+    temp[2] = Q[2] - v1[2];
+
+    determinant = ((edgeNormal[0] * temp[0]) + (edgeNormal[1] * temp[1]) + (edgeNormal[2] * temp[2]));
+
+    // Check if it is outside.
+    if (determinant > 0.001f) {
+        return false;
+    }
+
+    // Calculate the normal for the third edge.
+    edgeNormal[0] = (e3[1] * normal[2]) - (e3[2] * normal[1]);
+    edgeNormal[1] = (e3[2] * normal[0]) - (e3[0] * normal[2]);
+    edgeNormal[2] = (e3[0] * normal[1]) - (e3[1] * normal[0]);
+
+    // Calculate the determinant to see if it is on the inside, outside, or directly on the edge.
+    temp[0] = Q[0] - v2[0];
+    temp[1] = Q[1] - v2[1];
+    temp[2] = Q[2] - v2[2];
+
+    determinant = ((edgeNormal[0] * temp[0]) + (edgeNormal[1] * temp[1]) + (edgeNormal[2] * temp[2]));
+
+    // Check if it is outside.
+    if (determinant > 0.001f) {
+        return false;
+    }
+
+    // Now we have our height.
+    height = Q[1];
+
+    return true;
 }

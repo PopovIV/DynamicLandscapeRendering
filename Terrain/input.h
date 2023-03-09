@@ -14,13 +14,7 @@
 using namespace DirectX;
 
 class Input {
-public:
-    // constructors
-    Input();
-    Input(const Input& other) {};
-    // destructors
-    ~Input() {};
-
+  public:
     // Function to initialize interface 
     bool Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeight);
     // Function to realese interface
@@ -54,8 +48,11 @@ public:
     bool IsF2Toggled();
     // Function to check if F3 key is pressed
     bool IsF3Toggled();
-
-private:
+    // Function to check if F4 key is pressed
+    bool IsF4Toggled();
+    // Function to check if Space key is pressed
+    bool IsSpaceToggled();
+  private:
     // Function to read the state of keyboard
     bool ReadKeyboard();
     // Function to read the state of mouse
@@ -63,20 +60,21 @@ private:
     // Function to deal with the changes that happened in the input device
     void ProcessInput();
 
-private:
-    IDirectInput8* m_directInput;
-    IDirectInputDevice8* m_keyboard;
-    IDirectInputDevice8* m_mouse;
+    IDirectInput8* m_directInput = nullptr;
+    IDirectInputDevice8* m_keyboard = nullptr;
+    IDirectInputDevice8* m_mouse = nullptr;
 
     unsigned char m_keyboardState[256];
     DIMOUSESTATE m_mouseState;
 
-    int m_screenWidth, m_screenHeight;
-    int m_mouseX, m_mouseY;
+    int m_screenWidth = 0, m_screenHeight = 0;
+    int m_mouseX = 0, m_mouseY = 0;
 
-    bool m_F1_released;
-    bool m_F2_released;
-    bool m_F3_released;
+    bool m_F1_released = false;
+    bool m_F2_released = false;
+    bool m_F3_released = false;
+    bool m_F4_released = false;
+    bool m_Space_released = false;
 };
 
 #endif

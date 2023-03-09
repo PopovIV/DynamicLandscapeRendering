@@ -25,12 +25,6 @@
     <Filter Include="Исходные файлы\Shaders">
       <UniqueIdentifier>{e19a64a0-fd8e-41dc-81e6-d7dd4d20ee56}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Файлы заголовков\Terrain\UserInterface">
-      <UniqueIdentifier>{ba675269-23f0-48e9-9cc2-e3138f394aaf}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Исходные файлы\Terrain\UserInterface">
-      <UniqueIdentifier>{4804ce2e-8ca3-4e2a-b6e8-b54c7150097e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Исходные файлы\Utility">
       <UniqueIdentifier>{72811792-4098-4c9a-8bd4-d8d1bdeadbe1}</UniqueIdentifier>
     </Filter>
@@ -43,11 +37,35 @@
     <Filter Include="Исходные файлы\imgui">
       <UniqueIdentifier>{29c3890d-49fd-42f7-8585-a9eb55e4b6e2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Файлы заголовков\Other">
+      <UniqueIdentifier>{42dc442a-4a4c-4a5c-b377-ccce855b29c7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Other">
+      <UniqueIdentifier>{8b483b9f-c83a-4cbe-82a6-9decf2f411ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Texture">
+      <UniqueIdentifier>{b8ca758a-fee7-4ae4-b267-d3ee082c3411}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Movement">
+      <UniqueIdentifier>{c2c620c9-1365-411a-bfda-8f483a57549d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\Light">
+      <UniqueIdentifier>{86152594-5ac6-488e-94c3-aaaa89e88636}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Movement">
+      <UniqueIdentifier>{4b1d983b-171a-4b89-b748-248b95dd61b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Light">
+      <UniqueIdentifier>{1807af1a-62ac-4c81-8608-d3f6d7d321d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Texture">
+      <UniqueIdentifier>{a31d3cf7-2189-4dc1-b6d7-b7a96a5f9a8b}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Исходные файлы\Sky">
-      <UniqueIdentifier>{c8a087d0-36cf-4ba5-9253-12b7d5d6973d}</UniqueIdentifier>
+      <UniqueIdentifier>{6f0df2c4-e43f-47da-9cb0-c43ba0d4ded2}</UniqueIdentifier>
     </Filter>
     <Filter Include="Файлы заголовков\Sky">
-      <UniqueIdentifier>{968daaf5-7a29-47f3-8f09-e9d92ff144c1}</UniqueIdentifier>
+      <UniqueIdentifier>{abda35aa-04ef-48b9-912f-404614571dcc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -57,16 +75,7 @@
     <ClInclude Include="application.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="input.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="d3dclass.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="fps.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="timer.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="shaderManager.h">
@@ -75,44 +84,11 @@
     <ClInclude Include="terrain.h">
       <Filter>Файлы заголовков\Terrain</Filter>
     </ClInclude>
-    <ClInclude Include="position.h">
-      <Filter>Файлы заголовков\Terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="camera.h">
-      <Filter>Файлы заголовков\Terrain</Filter>
-    </ClInclude>
     <ClInclude Include="colorShader.h">
       <Filter>Файлы заголовков\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="fontShader.h">
-      <Filter>Файлы заголовков\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="userInterface.h">
-      <Filter>Файлы заголовков\Terrain\UserInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="text.h">
-      <Filter>Файлы заголовков\Terrain\UserInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="font.h">
-      <Filter>Файлы заголовков\Terrain\UserInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="texture.h">
-      <Filter>Файлы заголовков\Terrain\UserInterface</Filter>
-    </ClInclude>
     <ClInclude Include="zone.h">
       <Filter>Файлы заголовков\Terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="textureManager.h">
-      <Filter>Файлы заголовков\Terrain\UserInterface</Filter>
-    </ClInclude>
-    <ClInclude Include="textureShader.h">
-      <Filter>Файлы заголовков\Shaders</Filter>
-    </ClInclude>
-    <ClInclude Include="light.h">
-      <Filter>Файлы заголовков\Terrain</Filter>
-    </ClInclude>
-    <ClInclude Include="lightShader.h">
-      <Filter>Файлы заголовков\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="terrainShader.h">
       <Filter>Файлы заголовков\Shaders</Filter>
@@ -141,20 +117,53 @@
     <ClInclude Include="imgui_internal.h">
       <Filter>Файлы заголовков\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="skydome.h">
-      <Filter>Файлы заголовков\Sky</Filter>
-    </ClInclude>
     <ClInclude Include="skydomeShader.h">
       <Filter>Файлы заголовков\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="renderTexture.h">
-      <Filter>Файлы заголовков</Filter>
+    <ClInclude Include="terrainCell.h">
+      <Filter>Файлы заголовков\Terrain</Filter>
     </ClInclude>
     <ClInclude Include="averageLuminance.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Файлы заголовков\Shaders</Filter>
     </ClInclude>
     <ClInclude Include="toneMap.h">
-      <Filter>Файлы заголовков</Filter>
+      <Filter>Файлы заголовков\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="timer.h">
+      <Filter>Файлы заголовков\Other</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>Файлы заголовков\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="textureManager.h">
+      <Filter>Файлы заголовков\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="fps.h">
+      <Filter>Файлы заголовков\Other</Filter>
+    </ClInclude>
+    <ClInclude Include="camera.h">
+      <Filter>Файлы заголовков\Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="position.h">
+      <Filter>Файлы заголовков\Movement</Filter>
+    </ClInclude>
+    <ClInclude Include="light.h">
+      <Filter>Файлы заголовков\Light</Filter>
+    </ClInclude>
+    <ClInclude Include="input.h">
+      <Filter>Файлы заголовков\Other</Filter>
+    </ClInclude>
+    <ClInclude Include="renderTexture.h">
+      <Filter>Файлы заголовков\Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="frustum.h">
+      <Filter>Файлы заголовков\Terrain</Filter>
+    </ClInclude>
+    <ClInclude Include="skydome.h">
+      <Filter>Файлы заголовков\Sky</Filter>
+    </ClInclude>
+    <ClInclude Include="gpuprofiler.h">
+      <Filter>Файлы заголовков\Other</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -167,16 +176,7 @@
     <ClCompile Include="application.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="input.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="d3dclass.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="camera.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="fps.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="zone.cpp">
@@ -185,43 +185,10 @@
     <ClCompile Include="terrain.cpp">
       <Filter>Исходные файлы\Terrain</Filter>
     </ClCompile>
-    <ClCompile Include="timer.cpp">
-      <Filter>Исходные файлы\Terrain</Filter>
-    </ClCompile>
-    <ClCompile Include="position.cpp">
-      <Filter>Исходные файлы\Terrain</Filter>
-    </ClCompile>
     <ClCompile Include="shaderManager.cpp">
       <Filter>Исходные файлы\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="colorShader.cpp">
-      <Filter>Исходные файлы\Shaders</Filter>
-    </ClCompile>
-    <ClCompile Include="fontShader.cpp">
-      <Filter>Исходные файлы\Shaders</Filter>
-    </ClCompile>
-    <ClCompile Include="userInterface.cpp">
-      <Filter>Исходные файлы\Terrain\UserInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="text.cpp">
-      <Filter>Исходные файлы\Terrain\UserInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="font.cpp">
-      <Filter>Исходные файлы\Terrain\UserInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="texture.cpp">
-      <Filter>Исходные файлы\Terrain\UserInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="textureManager.cpp">
-      <Filter>Исходные файлы\Terrain\UserInterface</Filter>
-    </ClCompile>
-    <ClCompile Include="textureShader.cpp">
-      <Filter>Исходные файлы\Shaders</Filter>
-    </ClCompile>
-    <ClCompile Include="light.cpp">
-      <Filter>Исходные файлы\Terrain</Filter>
-    </ClCompile>
-    <ClCompile Include="lightShader.cpp">
       <Filter>Исходные файлы\Shaders</Filter>
     </ClCompile>
     <ClCompile Include="terrainShader.cpp">
@@ -257,25 +224,56 @@
     <ClCompile Include="imgui_widgets.cpp">
       <Filter>Исходные файлы\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="skydome.cpp">
-      <Filter>Исходные файлы\Sky</Filter>
-    </ClCompile>
     <ClCompile Include="skydomeShader.cpp">
       <Filter>Исходные файлы\Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="renderTexture.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="toneMap.cpp">
-      <Filter>Исходные файлы</Filter>
+    <ClCompile Include="terrainCell.cpp">
+      <Filter>Исходные файлы\Terrain</Filter>
     </ClCompile>
     <ClCompile Include="averageLuminance.cpp">
-      <Filter>Исходные файлы</Filter>
+      <Filter>Исходные файлы\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="toneMap.cpp">
+      <Filter>Исходные файлы\Shaders</Filter>
+    </ClCompile>
+    <ClCompile Include="texture.cpp">
+      <Filter>Исходные файлы\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="renderTexture.cpp">
+      <Filter>Исходные файлы\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="frustum.cpp">
+      <Filter>Исходные файлы\Terrain</Filter>
+    </ClCompile>
+    <ClCompile Include="camera.cpp">
+      <Filter>Исходные файлы\Movement</Filter>
+    </ClCompile>
+    <ClCompile Include="position.cpp">
+      <Filter>Исходные файлы\Movement</Filter>
+    </ClCompile>
+    <ClCompile Include="input.cpp">
+      <Filter>Исходные файлы\Other</Filter>
+    </ClCompile>
+    <ClCompile Include="fps.cpp">
+      <Filter>Исходные файлы\Other</Filter>
+    </ClCompile>
+    <ClCompile Include="timer.cpp">
+      <Filter>Исходные файлы\Other</Filter>
+    </ClCompile>
+    <ClCompile Include="textureManager.cpp">
+      <Filter>Исходные файлы\Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="light.cpp">
+      <Filter>Исходные файлы\Light</Filter>
+    </ClCompile>
+    <ClCompile Include="skydome.cpp">
+      <Filter>Исходные файлы\Sky</Filter>
+    </ClCompile>
+    <ClCompile Include="gpuprofiler.cpp">
+      <Filter>Исходные файлы\Other</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="FontVertexShader.hlsl" />
-    <FxCompile Include="FontPixelShader.hlsl" />
     <FxCompile Include="TexturePixelShader.hlsl" />
     <FxCompile Include="TextureVertexShader.hlsl" />
     <FxCompile Include="LightVertexShader.hlsl" />
@@ -290,5 +288,7 @@
     <FxCompile Include="ToneMapPixelShader.hlsl" />
     <FxCompile Include="CopyPixelShader.hlsl" />
     <FxCompile Include="LuminancePixelShader.hlsl" />
+    <FxCompile Include="ColorVertexShader.hlsl" />
+    <FxCompile Include="ColorPixelShader.hlsl" />
   </ItemGroup>
 </Project>

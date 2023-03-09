@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <ProjectOutputs>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Release\Terrain.exe</ProjectOutputs>
+  <ContentFiles>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Release\ColorPixelShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Release\ColorVertexShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Release\CopyPixelShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Release\LightPixelShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Release\LightVertexShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Release\LuminancePixelShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Release\SkyDomePixelShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Release\SkyDomeVertexShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Release\TerrainDomainShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Release\TerrainHullShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Release\TerrainPixelShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Release\TerrainVertexShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Release\TextureVertexShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Release\ToneMapPixelShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Release\ToneMapVertexShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Release\TexturePixelShader.cso</ContentFiles>
+  <SatelliteDlls></SatelliteDlls>
+  <NonRecipeFileRefs></NonRecipeFileRefs>
+</Project>

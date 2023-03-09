@@ -1,52 +1,41 @@
 #include "toneMap.h"
 
-// Constructor
-ToneMap::ToneMap() {
-    m_vertexShader = nullptr;
-    m_pixelShader = nullptr;
-    m_sampleState = nullptr;
-    m_luminanceBuffer = nullptr;
-}
-
 // Function to initialize
 bool ToneMap::Initialize(ID3D11Device* device, HWND hwnd, int textureWidth, int textureHeight) {
-    bool result;
-
     // Initialize the vertex and pixel shaders.
-    result = InitializeShader(device, hwnd, L"ToneMapVertexShader.hlsl", L"ToneMapPixelShader.hlsl");
-    if (!result)
+    bool result = InitializeShader(device, hwnd, L"ToneMapVertexShader.hlsl", L"ToneMapPixelShader.hlsl");
+    if (!result) {
         return false;
+    }
 
     m_averageLuminance = new AverageLuminance();
     bool res = m_averageLuminance->Initialize(device, hwnd, textureWidth, textureHeight);
-    if (!res)
+    if (!res) {
         return false;
+    }
 
     return true;
 }
 
-bool ToneMap::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename, WCHAR* psFilename) {
-    HRESULT result;
-    ID3D10Blob* errorMessage;
-    ID3D10Blob* vertexShaderBuffer;
-    ID3D10Blob* pixelShaderBuffer;
-
+bool ToneMap::InitializeShader(ID3D11Device* device, HWND hwnd, const wchar_t* vsFilename, const wchar_t* psFilename) {
     // Initialize the pointers this function will use to null.
-    errorMessage = nullptr;
-    vertexShaderBuffer = nullptr;
-    pixelShaderBuffer = nullptr;
+    ID3D10Blob* errorMessage = nullptr;
+    ID3D10Blob* vertexShaderBuffer = nullptr;
+    ID3D10Blob* pixelShaderBuffer = nullptr;
 
     int flags = D3D10_SHADER_ENABLE_STRICTNESS | D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION;
 
     // Compile the vertex shader code.
-    result = D3DCompileFromFile(vsFilename, NULL, NULL, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage);
+    HRESULT result = D3DCompileFromFile(vsFilename, NULL, NULL, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage);
     if (FAILED(result)) {
         // If the shader failed to compile it should have writen something to the error message.
-        if (errorMessage)
+        if (errorMessage) {
             OutputShaderErrorMessage(errorMessage, hwnd, vsFilename);
+        }
         // If there was nothing in the error message then it simply could not find the shader file itself.
-        else
+        else {
             MessageBox(hwnd, vsFilename, L"Missing Shader File", MB_OK);
+        }
         return false;
     }
 
@@ -54,24 +43,28 @@ bool ToneMap::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilenam
     result = D3DCompileFromFile(psFilename, NULL, NULL, "main", "ps_5_0", flags, 0, &pixelShaderBuffer, &errorMessage);
     if (FAILED(result)) {
         // If the shader failed to compile it should have writen something to the error message.
-        if (errorMessage)
+        if (errorMessage) {
             OutputShaderErrorMessage(errorMessage, hwnd, psFilename);
+        }
         // If there was nothing in the error message then it simply could not find the file itself.
-        else
+        else {
             MessageBox(hwnd, psFilename, L"Missing Shader File", MB_OK);
+        }
 
         return false;
     }
 
     // Create the vertex shader from the buffer.
     result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader);
-    if (FAILED(result))
+    if (FAILED(result)) {
         return false;
+    }
 
     // Create the pixel shader from the buffer.
     result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pixelShader);
-    if (FAILED(result))
+    if (FAILED(result)) {
         return false;
+    }
 
     // Release the vertex shader buffer and pixel shader buffer since they are no longer needed.
     vertexShaderBuffer->Release();
@@ -94,19 +87,20 @@ bool ToneMap::InitializeShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilenam
 
     // Create the texture sampler state.
     result = device->CreateSamplerState(&samplerDesc, &m_sampleState);
-    if (FAILED(result))
+    if (FAILED(result)) {
         return false;
+    }
 
     CD3D11_BUFFER_DESC albd(sizeof(LuminanceConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
     result = device->CreateBuffer(&albd, nullptr, &m_luminanceBuffer);
-    if (FAILED(result))
+    if (FAILED(result)) {
         return false;
+    }
 
     return true;
 }
 
 void ToneMap::Process(ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* sourceTexture, ID3D11RenderTargetView* renderTarget, D3D11_VIEWPORT viewport) {
-
     float averageLuminance = m_averageLuminance->Process(deviceContext, sourceTexture);
     LuminanceConstantBuffer luminanceBufferData = { averageLuminance };
     deviceContext->UpdateSubresource(m_luminanceBuffer, 0, nullptr, &luminanceBufferData, 0, 0);
@@ -129,28 +123,24 @@ void ToneMap::Process(ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceVi
 
     ID3D11ShaderResourceView* nullsrv[] = { nullptr };
     deviceContext->PSSetShaderResources(0, 1, nullsrv);
-
 }
 
-// Function to print errors to file
-void ToneMap::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename) {
-
-    char* compileErrors;
-    unsigned long long bufferSize, i;
-    ofstream fout;
-
+// Function to print error if error happened
+void ToneMap::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, const wchar_t* shaderFilename) {
     // Get a pointer to the error message text buffer.
-    compileErrors = (char*)(errorMessage->GetBufferPointer());
+    char* compileErrors = (char*)(errorMessage->GetBufferPointer());
 
     // Get the length of the message.
-    bufferSize = errorMessage->GetBufferSize();
+    unsigned long long bufferSize = errorMessage->GetBufferSize();
 
     // Open a file to write the error message to.
+    ofstream fout;
     fout.open("shader-error.txt");
 
     // Write out the error message.
-    for (i = 0; i < bufferSize; i++)
+    for (unsigned long long i = 0; i < bufferSize; i++) {
         fout << compileErrors[i];
+    }
 
     // Close the file.
     fout.close();
@@ -161,7 +151,6 @@ void ToneMap::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHA
 
     // Pop a message up on the screen to notify the user to check the text file for compile errors.
     MessageBox(hwnd, L"Error compiling shader.  Check shader-error.txt for message.", shaderFilename, MB_OK);
-
 }
 
 // Function to release
@@ -189,4 +178,9 @@ void ToneMap::Shutdown() {
         m_luminanceBuffer = nullptr;
     }
 
+    if (m_averageLuminance) {
+        m_averageLuminance->Shutdown();
+        delete m_averageLuminance;
+        m_averageLuminance = nullptr;
+    }
 }
