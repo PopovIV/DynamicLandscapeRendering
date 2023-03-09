@@ -19,6 +19,7 @@ class Timer {
     void StartTimer() { QueryPerformanceCounter((LARGE_INTEGER*)&m_beginTime); };
     // Function to stop timer
     void StopTimer() { QueryPerformanceCounter((LARGE_INTEGER*)&m_endTime); };
+    float GetTimer() { return (m_endTime - m_beginTime) / m_frequency; };
   private:
     float m_frequency;
     INT64 m_startTime;

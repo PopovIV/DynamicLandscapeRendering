@@ -45,8 +45,8 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     }
 
     // Set the initial position and rotation.
-    m_Position->SetPosition(188.0f, 217.0f, 117.0f);
-    m_Position->SetRotation(11.0f, 355.0f, 0.0f);
+    m_Position->SetPosition(230.51f, 218.17f, 222.842f);
+    m_Position->SetRotation(1.58f, 288.344f, 0.0f);
 
     // Create the frustum object.
     m_Frustum = new Frustum;
@@ -91,6 +91,19 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     result = m_Terrain->Initialize(Direct3D->GetDevice(), (char*)"data/setup.txt");
     if (!result) {
         MessageBox(hwnd, L"Could not initialize the terrain object.", L"Error", MB_OK);
+        return false;
+    }
+
+    // Create the profiler object.
+    m_Profiler = new CGpuProfiler;
+    if (!m_Profiler) {
+        return false;
+    }
+
+    // Initialize the profiler object.
+    result = m_Profiler->Init(Direct3D->GetDevice());
+    if (!result) {
+        MessageBox(hwnd, L"Could not initialize the profiler object.", L"Error", MB_OK);
         return false;
     }
 
@@ -157,6 +170,12 @@ void Zone::Shutdown() {
         m_ToneMap->Shutdown();
         delete m_ToneMap;
         m_ToneMap = nullptr;
+    }
+
+    if (m_Profiler) {
+        m_Profiler->Shutdown();
+        delete m_Profiler;
+        m_Profiler = nullptr;
     }
 }
 
@@ -371,19 +390,45 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
 
 // Render function
 bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManager* TextureManager) {
+    m_Profiler->BeginFrame(Direct3D->GetDeviceContext());
+
+    LARGE_INTEGER fr, t1, t2;
+    QueryPerformanceCounter(&t1);
+
+    auto startTime = timeGetTime();
     bool result = RenderToTexture(Direct3D, ShaderManager, TextureManager);
     if (!result) {
         return false;
     }
+    m_Profiler->Timestamp(Direct3D->GetDeviceContext(), GTS_DrawToTexture);
+
     Direct3D->BeginScene(0.30f, 0.59f, 0.71f, 1.0f);
 
     // Post effect render
     m_ToneMap->Process(Direct3D->GetDeviceContext(), m_RenderTexture->GetShaderResourceView(), Direct3D->GetRenderTarget(), Direct3D->GetViewPort());
+    m_Profiler->Timestamp(Direct3D->GetDeviceContext(), GTS_ToneMapping);
 
+    m_Profiler->WaitForDataAndUpdate(Direct3D->GetDeviceContext());
+
+    float dTDrawTotal = 0.0f;
+    for (GTS gts = GTS_BeginFrame; gts < GTS_EndFrame; gts = GTS(gts + 1)) {
+        dTDrawTotal += m_Profiler->DtAvg(gts);
+    }
+
+    m_drawTime = 1000.0f * dTDrawTotal;
+    m_drawToTextureTime = 1000.0f * m_Profiler->DtAvg(GTS_DrawToTexture);
+    m_toneMappingTime = 1000.0f * m_Profiler->DtAvg(GTS_ToneMapping);
+    m_GPUTime = 1000.0f * (dTDrawTotal + m_Profiler->DtAvg(GTS_EndFrame));
+
+    QueryPerformanceCounter(&t2);
+    QueryPerformanceFrequency(&fr);
+    m_CPUTime = 1000.0f * (t2.QuadPart - t1.QuadPart) / (float)fr.QuadPart;
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
 
     // Present the rendered scene to the screen.
     Direct3D->EndScene();
+
+    m_Profiler->EndFrame(Direct3D->GetDeviceContext());
 
     return true;
 }

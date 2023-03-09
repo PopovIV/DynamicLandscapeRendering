@@ -18,6 +18,7 @@
 #include "terrain.h"
 #include "renderTexture.h"
 #include "toneMap.h"
+#include "gpuprofiler.h"
 
 class Zone {
   public:
@@ -42,6 +43,12 @@ class Zone {
     bool GetHeightLocked() { return m_heightLocked; };
     bool GetLockView() { return m_lockView; };
 
+    float GetDrawTime() { return m_drawTime; };
+    float GetDrawToTextureTime() { return m_drawToTextureTime; };
+    float GetToneMappingTime() { return m_toneMappingTime; };
+    float GetGPUTime() { return m_GPUTime; };
+    float GetCPUTime() { return m_CPUTime; };
+
   private:
     bool RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManager* TextureManager);
     // Function to process all user's input
@@ -58,9 +65,13 @@ class Zone {
     SkyDome* m_SkyDome = nullptr;
     ToneMap* m_ToneMap = nullptr;
     Frustum* m_Frustum = nullptr;
+    CGpuProfiler* m_Profiler = nullptr;
     XMFLOAT3 lightDir = XMFLOAT3(0.0f, 0.0f, 0.0f);
     XMFLOAT4 scales = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     float detailScale;
+
+    float m_drawTime = 0.0f, m_drawToTextureTime = 0.0f, m_toneMappingTime = 0.0f, m_GPUTime = 0.0f, m_CPUTime = 0.0f;
+
     bool m_displayUI, m_wireFrame, m_dayNightCycle, m_cellLines, m_culling, m_heightLocked, m_lockView;
 };
 

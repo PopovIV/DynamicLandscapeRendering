@@ -168,6 +168,9 @@
     <ClInclude Include="skydome.h">
       <Filter>Файлы заголовков\Sky</Filter>
     </ClInclude>
+    <ClInclude Include="gpuprofiler.h">
+      <Filter>Файлы заголовков\Other</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -277,6 +280,9 @@
     </ClCompile>
     <ClCompile Include="skydome.cpp">
       <Filter>Исходные файлы\Sky</Filter>
+    </ClCompile>
+    <ClCompile Include="gpuprofiler.cpp">
+      <Filter>Исходные файлы\Other</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

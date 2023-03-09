@@ -376,6 +376,21 @@ bool Application::Frame() {
         str += std::to_string((int)z);
         ImGui::Text(str.c_str());
 
+        str = "\nDraw Time: ";
+        str += std::to_string(m_Zone->GetDrawTime()) + " ms";
+        ImGui::Text(str.c_str());
+        str = "\nTDraw To Texture Time: ";
+        str += std::to_string(m_Zone->GetDrawToTextureTime()) + " ms";
+        ImGui::Text(str.c_str());
+        str = "\nTone Mapping Time: ";
+        str += std::to_string(m_Zone->GetToneMappingTime()) + " ms";
+        ImGui::Text(str.c_str());
+        str = "\nGPU Time: ";
+        str += std::to_string(m_Zone->GetGPUTime()) + " ms";
+        ImGui::Text(str.c_str());
+        str = "\nGPU Time: ";
+        str += std::to_string(m_Zone->GetCPUTime()) + " ms";
+        ImGui::Text(str.c_str());
 
         ImGui::End();
     }

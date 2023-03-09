@@ -183,6 +183,7 @@
     <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="fps.h" />
     <ClInclude Include="frustum.h" />
+    <ClInclude Include="gpuprofiler.h" />
     <ClInclude Include="imconfig.h" />
     <ClInclude Include="imgui.h" />
     <ClInclude Include="imgui_impl_dx11.h" />
@@ -218,6 +219,7 @@
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="fps.cpp" />
     <ClCompile Include="frustum.cpp" />
+    <ClCompile Include="gpuprofiler.cpp" />
     <ClCompile Include="imgui.cpp" />
     <ClCompile Include="imgui_demo.cpp" />
     <ClCompile Include="imgui_draw.cpp" />
