@@ -192,6 +192,9 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
         return false;
     }
 
+    m_width = screenWidth;
+    m_height = screenHeight;
+
     scales = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
     // Setup Platform/Renderer backends
@@ -203,6 +206,15 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
     ImGui_ImplDX11_Init(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext());
 
     return true;
+}
+
+// Resize function
+void Application::Resize(int width, int height) {
+    if (width != m_width || height != m_height) {
+        m_Input->Resize(width, height);
+        m_Direct3D->Resize(width, height, SCREEN_DEPTH, SCREEN_NEAR);
+        //m_Zone->Resize(width, height, SCREEN_DEPTH);
+    }
 }
 
 // Function to clear all stuff that was created in initialize function
@@ -282,7 +294,7 @@ bool Application::Frame() {
     static int grassScale = 40;
     static int rockScale = 32;
     static int slopeScale = 32;
-    static int snowScale = 2;
+    static int snowScale = 15;
     static int detailScale = 4;
     static int lightX = (int)m_Zone->GetLighDirection().x;
     static int lightY = (int)m_Zone->GetLighDirection().y;

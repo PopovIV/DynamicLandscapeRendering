@@ -5,7 +5,7 @@
 #define _APPLICATION_H_
 
 // GLOBALS
-const bool FULL_SCREEN = true;
+const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = false;
 const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
@@ -26,6 +26,8 @@ class Application {
     void Shutdown();
     // Function to update frame each second
     bool Frame();
+    // Resize function
+    void Resize(int width, int height);
 
   private:
     Input* m_Input = nullptr;
@@ -36,6 +38,8 @@ class Application {
     Fps* m_Fps = nullptr;
     Zone* m_Zone = nullptr;
     XMFLOAT4 scales;
+    int m_width = 0;
+    int m_height = 0;
 };
 
 #endif

@@ -40,7 +40,7 @@ cbuffer scaleBuffer : register(b1)
     float slopeScale;
     float snowScale;
     float detailScale;
-    float3 tmp;
+    float3 padding;
 };
 
 struct PS_INPUT
@@ -168,10 +168,10 @@ float4 main(PS_INPUT input) : SV_TARGET
 
     // Setup the grass material
     float4 grassTexture2 = CalculateColor(grassDiffuseTexture, grassNormalTexture, grassRoughTexture, grassAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, grassScale / 2);// /2
-    float4 grassTexture = CalculateColor(grassDiffuse2Texture, grassNormal2Texture, grassRough2Texture, grassAo2Texture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, grassScale * 2);//*2
+    float4 grassTexture;
+    grassTexture = CalculateColor(grassDiffuse2Texture, grassNormal2Texture, grassRough2Texture, grassAo2Texture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, grassScale * 1.5);//*2
     float alpha = noise.Sample(SampleType, input.tex2).r;
     grassTexture = (alpha * grassTexture) + ((1.0 - alpha) * grassTexture2);
-
 
     // Setup the rock material
     float4 rockTexture = CalculateColor(rockDiffuseTexture, rockNormalTexture, rockRoughTexture, rockAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, rockScale);
@@ -188,7 +188,7 @@ float4 main(PS_INPUT input) : SV_TARGET
         baseColor = grassTexture;
     }
     else if (input.pixelHeight >= 200.0f && input.pixelHeight < 300.0f) {
-        blendAmount = (300 -input.pixelHeight) / (300.0f - 200.0f);
+        blendAmount = (300 - input.pixelHeight) / (300.0f - 200.0f);
         baseColor = blend(snowTexture, 1 - blendAmount, grassTexture, blendAmount);
     }
     else if (input.pixelHeight >= 300.0f) {

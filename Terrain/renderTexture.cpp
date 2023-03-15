@@ -86,6 +86,11 @@ void RenderTexture::Shutdown() {
     ZeroMemory(&m_viewport, sizeof(D3D11_VIEWPORT));
 }
 
+void RenderTexture::Resize(ID3D11Device* device, int width, int height) {
+    Shutdown();
+    Initialize(device, width, height);
+}
+
 // Function to clear render target
 void RenderTexture::ClearRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView, float red, float green, float blue, float alpha) {
     // Setup the color to clear the buffer to.

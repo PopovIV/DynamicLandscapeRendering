@@ -1,7 +1,60 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project>
-  <ProjectOutputs>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\Terrain.exe</ProjectOutputs>
-  <ContentFiles>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\ColorPixelShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\ColorVertexShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\CopyPixelShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\LightPixelShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\LightVertexShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\LuminancePixelShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\SkyDomePixelShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\SkyDomeVertexShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\TerrainDomainShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\TerrainHullShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\TerrainPixelShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\TerrainVertexShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\TextureVertexShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\ToneMapPixelShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\ToneMapVertexShader.cso;A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\TexturePixelShader.cso</ContentFiles>
-  <SatelliteDlls></SatelliteDlls>
-  <NonRecipeFileRefs></NonRecipeFileRefs>
+  <ProjectOutputs>
+    <ProjectOutput>
+      <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\Terrain.exe</FullPath>
+    </ProjectOutput>
+  </ProjectOutputs>
+  <ContentFiles>
+    <ContentFile>
+      <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\ColorPixelShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\ColorVertexShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\CopyPixelShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\LightPixelShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\LightVertexShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\LuminancePixelShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\SkyDomePixelShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\SkyDomeVertexShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\TerrainDomainShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\TerrainHullShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\TerrainPixelShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\TerrainVertexShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\TextureVertexShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\ToneMapPixelShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\ToneMapVertexShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\TexturePixelShader.cso</FullPath>
+    </ContentFile>
+  </ContentFiles>
+  <SatelliteDlls />
+  <NonRecipeFileRefs />
 </Project>

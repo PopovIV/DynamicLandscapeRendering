@@ -388,6 +388,11 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
 
 }
 
+void Zone::Resize(int width, int height) {
+    m_RenderTexture->Resize(Direct3D->GetDevice(), width, height);
+    m_ToneMap->Resize(Direct3D->GetDevice(), width, height);
+}
+
 // Render function
 bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManager* TextureManager) {
     m_Profiler->BeginFrame(Direct3D->GetDeviceContext());

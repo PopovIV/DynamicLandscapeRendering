@@ -20,6 +20,7 @@ class ToneMap {
     bool Initialize(ID3D11Device* device, HWND hwnd, int textureWidth, int textureHeight);
     // Function to realese
     void Shutdown();
+    void Resize(ID3D11Device* device, int width, int height);
     // Render function
     void Process(ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* sourceTexture, ID3D11RenderTargetView* renderTarget, D3D11_VIEWPORT viewport);
   private:

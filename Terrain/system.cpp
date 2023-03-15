@@ -57,6 +57,13 @@ void System::Run() {
         if (msg.message == WM_QUIT) {
             done = true;
         }
+        else if (msg.message == WM_SIZE) {
+            if (m_Application != nullptr) {
+                RECT rc;
+                GetClientRect(m_hwnd, &rc);
+                m_Application->Resize(rc.right - rc.left, rc.bottom - rc.top);
+            }
+        }
         else{
             // Otherwise do the frame processing.
            bool result = Frame();
@@ -144,13 +151,25 @@ void System::InitializeWindows(int& screenWidth, int& screenHeight) {
 
     // Create the window with the screen settings and get the handle to it.
     m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_applicationName, m_applicationName,
-        WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
-        posX, posY, screenWidth, screenHeight, NULL, NULL, m_hinstance, NULL);
+        WS_OVERLAPPEDWINDOW, posX, posY, screenWidth, screenHeight, nullptr,
+        nullptr, m_hinstance, nullptr);
 
-    // Bring the window up on the screen and set it as main focus.
     ShowWindow(m_hwnd, SW_SHOW);
     SetForegroundWindow(m_hwnd);
     SetFocus(m_hwnd);
+    UpdateWindow(m_hwnd);
+
+    {
+        RECT rc;
+        rc.left = 0;
+        rc.right = screenWidth;
+        rc.top = 0;
+        rc.bottom = screenHeight;
+
+        AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, TRUE);
+
+        MoveWindow(m_hwnd, 100, 100, rc.right - rc.left, rc.bottom - rc.top, TRUE);
+    }
 }
 
 // Function to clear all window data

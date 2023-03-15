@@ -18,6 +18,8 @@ class D3DClass {
     bool Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwnd, bool fullscreen, float screenDepth, float screenNear);
     // Function to realese DX11 data
     void Shutdown();
+    // Resize function
+    HRESULT Resize(int width, int height, float screenDepth, float screenNear);
 
     // Function to prepare scene
     void BeginScene(float red, float green, float blue, float alpha);

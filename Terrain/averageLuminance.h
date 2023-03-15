@@ -22,7 +22,7 @@ class AverageLuminance {
     void Shutdown();
     // Render function
     float Process(ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* sourceTexture);
-
+    void Resize(ID3D11Device* device, int width, int height);
   private:
     void CopyTexture(ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* sourceTexture, RenderTexture& dst, ID3D11PixelShader* pixelShader);
 

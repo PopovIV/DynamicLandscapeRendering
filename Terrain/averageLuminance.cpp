@@ -16,6 +16,15 @@ bool AverageLuminance::Initialize(ID3D11Device* device, HWND hwnd, int textureWi
     return CreateTextures(device, textureWidth, textureHeight);
 }
 
+void AverageLuminance::Resize(ID3D11Device* device, int width, int height) {
+    for (auto t : m_renderTextures) {
+        t->Shutdown();
+        delete t;
+    }
+    m_renderTextures.clear();
+    CreateTextures(device, width, height);
+}
+
 bool AverageLuminance::InitializeShader(ID3D11Device* device, HWND hwnd, const wchar_t* vsFilename, const wchar_t* psCopyFilename, const wchar_t* psFilename) {
     // Initialize the pointers this function will use to null.
     ID3D10Blob* errorMessage = nullptr;
@@ -23,8 +32,10 @@ bool AverageLuminance::InitializeShader(ID3D11Device* device, HWND hwnd, const w
     ID3D10Blob* copyPixelShaderBuffer = nullptr;
     ID3D10Blob* pixelShaderBuffer = nullptr;
 
-    int flags = D3D10_SHADER_ENABLE_STRICTNESS | D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION;
-
+    int flags = 0;
+#ifdef _DEBUG
+    flags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
     // Compile the vertex shader code.
     HRESULT result = D3DCompileFromFile(vsFilename, NULL, NULL, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage);
     if (FAILED(result)) {

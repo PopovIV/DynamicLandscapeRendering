@@ -17,14 +17,21 @@ bool ToneMap::Initialize(ID3D11Device* device, HWND hwnd, int textureWidth, int 
     return true;
 }
 
+
+void ToneMap::Resize(ID3D11Device* device, int width, int height) {
+    m_averageLuminance->Resize(device, width, height);
+}
+
 bool ToneMap::InitializeShader(ID3D11Device* device, HWND hwnd, const wchar_t* vsFilename, const wchar_t* psFilename) {
     // Initialize the pointers this function will use to null.
     ID3D10Blob* errorMessage = nullptr;
     ID3D10Blob* vertexShaderBuffer = nullptr;
     ID3D10Blob* pixelShaderBuffer = nullptr;
 
-    int flags = D3D10_SHADER_ENABLE_STRICTNESS | D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION;
-
+    int flags = 0;
+#ifdef _DEBUG
+    flags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
     // Compile the vertex shader code.
     HRESULT result = D3DCompileFromFile(vsFilename, NULL, NULL, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage);
     if (FAILED(result)) {

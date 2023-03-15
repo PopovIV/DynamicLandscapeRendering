@@ -52,6 +52,8 @@ class Input {
     bool IsF4Toggled();
     // Function to check if Space key is pressed
     bool IsSpaceToggled();
+    // Resize function
+    void Resize(int width, int height);
   private:
     // Function to read the state of keyboard
     bool ReadKeyboard();

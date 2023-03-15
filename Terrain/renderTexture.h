@@ -16,6 +16,7 @@ class RenderTexture {
     bool Initialize(ID3D11Device* device, int textureWidth, int textureHeight);
     // Function to realese render texture class
     void Shutdown();
+    void Resize(ID3D11Device* device, int width, int height);
 
     // Function to set render target
     void SetRenderTarget(ID3D11DeviceContext* deviceContext, ID3D11DepthStencilView* depthStencilView) { deviceContext->OMSetRenderTargets(1, &m_renderTargetView, depthStencilView); };
