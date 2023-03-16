@@ -268,6 +268,40 @@ void Application::Shutdown() {
 
 }
 
+bool Application::LoadCamera(XMFLOAT3& pos, XMFLOAT3& rot) {
+    try {
+        std::ifstream infile(configName);
+        infile >> pos.x;
+        infile >> pos.y;
+        infile >> pos.z;
+        infile >> rot.x;
+        infile >> rot.y;
+        infile >> rot.z;
+        infile.close();
+    }
+    catch (const ifstream::failure& e) {
+        return false;
+    }
+    return true;
+}
+
+bool Application::SaveCamera(XMFLOAT3 pos, XMFLOAT3 rot) {
+    try {
+        std::ofstream offile(configName);
+        offile << pos.x << '\n';
+        offile << pos.y << '\n';
+        offile << pos.z << '\n';
+        offile << rot.x << '\n';
+        offile << rot.y << '\n';
+        offile << rot.z << '\n';
+        offile.close();
+    }
+    catch (const ifstream::failure& e) {
+        return false;
+    }
+    return true;
+}
+
 // Function to update frame each second
 bool Application::Frame() {
 
@@ -308,6 +342,30 @@ bool Application::Frame() {
 
         if (ImGui::Button("Open demo")) {
             demoWindow = true;
+        }
+
+        if (ImGui::Button("Save camera")) {
+            float rotX, rotY, rotZ;
+            float posX, posY, posZ;
+            m_Zone->GetPosition(posX, posY, posZ);
+            m_Zone->GetRotation(rotX, rotY, rotZ);
+            bool result = SaveCamera(XMFLOAT3(posX, posY, posZ), XMFLOAT3(rotX, rotY, rotZ));
+            if (!result) {
+                ImGui::SameLine();
+                ImGui::Text("Error saving camera");
+            }
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Load camera")) {
+            XMFLOAT3 pos, rot;
+            bool result = LoadCamera(pos, rot);
+            if (result) {
+                m_Zone->SetPosition(pos.x, pos.y, pos.z);
+                m_Zone->SetRotation(rot.x, rot.y, rot.z);
+            }
+            else {
+                ImGui::Text("Error loading camera");
+            }
         }
 
         if (ImGui::Checkbox("WireFrame Mode", &wireframe)) {

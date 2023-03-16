@@ -108,7 +108,8 @@ float3 D(float alpha, float3 N, float3 H) {
     float numerator = alpha * alpha;
 
     float NdotH = max(dot(N, H), 0.0f);
-    float denominator = PI * pow(NdotH * NdotH * (alpha * alpha - 1) + 1, 2.0f);
+    float denominator = NdotH * NdotH * (alpha * alpha - 1.0f) + 1.0f;
+    denominator *= denominator * PI;
     denominator = max(denominator, 0.00001f);
     return numerator / denominator;
 }
@@ -166,9 +167,8 @@ float4 main(PS_INPUT input) : SV_TARGET
     input.binormal = normalize(input.binormal);
 
     // Setup the grass material
-    float4 grassTexture2 = CalculateColor(grassDiffuseTexture, grassNormalTexture, grassRoughTexture, grassAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, grassScale / 2);// /2
-    float4 grassTexture;
-    grassTexture = CalculateColor(grassDiffuse2Texture, grassNormal2Texture, grassRough2Texture, grassAo2Texture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, grassScale * 1.5);//*2
+    float4 grassTexture2 = CalculateColor(grassDiffuseTexture, grassNormalTexture, grassRoughTexture, grassAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, grassScale / 2);// /2;
+    float4 grassTexture = CalculateColor(grassDiffuse2Texture, grassNormal2Texture, grassRough2Texture, grassAo2Texture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, grassScale * 1.5);//*2
     float alpha = noise.Sample(SampleType, input.tex2).r;
     grassTexture = (alpha * grassTexture) + ((1.0 - alpha) * grassTexture2);
 

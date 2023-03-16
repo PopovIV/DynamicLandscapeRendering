@@ -205,7 +205,7 @@ void Terrain::SetTerrainCoordinates() {
             m_heightMap[index].y /= m_heightScale;
 
 
-            float presition = 1024.0;
+            float presition = 2048.0;
             m_heightMap[index].x = float(int(m_heightMap[index].x * presition) / presition);
             m_heightMap[index].y = float(int(m_heightMap[index].y * presition) / presition);
             m_heightMap[index].z = float(int(m_heightMap[index].z * presition) / presition);

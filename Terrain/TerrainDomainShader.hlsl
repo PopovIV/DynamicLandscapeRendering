@@ -63,7 +63,7 @@ PS_INPUT main(HS_CONSTANT_DATA_OUTPUT input, float3 uvwCoord : SV_DomainLocation
 
     vertexTex = patch[0].tex * uvwCoord.x + patch[1].tex * uvwCoord.y + patch[2].tex * uvwCoord.z;
 
-    float presition = 1024.0;
+    float presition = 2048.0;;
 
     vertexPos = float3(int3(vertexPos * presition) / presition);
 

@@ -30,6 +30,10 @@ class Application {
     void Resize(int width, int height);
 
   private:
+    std::string configName = "data/CameraConfig.txt";
+    bool SaveCamera(XMFLOAT3 pos, XMFLOAT3 rot);
+    bool LoadCamera(XMFLOAT3& pos, XMFLOAT3& rot);
+
     Input* m_Input = nullptr;
     D3DClass* m_Direct3D = nullptr;
     ShaderManager* m_ShaderManager = nullptr;
