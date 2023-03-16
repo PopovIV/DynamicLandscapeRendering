@@ -46,7 +46,7 @@ class TerrainShader {
     // Function to realese shader
     void Shutdown() { ShutdownShader(); }
     // Render function
-    bool Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], ID3D11ShaderResourceView* roughMaps[], ID3D11ShaderResourceView* aoMaps[], Light* light, XMFLOAT4 scales, float detailScale);
+    bool Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], ID3D11ShaderResourceView* roughMaps[], ID3D11ShaderResourceView* aoMaps[], Light* light, XMFLOAT4 scales, float detailScale, bool normalPass);
 
   private:
     // Function to initialize shader
@@ -58,7 +58,7 @@ class TerrainShader {
     // Function to fill shader buffers and params
     bool SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], ID3D11ShaderResourceView* roughMaps[], ID3D11ShaderResourceView* aoMaps[], Light* light, XMFLOAT4 scales, float detailScale);
     // Render function
-    void RenderShader(ID3D11DeviceContext* deviceContext, int indexCount);
+    void RenderShader(ID3D11DeviceContext* deviceContext, int indexCount, bool normalPass);
 
     ID3D11VertexShader* m_vertexShader = nullptr;
     ID3D11PixelShader* m_pixelShader = nullptr;

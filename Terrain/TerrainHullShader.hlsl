@@ -67,7 +67,7 @@ HS_CONSTANT_DATA_OUTPUT constantsHullShader(InputPatch<HS_INPUT, NUM_CONTROL_POI
 [outputtopology("triangle_cw")]
 [outputcontrolpoints(NUM_CONTROL_POINTS)]
 [patchconstantfunc("constantsHullShader")]
-[maxtessfactor(1.0)]
+[maxtessfactor(16.0)]
 DS_INPUT main(InputPatch<HS_INPUT, NUM_CONTROL_POINTS> patch, uint patchID : SV_OutputControlPointID)
 {
     DS_INPUT output;

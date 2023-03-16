@@ -354,15 +354,17 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
         lightDir = m_Light->GetDirection();
     }
 
-    // Render the terrain cells (and cell lines if needed).
+    std::vector<int> Indexies;
+    // Render the terrain cells (and cell lines if needed) without pixel shader
     for (int i = 0; i < m_Terrain->GetCellCount(); i++) {
         // Put the terrain cell buffers on the pipeline.
         m_Frustum->SetLockView(m_lockView);
         result = m_Terrain->RenderCell(Direct3D->GetDeviceContext(), i, m_Frustum, m_culling);
         if (result) {
-            // Render the cell buffers using the terrain shader.
+            Indexies.push_back(i);
+            // Render the cell buffers using the terrain shader without pixel shader
             result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetCellIndexCount(i), worldMatrix, viewMatrix,
-                projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps, roughMaps, aoMaps, m_Light, scales, detailScale);
+                projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps, roughMaps, aoMaps, m_Light, scales, detailScale, false);
             if (!result) {
                 return false;
             }
@@ -377,6 +379,20 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
             }
         }
     }
+
+    // normal pass
+    Direct3D->TurnDepthPrePass();
+    for (int i : Indexies) {
+        result = m_Terrain->RenderCell(Direct3D->GetDeviceContext(), i, m_Frustum, m_culling);
+        if (result) {
+            result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetCellIndexCount(i), worldMatrix, viewMatrix,
+                projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps, roughMaps, aoMaps, m_Light, scales, detailScale);
+        }
+        if (!result) {
+            return false;
+        }
+    }
+    Direct3D->TurnZBufferOn();
 
     // Determine if the terrain should be rendered in wireframe or not.
     if (m_wireFrame) {

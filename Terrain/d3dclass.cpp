@@ -227,6 +227,19 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
         return false;
     }
 
+    // Create depth stancil state for depth prepass
+    D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
+    depthStencilDesc.DepthEnable = true;
+    depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+    depthStencilDesc.DepthFunc = D3D11_COMPARISON_EQUAL;
+    depthStencilDesc.StencilEnable = false;
+
+    // Create the state using the device.
+    result = m_device->CreateDepthStencilState(&depthStencilDesc, &m_depthStencilStatePass);
+    if (FAILED(result)) {
+        return false;
+    }
+
     // Clear the blend state description.
     D3D11_BLEND_DESC blendStateDescription;
     ZeroMemory(&blendStateDescription, sizeof(D3D11_BLEND_DESC));
@@ -454,6 +467,11 @@ void D3DClass::Shutdown() {
     if (m_depthStencilState) {
         m_depthStencilState->Release();
         m_depthStencilState = nullptr;
+    }
+
+    if (m_depthStencilStatePass) {
+        m_depthStencilStatePass->Release();
+        m_depthStencilStatePass = nullptr;
     }
 
     if (m_depthStencilBuffer) {

@@ -12,7 +12,7 @@ bool TerrainShader::Initialize(ID3D11Device* device, HWND hwnd) {
 }
 
 // Render function
-bool TerrainShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], ID3D11ShaderResourceView* roughMaps[], ID3D11ShaderResourceView* aoMaps[], Light* light, XMFLOAT4 scales, float detailScale) {
+bool TerrainShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], ID3D11ShaderResourceView* roughMaps[], ID3D11ShaderResourceView* aoMaps[], Light* light, XMFLOAT4 scales, float detailScale, bool normalPass) {
     // Set the shader parameters that it will use for rendering.
     bool result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, cameraPos, textures, normalMaps, roughMaps, aoMaps, light, scales, detailScale);
     if (!result) {
@@ -20,7 +20,7 @@ bool TerrainShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, X
     }
 
     // Now render the prepared buffers with the shader.
-    RenderShader(deviceContext, indexCount);
+    RenderShader(deviceContext, indexCount, normalPass);
 
     return true;
 }
@@ -471,7 +471,7 @@ bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
 }
 
 // Render function
-void TerrainShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount) {
+void TerrainShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount, bool normalPass) {
     // Set the vertex input layout.
     deviceContext->IASetInputLayout(m_layout);
 
@@ -479,11 +479,16 @@ void TerrainShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCo
     deviceContext->VSSetShader(m_vertexShader, NULL, 0);
     deviceContext->HSSetShader(m_hullShader, NULL, 0);
     deviceContext->DSSetShader(m_domainShader, NULL, 0);
-    deviceContext->PSSetShader(m_pixelShader, NULL, 0);
+    if (normalPass) {
+        deviceContext->PSSetShader(m_pixelShader, NULL, 0);
+        // Set the sampler state in the pixel shader.
+        deviceContext->PSSetSamplers(0, 1, &m_samplerState);
+        deviceContext->PSSetSamplers(1, 1, &m_samplerStateNoMips);
+    }
+    else {
+        deviceContext->PSSetShader(NULL, NULL, 0);
+    }
 
-    // Set the sampler state in the pixel shader.
-    deviceContext->PSSetSamplers(0, 1, &m_samplerState);
-    deviceContext->PSSetSamplers(1, 1, &m_samplerStateNoMips);
     // Render the triangle.
     deviceContext->DrawIndexed(indexCount, 0, 0);
 }
