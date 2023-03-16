@@ -14,23 +14,19 @@ bool CGpuProfiler::Init(ID3D11Device* device) {
     // Create all the queries we'll need
     D3D11_QUERY_DESC queryDesc = { D3D11_QUERY_TIMESTAMP_DISJOINT, 0 };
 
-    if (FAILED(device->CreateQuery(&queryDesc, &m_apQueryTsDisjoint[0]))) {
-        return false;
-    }
-
-    if (FAILED(device->CreateQuery(&queryDesc, &m_apQueryTsDisjoint[1]))) {
-       return false;
+    for (int i = 0; i < BUF_SIZE; i++) {
+        if (FAILED(device->CreateQuery(&queryDesc, &m_apQueryTsDisjoint[i]))) {
+            return false;
+        }
     }
 
     queryDesc.Query = D3D11_QUERY_TIMESTAMP;
 
     for (GTS gts = GTS_BeginFrame; gts < GTS_Max; gts = GTS(gts + 1)) {
-        if (FAILED(device->CreateQuery(&queryDesc, &m_apQueryTs[gts][0]))) {
-            return false;
-        }
-
-        if (FAILED(device->CreateQuery(&queryDesc, &m_apQueryTs[gts][1]))) {
-            return false;
+        for (int i = 0; i < BUF_SIZE; i++) {
+            if (FAILED(device->CreateQuery(&queryDesc, &m_apQueryTs[gts][i]))) {
+                return false;
+            }
         }
     }
 
@@ -38,20 +34,17 @@ bool CGpuProfiler::Init(ID3D11Device* device) {
 }
 
 void CGpuProfiler::Shutdown() {
-    if (m_apQueryTsDisjoint[0]) {
-        m_apQueryTsDisjoint[0]->Release();
-    }
-
-    if (m_apQueryTsDisjoint[1]) {
-        m_apQueryTsDisjoint[1]->Release();
+    for (int i = 0; i < BUF_SIZE; i++) {
+        if (m_apQueryTsDisjoint[i]) {
+            m_apQueryTsDisjoint[i]->Release();
+        }
     }
 
     for (GTS gts = GTS_BeginFrame; gts < GTS_Max; gts = GTS(gts + 1)) {
-        if (m_apQueryTs[gts][0]) {
-            m_apQueryTs[gts][0]->Release();
-        }
-        if (m_apQueryTs[gts][1]) {
-            m_apQueryTs[gts][1]->Release();
+        for (int i = 0; i < BUF_SIZE; i++) {
+            if (m_apQueryTs[gts][i]) {
+                m_apQueryTs[gts][i]->Release();
+            }
         }
     }
 }
@@ -69,7 +62,7 @@ void CGpuProfiler::EndFrame(ID3D11DeviceContext* context) {
     Timestamp(context, GTS_EndFrame);
     context->End(m_apQueryTsDisjoint[m_iFrameQuery]);
 
-    ++m_iFrameQuery &= 1;
+    ++m_iFrameQuery %= BUF_SIZE;
 }
 
 float CGpuProfiler::Time() {
@@ -96,7 +89,7 @@ void CGpuProfiler::WaitForDataAndUpdate(ID3D11DeviceContext* context) {
     }
 
     int iFrame = m_iFrameCollect;
-    ++m_iFrameCollect &= 1;
+    ++m_iFrameCollect %= BUF_SIZE;
 
     D3D11_QUERY_DATA_TIMESTAMP_DISJOINT timestampDisjoint;
     if (context->GetData(m_apQueryTsDisjoint[iFrame], &timestampDisjoint, sizeof(timestampDisjoint), 0) != S_OK) {

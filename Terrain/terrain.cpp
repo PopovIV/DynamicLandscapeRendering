@@ -626,10 +626,18 @@ void Terrain::ShutdownTerrainCells() {
 
 bool Terrain::RenderCell(ID3D11DeviceContext* deviceContext, int cellId, Frustum* Frustum, bool culling) {
     float maxWidth, maxHeight, maxDepth, minWidth, minHeight, minDepth;
-
+    bool measure_metrics = true;
+    ID3D11DepthStencilState* state;
+    deviceContext->OMGetDepthStencilState(&state, nullptr);
+    if (state != nullptr)
+    {
+        D3D11_DEPTH_STENCIL_DESC desc;
+        state->GetDesc(&desc);
+        if (desc.DepthFunc == D3D11_COMPARISON_FUNC::D3D11_COMPARISON_EQUAL)
+            measure_metrics = false;
+    }
     // Get the dimensions of the terrain cell.
     m_TerrainCells[cellId].GetCellDimensions(maxWidth, maxHeight, maxDepth, minWidth, minHeight, minDepth);
-
     // eps for better culling
     float eps = 1;
     if (culling) {
@@ -637,21 +645,16 @@ bool Terrain::RenderCell(ID3D11DeviceContext* deviceContext, int cellId, Frustum
         bool result = Frustum->CheckRectangle2(maxWidth + eps, maxHeight + eps, maxDepth + eps, minWidth - eps, minHeight - eps, minDepth - eps);
         if (!result) {
             // Increment the number of cells that were culled.
-            m_cellsCulled++;
-
+            m_cellsCulled += measure_metrics;
             return false;
         }
     }
-
     // If it is visible then render it.
     m_TerrainCells[cellId].Render(deviceContext);
-
     // Add the polygons in the cell to the render count.
     m_renderCount += (m_TerrainCells[cellId].GetVertexCount() / 3);
-
     // Increment the number of cells that were actually drawn.
-    m_cellsDrawn++;
-
+    m_cellsDrawn += measure_metrics;
     return true;
 }
 

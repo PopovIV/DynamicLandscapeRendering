@@ -279,7 +279,7 @@ bool Application::LoadCamera(XMFLOAT3& pos, XMFLOAT3& rot) {
         infile >> rot.z;
         infile.close();
     }
-    catch (const ifstream::failure& e) {
+    catch (ifstream::failure) {
         return false;
     }
     return true;
@@ -296,7 +296,7 @@ bool Application::SaveCamera(XMFLOAT3 pos, XMFLOAT3 rot) {
         offile << rot.z << '\n';
         offile.close();
     }
-    catch (const ifstream::failure& e) {
+    catch (ifstream::failure) {
         return false;
     }
     return true;

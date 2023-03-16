@@ -427,6 +427,7 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
     // Post effect render
     m_ToneMap->Process(Direct3D->GetDeviceContext(), m_RenderTexture->GetShaderResourceView(), Direct3D->GetRenderTarget(), Direct3D->GetViewPort());
     m_Profiler->Timestamp(Direct3D->GetDeviceContext(), GTS_ToneMapping);
+    QueryPerformanceCounter(&t2);
 
     m_Profiler->WaitForDataAndUpdate(Direct3D->GetDeviceContext());
 
@@ -439,7 +440,6 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
     m_drawToTextureTime = 1000.0f * m_Profiler->DtAvg(GTS_DrawToTexture);
     m_toneMappingTime = 1000.0f * m_Profiler->DtAvg(GTS_ToneMapping);
 
-    QueryPerformanceCounter(&t2);
     QueryPerformanceFrequency(&fr);
     m_CPUTime = 1000.0f * (t2.QuadPart - t1.QuadPart) / (float)fr.QuadPart;
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());

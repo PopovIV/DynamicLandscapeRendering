@@ -155,6 +155,7 @@ float4 CalculateColor(Texture2D diffuseTexture, Texture2D normalTexture, Texture
     return float4(CalculatePBR(N, L, V, H, rough, albedo.xyz, float3(0.04f, 0.04f, 0.04f), ao), 1.0f);
 }
 
+[earlydepthstencil]
 float4 main(PS_INPUT input) : SV_TARGET
 {
     float blendAmount;
