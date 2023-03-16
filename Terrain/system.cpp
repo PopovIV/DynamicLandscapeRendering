@@ -151,7 +151,7 @@ void System::InitializeWindows(int& screenWidth, int& screenHeight) {
 
     // Create the window with the screen settings and get the handle to it.
     m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_applicationName, m_applicationName,
-        WS_OVERLAPPEDWINDOW, posX, posY, screenWidth, screenHeight, nullptr,
+        WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr,
         nullptr, m_hinstance, nullptr);
 
     ShowWindow(m_hwnd, SW_SHOW);

@@ -331,7 +331,7 @@ HRESULT D3DClass::Resize(int width, int height, float screenDepth, float screenN
     depthBufferDesc.Height = height;
     depthBufferDesc.MipLevels = 1;
     depthBufferDesc.ArraySize = 1;
-    depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+    depthBufferDesc.Format = DXGI_FORMAT_D32_FLOAT;
     depthBufferDesc.SampleDesc.Count = 1;
     depthBufferDesc.SampleDesc.Quality = 0;
     depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -352,23 +352,8 @@ HRESULT D3DClass::Resize(int width, int height, float screenDepth, float screenN
     // Set up the description of the stencil state.
     depthStencilDesc.DepthEnable = true;
     depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-    depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
-
-    depthStencilDesc.StencilEnable = true;
-    depthStencilDesc.StencilReadMask = 0xFF;
-    depthStencilDesc.StencilWriteMask = 0xFF;
-
-    // Stencil operations if pixel is front-facing.
-    depthStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-    depthStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
-    depthStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-    depthStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
-
-    // Stencil operations if pixel is back-facing.
-    depthStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
-    depthStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
-    depthStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
-    depthStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+    depthStencilDesc.DepthFunc = D3D11_COMPARISON_GREATER_EQUAL;
+    depthStencilDesc.StencilEnable = false;
 
     // Create the depth stencil state.
     result = m_device->CreateDepthStencilState(&depthStencilDesc, &m_depthStencilState);
@@ -379,17 +364,8 @@ HRESULT D3DClass::Resize(int width, int height, float screenDepth, float screenN
     // Set the depth stencil state.
     m_deviceContext->OMSetDepthStencilState(m_depthStencilState, 1);
 
-    // Initialize the depth stencil view.
-    D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
-    ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
-
-    // Set up the depth stencil view description.
-    depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-    depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-    depthStencilViewDesc.Texture2D.MipSlice = 0;
-
     // Create the depth stencil view.
-    result = m_device->CreateDepthStencilView(m_depthStencilBuffer, &depthStencilViewDesc, &m_depthStencilView);
+    result = m_device->CreateDepthStencilView(m_depthStencilBuffer, NULL, &m_depthStencilView);
     if (FAILED(result)) {
         return result;
     }
@@ -417,13 +393,13 @@ HRESULT D3DClass::Resize(int width, int height, float screenDepth, float screenN
     screenAspect = (float)width / (float)height;
 
     // Create the projection matrix for 3D rendering.
-    m_projectionMatrix = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, screenNear, screenDepth);
+    m_projectionMatrix = XMMatrixPerspectiveFovLH(fieldOfView, screenAspect, screenDepth, screenNear);
 
     // Initialize the world matrix to the identity matrix.
     m_worldMatrix = XMMatrixIdentity();
 
     // Create an orthographic projection matrix for 2D rendering.
-    m_orthoMatrix = XMMatrixOrthographicLH((float)width, (float)height, screenNear, screenDepth);
+    m_orthoMatrix = XMMatrixOrthographicLH((float)width, (float)height, screenDepth, screenNear);
 
     return S_OK;
 }
@@ -519,7 +495,7 @@ void D3DClass::BeginScene(float red, float green, float blue, float alpha) {
     m_deviceContext->ClearRenderTargetView(m_renderTargetView, color);
 
     // Clear the depth buffer.
-    m_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    m_deviceContext->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH, 0.0f, 0);
 }
 
 // Function to present scene
@@ -533,7 +509,6 @@ void D3DClass::EndScene() {
         // Present as fast as possible.
         m_swapChain->Present(0, 0);
     }
-
 }
 
 void D3DClass::GetVideoCardInfo(char* cardName, int& memory) {

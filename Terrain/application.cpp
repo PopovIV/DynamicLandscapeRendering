@@ -152,10 +152,6 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
     if (!result) {
         return false;
     }
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/HM.dds", 22, Texture::DDS);
-    if (!result) {
-        return false;
-    }
 
     // Create the timer object.
     m_Timer = new Timer;
@@ -186,7 +182,7 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
     }
 
     // Initialize the zone object.
-    result = m_Zone->Initialize(m_Direct3D, hwnd, screenWidth, screenHeight, SCREEN_DEPTH);
+    result = m_Zone->Initialize(m_Direct3D, hwnd, screenWidth, screenHeight, SCREEN_NEAR);
     if (!result) {
         MessageBox(hwnd, L"Could not initialize the zone object.", L"Error", MB_OK);
         return false;

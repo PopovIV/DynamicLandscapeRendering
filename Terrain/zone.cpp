@@ -329,7 +329,7 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
     //m_Terrain->Render(Direct3D->GetDeviceContext());
     ID3D11ShaderResourceView* textures[] = { TextureManager->GetTexture(0), TextureManager->GetTexture(4), TextureManager->GetTexture(8), TextureManager->GetTexture(12), TextureManager->GetTexture(16), TextureManager->GetTexture(20) };
     ID3D11ShaderResourceView* normalMaps[] = { TextureManager->GetTexture(1), TextureManager->GetTexture(5), TextureManager->GetTexture(9), TextureManager->GetTexture(13), TextureManager->GetTexture(17), TextureManager->GetTexture(21) };
-    ID3D11ShaderResourceView* roughMaps[] = { TextureManager->GetTexture(2), TextureManager->GetTexture(6), TextureManager->GetTexture(10), TextureManager->GetTexture(14), TextureManager->GetTexture(18), TextureManager->GetTexture(22) };
+    ID3D11ShaderResourceView* roughMaps[] = { TextureManager->GetTexture(2), TextureManager->GetTexture(6), TextureManager->GetTexture(10), TextureManager->GetTexture(14), TextureManager->GetTexture(18) };
     ID3D11ShaderResourceView* aoMaps[] = { TextureManager->GetTexture(3), TextureManager->GetTexture(7), TextureManager->GetTexture(11), TextureManager->GetTexture(15), TextureManager->GetTexture(19) };
 
     // Update our time

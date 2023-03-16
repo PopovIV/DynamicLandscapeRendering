@@ -396,7 +396,6 @@ bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
 
     // Finanly set the constant buffer in the vertex shader with the updated values.
     deviceContext->DSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
-    deviceContext->DSSetShaderResources(0, 1, &roughMaps[5]);
     deviceContext->HSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
     // Set shader texture resource in the pixel shader.
@@ -485,7 +484,6 @@ void TerrainShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCo
     // Set the sampler state in the pixel shader.
     deviceContext->PSSetSamplers(0, 1, &m_samplerState);
     deviceContext->PSSetSamplers(1, 1, &m_samplerStateNoMips);
-    deviceContext->DSSetSamplers(0, 1, &m_samplerStateNoMips);
     // Render the triangle.
     deviceContext->DrawIndexed(indexCount, 0, 0);
 }
