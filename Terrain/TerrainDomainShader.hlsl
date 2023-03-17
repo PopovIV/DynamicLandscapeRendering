@@ -12,29 +12,27 @@ struct PS_INPUT
 {
     float4 position : SV_POSITION;
     float4 worldPosition : WORLD;
-    float2 tex : TEXCOORD0;
+    float2 tex : TEXCOORD;
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
     float3 binormal : BINORMAL;
-    float2 tex2 : TEXCOORD1;
     float pixelHeight : POSITION;
-    float3 viewDirection: TEXCOORD2;
+    float3 viewDirection: DIR;
 };
 
 struct DS_INPUT
 {
     float4 position : POSITION;
-    float2 tex : TEXCOORD0;
+    float2 tex : TEXCOORD;
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
     float3 binormal : BINORMAL;
-    float2 tex2 : TEXCOORD1;
 };
 
 struct HS_CONSTANT_DATA_OUTPUT
 {
     float EdgeTessFactor[3]         : SV_TessFactor;
-    float InsideTessFactor : SV_InsideTessFactor;
+    float InsideTessFactor          : SV_InsideTessFactor;
 };
 
 [domain("tri")]
@@ -76,7 +74,6 @@ PS_INPUT main(HS_CONSTANT_DATA_OUTPUT input, float3 uvwCoord : SV_DomainLocation
     output.tangent = normalize(mul(vertexTangent, (float3x3)worldMatrix));
     output.binormal = normalize(mul(vertexBinormal, (float3x3)worldMatrix));
     output.pixelHeight = mul(float4(vertexPos, 1.0f), worldMatrix).y;
-    output.tex2 = patch[0].tex2 * uvwCoord.x + patch[1].tex2 * uvwCoord.y + patch[2].tex2 * uvwCoord.z;
 
     output.viewDirection = normalize(cameraPos - output.worldPosition.xyz);
 

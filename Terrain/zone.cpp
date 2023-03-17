@@ -404,9 +404,9 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
 
 }
 
-void Zone::Resize(int width, int height) {
-    m_RenderTexture->Resize(Direct3D->GetDevice(), width, height);
-    m_ToneMap->Resize(Direct3D->GetDevice(), width, height);
+void Zone::Resize(ID3D11Device* device, int width, int height) {
+    m_RenderTexture->Resize(device, width, height);
+    m_ToneMap->Resize(device, width, height);
 }
 
 // Render function

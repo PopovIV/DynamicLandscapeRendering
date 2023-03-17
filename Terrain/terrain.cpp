@@ -250,79 +250,67 @@ bool Terrain::BuildTerrainModel() {
             m_terrainModel[index].x = m_heightMap[index1].x;
             m_terrainModel[index].y = m_heightMap[index1].y;
             m_terrainModel[index].z = m_heightMap[index1].z;
-            m_terrainModel[index].tu = 0.0f;
-            m_terrainModel[index].tv = 0.0f;
+            m_terrainModel[index].tu = tu2Left;
+            m_terrainModel[index].tv = tv2Top;
             m_terrainModel[index].nx = m_heightMap[index1].nx;
             m_terrainModel[index].ny = m_heightMap[index1].ny;
             m_terrainModel[index].nz = m_heightMap[index1].nz;
-            m_terrainModel[index].tu2 = tu2Left;
-            m_terrainModel[index].tv2 = tv2Top;
             index++;
 
             // Triangle 1 - Upper right.
             m_terrainModel[index].x = m_heightMap[index2].x;
             m_terrainModel[index].y = m_heightMap[index2].y;
             m_terrainModel[index].z = m_heightMap[index2].z;
-            m_terrainModel[index].tu = 1.0f;
-            m_terrainModel[index].tv = 0.0f;
+            m_terrainModel[index].tu = tu2Right;
+            m_terrainModel[index].tv = tv2Top;
             m_terrainModel[index].nx = m_heightMap[index2].nx;
             m_terrainModel[index].ny = m_heightMap[index2].ny;
             m_terrainModel[index].nz = m_heightMap[index2].nz;
-            m_terrainModel[index].tu2 = tu2Right;
-            m_terrainModel[index].tv2 = tv2Top;
             index++;
 
             // Triangle 1 - Bottom left.
             m_terrainModel[index].x = m_heightMap[index3].x;
             m_terrainModel[index].y = m_heightMap[index3].y;
             m_terrainModel[index].z = m_heightMap[index3].z;
-            m_terrainModel[index].tu = 0.0f;
-            m_terrainModel[index].tv = 1.0f;
+            m_terrainModel[index].tu = tu2Left;
+            m_terrainModel[index].tv = tv2Bottom;
             m_terrainModel[index].nx = m_heightMap[index3].nx;
             m_terrainModel[index].ny = m_heightMap[index3].ny;
             m_terrainModel[index].nz = m_heightMap[index3].nz;
-            m_terrainModel[index].tu2 = tu2Left;
-            m_terrainModel[index].tv2 = tv2Bottom;
             index++;
 
             // Triangle 2 - Bottom left.
             m_terrainModel[index].x = m_heightMap[index3].x;
             m_terrainModel[index].y = m_heightMap[index3].y;
             m_terrainModel[index].z = m_heightMap[index3].z;
-            m_terrainModel[index].tu = 0.0f;
-            m_terrainModel[index].tv = 1.0f;
+            m_terrainModel[index].tu = tu2Left;
+            m_terrainModel[index].tv = tv2Bottom;
             m_terrainModel[index].nx = m_heightMap[index3].nx;
             m_terrainModel[index].ny = m_heightMap[index3].ny;
             m_terrainModel[index].nz = m_heightMap[index3].nz;
-            m_terrainModel[index].tu2 = tu2Left;
-            m_terrainModel[index].tv2 = tv2Bottom;
             index++;
 
             // Triangle 2 - Upper right.
             m_terrainModel[index].x = m_heightMap[index2].x;
             m_terrainModel[index].y = m_heightMap[index2].y;
             m_terrainModel[index].z = m_heightMap[index2].z;
-            m_terrainModel[index].tu = 1.0f;
-            m_terrainModel[index].tv = 0.0f;
+            m_terrainModel[index].tu = tu2Right;
+            m_terrainModel[index].tv = tv2Top;
             m_terrainModel[index].nx = m_heightMap[index2].nx;
             m_terrainModel[index].ny = m_heightMap[index2].ny;
             m_terrainModel[index].nz = m_heightMap[index2].nz;
             m_terrainModel[index].nz = m_heightMap[index2].nz;
-            m_terrainModel[index].tu2 = tu2Right;
-            m_terrainModel[index].tv2 = tv2Top;
             index++;
 
             // Triangle 2 - Bottom right.
             m_terrainModel[index].x = m_heightMap[index4].x;
             m_terrainModel[index].y = m_heightMap[index4].y;
             m_terrainModel[index].z = m_heightMap[index4].z;
-            m_terrainModel[index].tu = 1.0f;
-            m_terrainModel[index].tv = 1.0f;
+            m_terrainModel[index].tu = tu2Right;
+            m_terrainModel[index].tv = tv2Bottom;
             m_terrainModel[index].nx = m_heightMap[index4].nx;
             m_terrainModel[index].ny = m_heightMap[index4].ny;
             m_terrainModel[index].nz = m_heightMap[index4].nz;
-            m_terrainModel[index].tu2 = tu2Right;
-            m_terrainModel[index].tv2 = tv2Bottom;
             index++;
 
             // Increment the tu texture coords for the alpha map.

@@ -209,7 +209,9 @@ void Application::Resize(int width, int height) {
     if (width != m_width || height != m_height) {
         m_Input->Resize(width, height);
         m_Direct3D->Resize(width, height, SCREEN_DEPTH, SCREEN_NEAR);
-        m_Zone->Resize(width, height);
+        m_Zone->Resize(m_Direct3D->GetDevice(), width, height);
+        m_width = width;
+        m_height = height;
     }
 }
 

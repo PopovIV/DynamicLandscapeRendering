@@ -47,20 +47,13 @@ struct PS_INPUT
 {
     float4 position : SV_POSITION;
     float4 worldPosition : WORLD;
-    float2 tex : TEXCOORD0;
+    float2 tex : TEXCOORD;
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
     float3 binormal : BINORMAL;
-    float2 tex2 : TEXCOORD1;
     float pixelHeight: POSITION;
-    float3 viewDirection: TEXCOORD2;
+    float3 viewDirection: DIR;
 };
-
-float3 mysmoothstep(float3 p1, float3 p2, float t)
-{
-    t = max(min(t, 1), 0);
-    return lerp(p1, p2, 3 * t * t - 2 * t * t * t);
-}
 
 float4 blend(float4 texture1, float a1, float4 texture2, float a2)
 {
@@ -69,8 +62,6 @@ float4 blend(float4 texture1, float a1, float4 texture2, float a2)
 
     float b1 = max(texture1.a + a1 - ma, 0);
     float b2 = max(texture2.a + a2 - ma, 0);
-
-    //return float4(mysmoothstep(texture1.rgb, texture2.rgb, c1 / (c1 + c2)), 1.0f);
 
     return float4((texture1.rgb * b1 + texture2.rgb * b2) / (b1 + b2), 1.0f);
 }
@@ -170,7 +161,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     // Setup the grass material
     float4 grassTexture2 = CalculateColor(grassDiffuseTexture, grassNormalTexture, grassRoughTexture, grassAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, grassScale / 2);// /2;
     float4 grassTexture = CalculateColor(grassDiffuse2Texture, grassNormal2Texture, grassRough2Texture, grassAo2Texture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, grassScale * 1.5);//*2
-    float alpha = noise.Sample(SampleType, input.tex2).r;
+    float alpha = noise.Sample(SampleType, input.tex).r;
     grassTexture = (alpha * grassTexture) + ((1.0 - alpha) * grassTexture2);
 
     // Setup the rock material

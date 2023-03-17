@@ -28,7 +28,7 @@ class Zone {
     void Shutdown();
     // Function to update frame each second
     bool Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager, TextureManager* TextureManager, float frameTime, int fps, XMFLOAT4 scales, float detailScale, XMFLOAT3 lightDir);
-    void Resize(int width, int height);
+    void Resize(ID3D11Device* device, int width, int height);
 
     void GetPosition(float& x, float& y , float& z) { m_Position->GetPosition(x, y, z); };
     void GetRotation(float& x, float& y, float& z) { m_Position->GetRotation(x, y, z); };
@@ -59,7 +59,6 @@ class Zone {
     bool Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManager* TextureManager);
 
     RenderTexture* m_RenderTexture = nullptr;
-    D3DClass* Direct3D = nullptr;
     Camera* m_Camera = nullptr;
     Light* m_Light = nullptr;
     Position* m_Position = nullptr;

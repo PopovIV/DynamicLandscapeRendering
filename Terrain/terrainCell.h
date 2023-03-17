@@ -16,7 +16,6 @@ class TerrainCell {
         XMFLOAT3 normal;
         XMFLOAT3 tangent;
         XMFLOAT3 binormal;
-        XMFLOAT2 texture2;
     };
 
     struct ModelType {
@@ -25,7 +24,6 @@ class TerrainCell {
         float nx, ny, nz;
         float tx, ty, tz;
         float bx, by, bz;
-        float tu2, tv2;
     };
 
     struct VectorType {

@@ -211,7 +211,7 @@ float AverageLuminance::Process(ID3D11DeviceContext* deviceContext, ID3D11Shader
     double delta = (double)(timeDelta) / m_qpcFrequency.QuadPart;
 
     D3D11_MAPPED_SUBRESOURCE luminanceAccessor;
-    deviceContext->CopyResource(m_luminanceTexture, m_renderTextures[m_renderTextures.size() - 1]->GetRenderTarget());
+    deviceContext->CopyResource(m_luminanceTexture, m_renderTextures.back()->GetRenderTarget());
     deviceContext->Map(m_luminanceTexture, 0, D3D11_MAP_READ, 0, &luminanceAccessor);
     float luminance = *(float*)luminanceAccessor.pData;
     deviceContext->Unmap(m_luminanceTexture, 0);

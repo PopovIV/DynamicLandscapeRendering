@@ -11,21 +11,19 @@ cbuffer MatrixBuffer
 struct HS_INPUT
 {
     float4 position : POSITION;
-    float2 tex : TEXCOORD0;
+    float2 tex : TEXCOORD;
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
     float3 binormal : BINORMAL;
-    float2 tex2 : TEXCOORD1;
 };
 
 struct DS_INPUT
 {
     float4 position : POSITION;
-    float2 tex : TEXCOORD0;
+    float2 tex : TEXCOORD;
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
     float3 binormal : BINORMAL;
-    float2 tex2 : TEXCOORD1;
 };
 
 struct HS_CONSTANT_DATA_OUTPUT
@@ -58,7 +56,7 @@ HS_CONSTANT_DATA_OUTPUT constantsHullShader(InputPatch<HS_INPUT, NUM_CONTROL_POI
     output.EdgeFactors[1] = p1factor;
     output.EdgeFactors[2] = p2factor;
     output.InsideFactor = (output.EdgeFactors[0] + output.EdgeFactors[1] + output.EdgeFactors[2]) / 3.0f;
-    
+ 
     return output;
 }
 
@@ -78,7 +76,6 @@ DS_INPUT main(InputPatch<HS_INPUT, NUM_CONTROL_POINTS> patch, uint patchID : SV_
     output.tangent = patch[patchID].tangent;
     output.binormal = patch[patchID].binormal;
     output.tex = patch[patchID].tex;
-    output.tex2 = patch[patchID].tex2;
 
     return output;
 }

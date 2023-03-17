@@ -17,6 +17,7 @@ class System {
     void Shutdown();
     // Main cycle function. MSG handling happens here
     void Run();
+    void Resize(int width, int height);
 
     LRESULT CALLBACK MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam);
   private:
