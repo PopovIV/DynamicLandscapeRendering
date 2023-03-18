@@ -624,6 +624,7 @@ bool Terrain::RenderCell(ID3D11DeviceContext* deviceContext, int cellId, Frustum
         if (desc.DepthFunc == D3D11_COMPARISON_FUNC::D3D11_COMPARISON_EQUAL)
             measure_metrics = false;
     }
+    state->Release();
     // Get the dimensions of the terrain cell.
     m_TerrainCells[cellId].GetCellDimensions(maxWidth, maxHeight, maxDepth, minWidth, minHeight, minDepth);
     // eps for better culling

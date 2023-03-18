@@ -298,7 +298,7 @@ bool Application::SaveCamera(XMFLOAT3 pos, XMFLOAT3 rot) {
         offile << rot.z << '\n';
         offile.close();
     }
-    catch (ifstream::failure) {
+    catch (ofstream::failure) {
         return false;
     }
     return true;

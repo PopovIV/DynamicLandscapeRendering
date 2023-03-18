@@ -11,7 +11,7 @@ struct PS_INPUT
 
 float Exposure()
 {
-    float luminance = 0.5;
+    float luminance = avgLuminanceTexture.Sample(Sampler, 0.0);;
     float keyValue = 1.03 - 2 / (2 + log10(luminance + 1));
     return keyValue / luminance;
 }
