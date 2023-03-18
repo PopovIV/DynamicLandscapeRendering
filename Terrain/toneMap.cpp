@@ -98,19 +98,23 @@ bool ToneMap::InitializeShader(ID3D11Device* device, HWND hwnd, const wchar_t* v
         return false;
     }
 
-    CD3D11_BUFFER_DESC albd(sizeof(LuminanceConstantBuffer), D3D11_BIND_CONSTANT_BUFFER);
-    result = device->CreateBuffer(&albd, nullptr, &m_luminanceBuffer);
-    if (FAILED(result)) {
-        return false;
-    }
-
     return true;
 }
 
-void ToneMap::Process(ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* sourceTexture, ID3D11RenderTargetView* renderTarget, D3D11_VIEWPORT viewport) {
-    float averageLuminance = m_averageLuminance->Process(deviceContext, sourceTexture);
-    LuminanceConstantBuffer luminanceBufferData = { averageLuminance };
-    deviceContext->UpdateSubresource(m_luminanceBuffer, 0, nullptr, &luminanceBufferData, 0, 0);
+void ToneMap::Process(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* sourceTexture, ID3D11RenderTargetView* renderTarget, D3D11_VIEWPORT viewport) {
+    m_averageLuminance->Process(deviceContext, sourceTexture);
+    //ID3D11Texture2D* avgTextutre = m_averageLuminance->GetAvgTexture();
+
+    //D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+    //D3D11_TEXTURE2D_DESC desc;
+    //avgTextutre->GetDesc(&desc);
+    //srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+    //srvDesc.Texture2D.MostDetailedMip = 0;
+    //srvDesc.Texture2D.MipLevels = desc.MipLevels;
+    //srvDesc.Format = desc.Format;
+
+    //D3D11ShaderResourceView* refRes = nullptr;
+    //HRESULT hr = device->CreateShaderResourceView(avgTextutre, &srvDesc, &refRes);
 
     deviceContext->OMSetRenderTargets(1, &renderTarget, nullptr);
     deviceContext->RSSetViewports(1, &viewport);
@@ -122,14 +126,19 @@ void ToneMap::Process(ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceVi
     deviceContext->HSSetShader(nullptr, nullptr, 0);
     deviceContext->DSSetShader(nullptr, nullptr, 0);
     deviceContext->PSSetShader(m_pixelShader, nullptr, 0);
-    deviceContext->PSSetConstantBuffers(0, 1, &m_luminanceBuffer);
     deviceContext->PSSetShaderResources(0, 1, &sourceTexture);
+    //deviceContext->PSSetShaderResources(1, 1, &refRes);
     deviceContext->PSSetSamplers(0, 1, &m_sampleState);
 
     deviceContext->Draw(4, 0);
 
     ID3D11ShaderResourceView* nullsrv[] = { nullptr };
     deviceContext->PSSetShaderResources(0, 1, nullsrv);
+
+    //if (refRes) {
+    //    refRes->Release();
+    //    refRes = nullptr;
+    //}
 }
 
 // Function to print error if error happened
@@ -178,11 +187,6 @@ void ToneMap::Shutdown() {
     if (m_vertexShader) {
         m_vertexShader->Release();
         m_vertexShader = nullptr;
-    }
-
-    if (m_luminanceBuffer) {
-        m_luminanceBuffer->Release();
-        m_luminanceBuffer = nullptr;
     }
 
     if (m_averageLuminance) {
