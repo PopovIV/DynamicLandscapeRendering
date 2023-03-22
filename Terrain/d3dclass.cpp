@@ -296,20 +296,6 @@ bool D3DClass::Initialize(int screenWidth, int screenHeight, bool vsync, HWND hw
 
 // Resize function
 HRESULT D3DClass::Resize(int width, int height, float screenDepth, float screenNear) {
-    if (m_depthStencilView) {
-        m_depthStencilView->Release();
-        m_depthStencilView = nullptr;
-    }
-
-    if (m_depthStencilState) {
-        m_depthStencilState->Release();
-        m_depthStencilState = nullptr;
-    }
-
-    if (m_depthStencilBuffer) {
-        m_depthStencilBuffer->Release();
-        m_depthStencilBuffer = nullptr;
-    }
 
     if (m_renderTargetView) {
         m_renderTargetView->Release();
@@ -318,6 +304,7 @@ HRESULT D3DClass::Resize(int width, int height, float screenDepth, float screenN
 
     HRESULT hr = m_swapChain->ResizeBuffers(2, width, height, DXGI_FORMAT_R8G8B8A8_UNORM, 0);
     assert(SUCCEEDED(hr));
+
     // Get the pointer to the back buffer.
     ID3D11Texture2D* backBufferPtr;
     HRESULT result = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backBufferPtr);
@@ -334,6 +321,21 @@ HRESULT D3DClass::Resize(int width, int height, float screenDepth, float screenN
     // Release pointer to the back buffer as we no longer need it.
     backBufferPtr->Release();
     backBufferPtr = 0;
+
+    if (m_depthStencilView) {
+        m_depthStencilView->Release();
+        m_depthStencilView = nullptr;
+    }
+
+    if (m_depthStencilState) {
+        m_depthStencilState->Release();
+        m_depthStencilState = nullptr;
+    }
+
+    if (m_depthStencilBuffer) {
+        m_depthStencilBuffer->Release();
+        m_depthStencilBuffer = nullptr;
+    }
 
     // Initialize the description of the depth buffer.
     D3D11_TEXTURE2D_DESC depthBufferDesc;

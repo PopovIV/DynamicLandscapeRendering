@@ -22,6 +22,10 @@ void AverageLuminance::Resize(ID3D11Device* device, int width, int height) {
         delete t;
     }
     m_renderTextures.clear();
+    if (m_luminanceTexture) {
+        m_luminanceTexture->Release();
+        m_luminanceTexture = nullptr;
+    }
     CreateTextures(device, width, height);
 }
 
@@ -146,7 +150,7 @@ void AverageLuminance::CopyTexture(ID3D11DeviceContext* deviceContext, ID3D11Sha
 
 bool AverageLuminance::CreateTextures(ID3D11Device* device, int width, int height) {
     int minSize = (min(width, height));
-    int numTextures = std::log2(minSize);
+    int numTextures = (int)std::log2(minSize);
     for (auto t : m_renderTextures) {
         delete t;
     }
