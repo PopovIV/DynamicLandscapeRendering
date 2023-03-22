@@ -21,9 +21,8 @@ class AverageLuminance {
     // Function to realese
     void Shutdown();
     // Render function
-    void Process(ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* sourceTexture);
+    float Process(ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* sourceTexture);
     void Resize(ID3D11Device* device, int width, int height);
-    ID3D11Texture2D* GetAvgTexture() { return m_luminanceTexture; };
   private:
     void CopyTexture(ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* sourceTexture, RenderTexture& dst, ID3D11PixelShader* pixelShader);
 
@@ -41,6 +40,8 @@ class AverageLuminance {
     ID3D11PixelShader* m_pixelShader = nullptr;
     ID3D11SamplerState* m_sampleState = nullptr;
     ID3D11Texture2D* m_luminanceTexture = nullptr;
+
+    float m_adaptedLuminance = 0.0f;
 
     LARGE_INTEGER m_qpcFrequency;
     LARGE_INTEGER m_qpcLastTime;

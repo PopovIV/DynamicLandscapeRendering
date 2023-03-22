@@ -1,7 +1,11 @@
 Texture2D<float4> sourceTexture : register(t0);
-Texture2D<float4> avgLuminanceTexture : register(t1);
 
 SamplerState Sampler : register(s0);
+
+cbuffer AverageLuminanceBuffer : register(b0)
+{
+    float AverageLuminance;
+}
 
 struct PS_INPUT
 {
@@ -11,7 +15,7 @@ struct PS_INPUT
 
 float Exposure()
 {
-    float luminance = avgLuminanceTexture.Sample(Sampler, 0.0);;
+    float luminance = AverageLuminance;
     float keyValue = 1.03 - 2 / (2 + log10(luminance + 1));
     return keyValue / luminance;
 }

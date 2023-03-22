@@ -425,7 +425,7 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
     Direct3D->BeginScene(0.30f, 0.59f, 0.71f, 1.0f);
 
     // Post effect render
-    m_ToneMap->Process(Direct3D->GetDevice(), Direct3D->GetDeviceContext(), m_RenderTexture->GetShaderResourceView(), Direct3D->GetRenderTarget(), Direct3D->GetViewPort());
+    m_ToneMap->Process(Direct3D->GetDeviceContext(), m_RenderTexture->GetShaderResourceView(), Direct3D->GetRenderTarget(), Direct3D->GetViewPort());
     m_Profiler->Timestamp(Direct3D->GetDeviceContext(), GTS_ToneMapping);
     QueryPerformanceCounter(&t2);
 
