@@ -12,7 +12,7 @@ bool TerrainShader::Initialize(ID3D11Device* device, HWND hwnd) {
 }
 
 // Render function
-bool TerrainShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], ID3D11ShaderResourceView* roughMaps[], ID3D11ShaderResourceView* aoMaps[], Light* light, XMFLOAT4 scales, float detailScale) {
+bool TerrainShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], ID3D11ShaderResourceView* roughMaps[], ID3D11ShaderResourceView* aoMaps[], Light* light, XMFLOAT4 scales, float detailScale, bool normalPass) {
     // Set the shader parameters that it will use for rendering.
     bool result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, cameraPos, textures, normalMaps, roughMaps, aoMaps, light, scales, detailScale);
     if (!result) {
@@ -20,7 +20,7 @@ bool TerrainShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, X
     }
 
     // Now render the prepared buffers with the shader.
-    RenderShader(deviceContext, indexCount);
+    RenderShader(deviceContext, indexCount, normalPass);
 
     return true;
 }
@@ -34,8 +34,10 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wcha
     ID3D10Blob* domainShaderBuffer = nullptr;
     ID3D10Blob* pixelShaderBuffer = nullptr;
 
-    int flags = D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION;
-
+    int flags = 0;
+#ifdef _DEBUG
+    flags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
     // Compile the vertex shader code.
     HRESULT result = D3DCompileFromFile(vsFilename, NULL, NULL, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage);
     if (FAILED(result)) {
@@ -117,7 +119,7 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wcha
     }
 
     // Create the vertex input layout description.
-    D3D11_INPUT_ELEMENT_DESC polygonLayout[6];
+    D3D11_INPUT_ELEMENT_DESC polygonLayout[5];
     polygonLayout[0].SemanticName = "POSITION";
     polygonLayout[0].SemanticIndex = 0;
     polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -157,14 +159,6 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wcha
     polygonLayout[4].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
     polygonLayout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
     polygonLayout[4].InstanceDataStepRate = 0;
-
-    polygonLayout[5].SemanticName = "TEXCOORD";
-    polygonLayout[5].SemanticIndex = 1;
-    polygonLayout[5].Format = DXGI_FORMAT_R32G32_FLOAT;
-    polygonLayout[5].InputSlot = 0;
-    polygonLayout[5].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-    polygonLayout[5].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-    polygonLayout[5].InstanceDataStepRate = 0;
 
     // Get a count of the elements in the layout.
     unsigned int numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
@@ -394,7 +388,6 @@ bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
 
     // Finanly set the constant buffer in the vertex shader with the updated values.
     deviceContext->DSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
-    deviceContext->DSSetShaderResources(0, 1, &roughMaps[5]);
     deviceContext->HSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
 
     // Set shader texture resource in the pixel shader.
@@ -470,7 +463,7 @@ bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
 }
 
 // Render function
-void TerrainShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount) {
+void TerrainShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCount, bool normalPass) {
     // Set the vertex input layout.
     deviceContext->IASetInputLayout(m_layout);
 
@@ -478,12 +471,16 @@ void TerrainShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCo
     deviceContext->VSSetShader(m_vertexShader, NULL, 0);
     deviceContext->HSSetShader(m_hullShader, NULL, 0);
     deviceContext->DSSetShader(m_domainShader, NULL, 0);
-    deviceContext->PSSetShader(m_pixelShader, NULL, 0);
+    if (normalPass) {
+        deviceContext->PSSetShader(m_pixelShader, NULL, 0);
+        // Set the sampler state in the pixel shader.
+        deviceContext->PSSetSamplers(0, 1, &m_samplerState);
+        deviceContext->PSSetSamplers(1, 1, &m_samplerStateNoMips);
+    }
+    else {
+        deviceContext->PSSetShader(NULL, NULL, 0);
+    }
 
-    // Set the sampler state in the pixel shader.
-    deviceContext->PSSetSamplers(0, 1, &m_samplerState);
-    deviceContext->PSSetSamplers(1, 1, &m_samplerStateNoMips);
-    deviceContext->DSSetSamplers(0, 1, &m_samplerStateNoMips);
     // Render the triangle.
     deviceContext->DrawIndexed(indexCount, 0, 0);
 }

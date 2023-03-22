@@ -251,17 +251,17 @@ void Position::TurnMouse(XMFLOAT2 mouseMove) {
     float eps = 1e-10;
     while (fabs(x) > eps || fabs(y) > eps) {
         if (x > 0) {
-            TurnRight(true);
+            m_rotationY += 0.3;
             x -= 1;
         } else if (x < 0) {
-            TurnLeft(true);
+            m_rotationY -= 0.3;
             x += 1;
         }
         if (y > 0) {
-            LookDownward(true);
+            m_rotationX += 0.3;
             y -= 1;
         } else if (y < 0) {
-            LookUpward(true);
+            m_rotationX -= 0.3;
             y += 1;
         }
     }

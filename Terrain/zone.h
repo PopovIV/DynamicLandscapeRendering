@@ -28,9 +28,12 @@ class Zone {
     void Shutdown();
     // Function to update frame each second
     bool Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager, TextureManager* TextureManager, float frameTime, int fps, XMFLOAT4 scales, float detailScale, XMFLOAT3 lightDir);
+    void Resize(ID3D11Device* device, int width, int height);
 
     void GetPosition(float& x, float& y , float& z) { m_Position->GetPosition(x, y, z); };
     void GetRotation(float& x, float& y, float& z) { m_Position->GetRotation(x, y, z); };
+    void SetPosition(float x, float y, float z) { m_Position->SetPosition(x, y, z); };
+    void SetRotation(float x, float y, float z) { m_Position->SetRotation(x, y, z); };
     void GetCulling(float& polygons, float& rendered, float& culled);
     XMFLOAT3 GetLighDirection(void) { return lightDir; };
     void ToggleWireFrame() { m_wireFrame = !m_wireFrame; };
@@ -56,7 +59,6 @@ class Zone {
     bool Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManager* TextureManager);
 
     RenderTexture* m_RenderTexture = nullptr;
-    D3DClass* Direct3D = nullptr;
     Camera* m_Camera = nullptr;
     Light* m_Light = nullptr;
     Position* m_Position = nullptr;

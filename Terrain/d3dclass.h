@@ -18,6 +18,8 @@ class D3DClass {
     bool Initialize(int screenWidth, int screenHeight, bool vsync, HWND hwnd, bool fullscreen, float screenDepth, float screenNear);
     // Function to realese DX11 data
     void Shutdown();
+    // Resize function
+    HRESULT Resize(int width, int height, float screenDepth, float screenNear);
 
     // Function to prepare scene
     void BeginScene(float red, float green, float blue, float alpha);
@@ -39,6 +41,7 @@ class D3DClass {
     void GetVideoCardInfo(char* cardName, int& memory);
 
     void TurnZBufferOn() { m_deviceContext->OMSetDepthStencilState(m_depthStencilState, 1); };
+    void TurnDepthPrePass() { m_deviceContext->OMSetDepthStencilState(m_depthStencilStatePass, 1); };
     void TurnZBufferOff() { m_deviceContext->OMSetDepthStencilState(m_depthDisabledStencilState, 1); };
 
     void TurnOnCulling() { m_deviceContext->RSSetState(m_rasterState); };
@@ -66,6 +69,7 @@ class D3DClass {
     ID3D11RenderTargetView* m_renderTargetView = nullptr;
     ID3D11Texture2D* m_depthStencilBuffer = nullptr;
     ID3D11DepthStencilState* m_depthStencilState = nullptr;
+    ID3D11DepthStencilState* m_depthStencilStatePass = nullptr;
     ID3D11DepthStencilView* m_depthStencilView = nullptr;
     ID3D11RasterizerState* m_rasterState = nullptr;
     ID3D11RasterizerState* m_rasterStateNoCulling = nullptr;

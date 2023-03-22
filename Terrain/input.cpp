@@ -66,6 +66,12 @@ bool Input::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, int scre
     return true;
 }
 
+// Resize function
+void Input::Resize(int width, int height) {
+    m_screenWidth = width;
+    m_screenHeight = height;
+}
+
 // Function to realese interface
 void Input::Shutdown() {
     // Release the mouse.
@@ -235,7 +241,7 @@ bool Input::IsPgDownPressed() {
 
 // Function to check if mouse is used
 XMFLOAT2 Input::IsMouseUsed() {
-    if (m_mouseState.rgbButtons[0] || m_mouseState.rgbButtons[1] || m_mouseState.rgbButtons[2] & 0x80) {
+    if (m_mouseState.rgbButtons[1] || m_mouseState.rgbButtons[2] & 0x80) {
         return XMFLOAT2(m_mouseState.lX, m_mouseState.lY);
     }
 

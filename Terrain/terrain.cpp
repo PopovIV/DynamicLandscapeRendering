@@ -205,7 +205,7 @@ void Terrain::SetTerrainCoordinates() {
             m_heightMap[index].y /= m_heightScale;
 
 
-            float presition = 1024.0;
+            float presition = 2048.0;
             m_heightMap[index].x = float(int(m_heightMap[index].x * presition) / presition);
             m_heightMap[index].y = float(int(m_heightMap[index].y * presition) / presition);
             m_heightMap[index].z = float(int(m_heightMap[index].z * presition) / presition);
@@ -250,79 +250,67 @@ bool Terrain::BuildTerrainModel() {
             m_terrainModel[index].x = m_heightMap[index1].x;
             m_terrainModel[index].y = m_heightMap[index1].y;
             m_terrainModel[index].z = m_heightMap[index1].z;
-            m_terrainModel[index].tu = 0.0f;
-            m_terrainModel[index].tv = 0.0f;
+            m_terrainModel[index].tu = tu2Left;
+            m_terrainModel[index].tv = tv2Top;
             m_terrainModel[index].nx = m_heightMap[index1].nx;
             m_terrainModel[index].ny = m_heightMap[index1].ny;
             m_terrainModel[index].nz = m_heightMap[index1].nz;
-            m_terrainModel[index].tu2 = tu2Left;
-            m_terrainModel[index].tv2 = tv2Top;
             index++;
 
             // Triangle 1 - Upper right.
             m_terrainModel[index].x = m_heightMap[index2].x;
             m_terrainModel[index].y = m_heightMap[index2].y;
             m_terrainModel[index].z = m_heightMap[index2].z;
-            m_terrainModel[index].tu = 1.0f;
-            m_terrainModel[index].tv = 0.0f;
+            m_terrainModel[index].tu = tu2Right;
+            m_terrainModel[index].tv = tv2Top;
             m_terrainModel[index].nx = m_heightMap[index2].nx;
             m_terrainModel[index].ny = m_heightMap[index2].ny;
             m_terrainModel[index].nz = m_heightMap[index2].nz;
-            m_terrainModel[index].tu2 = tu2Right;
-            m_terrainModel[index].tv2 = tv2Top;
             index++;
 
             // Triangle 1 - Bottom left.
             m_terrainModel[index].x = m_heightMap[index3].x;
             m_terrainModel[index].y = m_heightMap[index3].y;
             m_terrainModel[index].z = m_heightMap[index3].z;
-            m_terrainModel[index].tu = 0.0f;
-            m_terrainModel[index].tv = 1.0f;
+            m_terrainModel[index].tu = tu2Left;
+            m_terrainModel[index].tv = tv2Bottom;
             m_terrainModel[index].nx = m_heightMap[index3].nx;
             m_terrainModel[index].ny = m_heightMap[index3].ny;
             m_terrainModel[index].nz = m_heightMap[index3].nz;
-            m_terrainModel[index].tu2 = tu2Left;
-            m_terrainModel[index].tv2 = tv2Bottom;
             index++;
 
             // Triangle 2 - Bottom left.
             m_terrainModel[index].x = m_heightMap[index3].x;
             m_terrainModel[index].y = m_heightMap[index3].y;
             m_terrainModel[index].z = m_heightMap[index3].z;
-            m_terrainModel[index].tu = 0.0f;
-            m_terrainModel[index].tv = 1.0f;
+            m_terrainModel[index].tu = tu2Left;
+            m_terrainModel[index].tv = tv2Bottom;
             m_terrainModel[index].nx = m_heightMap[index3].nx;
             m_terrainModel[index].ny = m_heightMap[index3].ny;
             m_terrainModel[index].nz = m_heightMap[index3].nz;
-            m_terrainModel[index].tu2 = tu2Left;
-            m_terrainModel[index].tv2 = tv2Bottom;
             index++;
 
             // Triangle 2 - Upper right.
             m_terrainModel[index].x = m_heightMap[index2].x;
             m_terrainModel[index].y = m_heightMap[index2].y;
             m_terrainModel[index].z = m_heightMap[index2].z;
-            m_terrainModel[index].tu = 1.0f;
-            m_terrainModel[index].tv = 0.0f;
+            m_terrainModel[index].tu = tu2Right;
+            m_terrainModel[index].tv = tv2Top;
             m_terrainModel[index].nx = m_heightMap[index2].nx;
             m_terrainModel[index].ny = m_heightMap[index2].ny;
             m_terrainModel[index].nz = m_heightMap[index2].nz;
             m_terrainModel[index].nz = m_heightMap[index2].nz;
-            m_terrainModel[index].tu2 = tu2Right;
-            m_terrainModel[index].tv2 = tv2Top;
             index++;
 
             // Triangle 2 - Bottom right.
             m_terrainModel[index].x = m_heightMap[index4].x;
             m_terrainModel[index].y = m_heightMap[index4].y;
             m_terrainModel[index].z = m_heightMap[index4].z;
-            m_terrainModel[index].tu = 1.0f;
-            m_terrainModel[index].tv = 1.0f;
+            m_terrainModel[index].tu = tu2Right;
+            m_terrainModel[index].tv = tv2Bottom;
             m_terrainModel[index].nx = m_heightMap[index4].nx;
             m_terrainModel[index].ny = m_heightMap[index4].ny;
             m_terrainModel[index].nz = m_heightMap[index4].nz;
-            m_terrainModel[index].tu2 = tu2Right;
-            m_terrainModel[index].tv2 = tv2Bottom;
             index++;
 
             // Increment the tu texture coords for the alpha map.
@@ -626,10 +614,19 @@ void Terrain::ShutdownTerrainCells() {
 
 bool Terrain::RenderCell(ID3D11DeviceContext* deviceContext, int cellId, Frustum* Frustum, bool culling) {
     float maxWidth, maxHeight, maxDepth, minWidth, minHeight, minDepth;
-
+    bool measure_metrics = true;
+    ID3D11DepthStencilState* state;
+    deviceContext->OMGetDepthStencilState(&state, nullptr);
+    if (state != nullptr)
+    {
+        D3D11_DEPTH_STENCIL_DESC desc;
+        state->GetDesc(&desc);
+        if (desc.DepthFunc == D3D11_COMPARISON_FUNC::D3D11_COMPARISON_EQUAL)
+            measure_metrics = false;
+    }
+    state->Release();
     // Get the dimensions of the terrain cell.
     m_TerrainCells[cellId].GetCellDimensions(maxWidth, maxHeight, maxDepth, minWidth, minHeight, minDepth);
-
     // eps for better culling
     float eps = 1;
     if (culling) {
@@ -637,21 +634,16 @@ bool Terrain::RenderCell(ID3D11DeviceContext* deviceContext, int cellId, Frustum
         bool result = Frustum->CheckRectangle2(maxWidth + eps, maxHeight + eps, maxDepth + eps, minWidth - eps, minHeight - eps, minDepth - eps);
         if (!result) {
             // Increment the number of cells that were culled.
-            m_cellsCulled++;
-
+            m_cellsCulled += measure_metrics;
             return false;
         }
     }
-
     // If it is visible then render it.
     m_TerrainCells[cellId].Render(deviceContext);
-
     // Add the polygons in the cell to the render count.
     m_renderCount += (m_TerrainCells[cellId].GetVertexCount() / 3);
-
     // Increment the number of cells that were actually drawn.
-    m_cellsDrawn++;
-
+    m_cellsDrawn += measure_metrics;
     return true;
 }
 

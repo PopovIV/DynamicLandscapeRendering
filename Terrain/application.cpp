@@ -152,10 +152,6 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
     if (!result) {
         return false;
     }
-    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/HM.dds", 22, Texture::DDS);
-    if (!result) {
-        return false;
-    }
 
     // Create the timer object.
     m_Timer = new Timer;
@@ -186,11 +182,14 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
     }
 
     // Initialize the zone object.
-    result = m_Zone->Initialize(m_Direct3D, hwnd, screenWidth, screenHeight, SCREEN_DEPTH);
+    result = m_Zone->Initialize(m_Direct3D, hwnd, screenWidth, screenHeight, SCREEN_NEAR);
     if (!result) {
         MessageBox(hwnd, L"Could not initialize the zone object.", L"Error", MB_OK);
         return false;
     }
+
+    m_width = screenWidth;
+    m_height = screenHeight;
 
     scales = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -203,6 +202,17 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
     ImGui_ImplDX11_Init(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext());
 
     return true;
+}
+
+// Resize function
+void Application::Resize(int width, int height) {
+    if (width != m_width || height != m_height) {
+        m_Input->Resize(width, height);
+        m_Direct3D->Resize(width, height, SCREEN_DEPTH, SCREEN_NEAR);
+        m_Zone->Resize(m_Direct3D->GetDevice(), width, height);
+        m_width = width;
+        m_height = height;
+    }
 }
 
 // Function to clear all stuff that was created in initialize function
@@ -260,6 +270,40 @@ void Application::Shutdown() {
 
 }
 
+bool Application::LoadCamera(XMFLOAT3& pos, XMFLOAT3& rot) {
+    try {
+        std::ifstream infile(configName);
+        infile >> pos.x;
+        infile >> pos.y;
+        infile >> pos.z;
+        infile >> rot.x;
+        infile >> rot.y;
+        infile >> rot.z;
+        infile.close();
+    }
+    catch (ifstream::failure) {
+        return false;
+    }
+    return true;
+}
+
+bool Application::SaveCamera(XMFLOAT3 pos, XMFLOAT3 rot) {
+    try {
+        std::ofstream offile(configName);
+        offile << pos.x << '\n';
+        offile << pos.y << '\n';
+        offile << pos.z << '\n';
+        offile << rot.x << '\n';
+        offile << rot.y << '\n';
+        offile << rot.z << '\n';
+        offile.close();
+    }
+    catch (ofstream::failure) {
+        return false;
+    }
+    return true;
+}
+
 // Function to update frame each second
 bool Application::Frame() {
 
@@ -282,7 +326,7 @@ bool Application::Frame() {
     static int grassScale = 40;
     static int rockScale = 32;
     static int slopeScale = 32;
-    static int snowScale = 2;
+    static int snowScale = 15;
     static int detailScale = 4;
     static int lightX = (int)m_Zone->GetLighDirection().x;
     static int lightY = (int)m_Zone->GetLighDirection().y;
@@ -300,6 +344,30 @@ bool Application::Frame() {
 
         if (ImGui::Button("Open demo")) {
             demoWindow = true;
+        }
+
+        if (ImGui::Button("Save camera")) {
+            float rotX, rotY, rotZ;
+            float posX, posY, posZ;
+            m_Zone->GetPosition(posX, posY, posZ);
+            m_Zone->GetRotation(rotX, rotY, rotZ);
+            bool result = SaveCamera(XMFLOAT3(posX, posY, posZ), XMFLOAT3(rotX, rotY, rotZ));
+            if (!result) {
+                ImGui::SameLine();
+                ImGui::Text("Error saving camera");
+            }
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Load camera")) {
+            XMFLOAT3 pos, rot;
+            bool result = LoadCamera(pos, rot);
+            if (result) {
+                m_Zone->SetPosition(pos.x, pos.y, pos.z);
+                m_Zone->SetRotation(rot.x, rot.y, rot.z);
+            }
+            else {
+                ImGui::Text("Error loading camera");
+            }
         }
 
         if (ImGui::Checkbox("WireFrame Mode", &wireframe)) {

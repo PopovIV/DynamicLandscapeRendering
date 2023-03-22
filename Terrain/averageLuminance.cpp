@@ -16,6 +16,19 @@ bool AverageLuminance::Initialize(ID3D11Device* device, HWND hwnd, int textureWi
     return CreateTextures(device, textureWidth, textureHeight);
 }
 
+void AverageLuminance::Resize(ID3D11Device* device, int width, int height) {
+    for (auto t : m_renderTextures) {
+        t->Shutdown();
+        delete t;
+    }
+    m_renderTextures.clear();
+    if (m_luminanceTexture) {
+        m_luminanceTexture->Release();
+        m_luminanceTexture = nullptr;
+    }
+    CreateTextures(device, width, height);
+}
+
 bool AverageLuminance::InitializeShader(ID3D11Device* device, HWND hwnd, const wchar_t* vsFilename, const wchar_t* psCopyFilename, const wchar_t* psFilename) {
     // Initialize the pointers this function will use to null.
     ID3D10Blob* errorMessage = nullptr;
@@ -23,8 +36,10 @@ bool AverageLuminance::InitializeShader(ID3D11Device* device, HWND hwnd, const w
     ID3D10Blob* copyPixelShaderBuffer = nullptr;
     ID3D10Blob* pixelShaderBuffer = nullptr;
 
-    int flags = D3D10_SHADER_ENABLE_STRICTNESS | D3D10_SHADER_DEBUG | D3D10_SHADER_SKIP_OPTIMIZATION;
-
+    int flags = 0;
+#ifdef _DEBUG
+    flags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
     // Compile the vertex shader code.
     HRESULT result = D3DCompileFromFile(vsFilename, NULL, NULL, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage);
     if (FAILED(result)) {
@@ -113,22 +128,6 @@ bool AverageLuminance::InitializeShader(ID3D11Device* device, HWND hwnd, const w
         return false;
     }
 
-    CD3D11_TEXTURE2D_DESC ltd(
-        DXGI_FORMAT_R32G32B32A32_FLOAT,
-        1,
-        1,
-        1,
-        1,
-        0,
-        D3D11_USAGE_STAGING,
-        D3D11_CPU_ACCESS_READ
-    );
-
-    result = device->CreateTexture2D(&ltd, nullptr, &m_luminanceTexture);
-    if (FAILED(result)) {
-        return false;
-    }
-
     return true;
 }
 
@@ -151,7 +150,7 @@ void AverageLuminance::CopyTexture(ID3D11DeviceContext* deviceContext, ID3D11Sha
 
 bool AverageLuminance::CreateTextures(ID3D11Device* device, int width, int height) {
     int minSize = (min(width, height));
-    int numTextures = std::log2(minSize);
+    int numTextures = (int)std::log2(minSize);
     for (auto t : m_renderTextures) {
         delete t;
     }
@@ -166,10 +165,30 @@ bool AverageLuminance::CreateTextures(ID3D11Device* device, int width, int heigh
     {
         return false;
     }
+
+    D3D11_TEXTURE2D_DESC textureDesc;
+    // Setup the description of the texture.
+    textureDesc.Height = 1;
+    textureDesc.Width = 1;
+    textureDesc.MipLevels = 1;
+    textureDesc.ArraySize = 1;
+    textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    textureDesc.SampleDesc.Count = 1;
+    textureDesc.SampleDesc.Quality = 0;
+    textureDesc.Usage = D3D11_USAGE_DEFAULT;
+    textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+    textureDesc.CPUAccessFlags = 0;
+    textureDesc.MiscFlags = 0;
+
+    HRESULT result = device->CreateTexture2D(&textureDesc, nullptr, &m_luminanceTexture);
+    if (FAILED(result)) {
+        return false;
+    }
+
     return true;
 }
 
-float AverageLuminance::Process(ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* sourceTexture) {
+void AverageLuminance::Process(ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* sourceTexture) {
     float backgroundColour[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
     for (size_t i = 0; i < m_renderTextures.size(); i++) {
         deviceContext->ClearRenderTargetView(m_renderTextures[i]->GetRenderTargetView(), backgroundColour);
@@ -199,16 +218,7 @@ float AverageLuminance::Process(ID3D11DeviceContext* deviceContext, ID3D11Shader
     m_qpcLastTime = currentTime;
     double delta = (double)(timeDelta) / m_qpcFrequency.QuadPart;
 
-    D3D11_MAPPED_SUBRESOURCE luminanceAccessor;
-    deviceContext->CopyResource(m_luminanceTexture, m_renderTextures[m_renderTextures.size() - 1]->GetRenderTarget());
-    deviceContext->Map(m_luminanceTexture, 0, D3D11_MAP_READ, 0, &luminanceAccessor);
-    float luminance = *(float*)luminanceAccessor.pData;
-    deviceContext->Unmap(m_luminanceTexture, 0);
-
-    float sigma = 0.04f / (0.04f + luminance);
-    float tau = sigma * 0.4f + (1 - sigma) * 0.1f;
-    m_adaptedLuminance += (luminance - m_adaptedLuminance) * (float)(1 - std::exp(-delta * tau));
-    return m_adaptedLuminance;
+    deviceContext->CopyResource(m_luminanceTexture, m_renderTextures.back()->GetRenderTarget());
 }
 
 // Function to print errors to file

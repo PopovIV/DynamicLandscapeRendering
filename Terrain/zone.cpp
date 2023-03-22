@@ -329,7 +329,7 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
     //m_Terrain->Render(Direct3D->GetDeviceContext());
     ID3D11ShaderResourceView* textures[] = { TextureManager->GetTexture(0), TextureManager->GetTexture(4), TextureManager->GetTexture(8), TextureManager->GetTexture(12), TextureManager->GetTexture(16), TextureManager->GetTexture(20) };
     ID3D11ShaderResourceView* normalMaps[] = { TextureManager->GetTexture(1), TextureManager->GetTexture(5), TextureManager->GetTexture(9), TextureManager->GetTexture(13), TextureManager->GetTexture(17), TextureManager->GetTexture(21) };
-    ID3D11ShaderResourceView* roughMaps[] = { TextureManager->GetTexture(2), TextureManager->GetTexture(6), TextureManager->GetTexture(10), TextureManager->GetTexture(14), TextureManager->GetTexture(18), TextureManager->GetTexture(22) };
+    ID3D11ShaderResourceView* roughMaps[] = { TextureManager->GetTexture(2), TextureManager->GetTexture(6), TextureManager->GetTexture(10), TextureManager->GetTexture(14), TextureManager->GetTexture(18) };
     ID3D11ShaderResourceView* aoMaps[] = { TextureManager->GetTexture(3), TextureManager->GetTexture(7), TextureManager->GetTexture(11), TextureManager->GetTexture(15), TextureManager->GetTexture(19) };
 
     // Update our time
@@ -354,15 +354,17 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
         lightDir = m_Light->GetDirection();
     }
 
-    // Render the terrain cells (and cell lines if needed).
+    std::vector<int> Indexies;
+    // Render the terrain cells (and cell lines if needed) without pixel shader
     for (int i = 0; i < m_Terrain->GetCellCount(); i++) {
         // Put the terrain cell buffers on the pipeline.
         m_Frustum->SetLockView(m_lockView);
         result = m_Terrain->RenderCell(Direct3D->GetDeviceContext(), i, m_Frustum, m_culling);
         if (result) {
-            // Render the cell buffers using the terrain shader.
+            Indexies.push_back(i);
+            // Render the cell buffers using the terrain shader without pixel shader
             result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetCellIndexCount(i), worldMatrix, viewMatrix,
-                projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps, roughMaps, aoMaps, m_Light, scales, detailScale);
+                projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps, roughMaps, aoMaps, m_Light, scales, detailScale, false);
             if (!result) {
                 return false;
             }
@@ -378,6 +380,20 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
         }
     }
 
+    // normal pass
+    Direct3D->TurnDepthPrePass();
+    for (int i : Indexies) {
+        result = m_Terrain->RenderCell(Direct3D->GetDeviceContext(), i, m_Frustum, m_culling);
+        if (result) {
+            result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetCellIndexCount(i), worldMatrix, viewMatrix,
+                projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps, roughMaps, aoMaps, m_Light, scales, detailScale);
+        }
+        if (!result) {
+            return false;
+        }
+    }
+    Direct3D->TurnZBufferOn();
+
     // Determine if the terrain should be rendered in wireframe or not.
     if (m_wireFrame) {
         Direct3D->DisableWireframe();
@@ -386,6 +402,11 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
     Direct3D->SetBackBufferRenderTarget();
     return true;
 
+}
+
+void Zone::Resize(ID3D11Device* device, int width, int height) {
+    m_RenderTexture->Resize(device, width, height);
+    m_ToneMap->Resize(device, width, height);
 }
 
 // Render function
@@ -404,8 +425,9 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
     Direct3D->BeginScene(0.30f, 0.59f, 0.71f, 1.0f);
 
     // Post effect render
-    m_ToneMap->Process(Direct3D->GetDeviceContext(), m_RenderTexture->GetShaderResourceView(), Direct3D->GetRenderTarget(), Direct3D->GetViewPort());
+    m_ToneMap->Process(Direct3D->GetDevice(), Direct3D->GetDeviceContext(), m_RenderTexture->GetShaderResourceView(), Direct3D->GetRenderTarget(), Direct3D->GetViewPort());
     m_Profiler->Timestamp(Direct3D->GetDeviceContext(), GTS_ToneMapping);
+    QueryPerformanceCounter(&t2);
 
     m_Profiler->WaitForDataAndUpdate(Direct3D->GetDeviceContext());
 
@@ -418,7 +440,6 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
     m_drawToTextureTime = 1000.0f * m_Profiler->DtAvg(GTS_DrawToTexture);
     m_toneMappingTime = 1000.0f * m_Profiler->DtAvg(GTS_ToneMapping);
 
-    QueryPerformanceCounter(&t2);
     QueryPerformanceFrequency(&fr);
     m_CPUTime = 1000.0f * (t2.QuadPart - t1.QuadPart) / (float)fr.QuadPart;
     ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());

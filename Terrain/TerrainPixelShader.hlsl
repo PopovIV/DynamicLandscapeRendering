@@ -40,27 +40,20 @@ cbuffer scaleBuffer : register(b1)
     float slopeScale;
     float snowScale;
     float detailScale;
-    float3 tmp;
+    float3 padding;
 };
 
 struct PS_INPUT
 {
     float4 position : SV_POSITION;
     float4 worldPosition : WORLD;
-    float2 tex : TEXCOORD0;
+    float2 tex : TEXCOORD;
     float3 normal : NORMAL;
     float3 tangent : TANGENT;
     float3 binormal : BINORMAL;
-    float2 tex2 : TEXCOORD1;
     float pixelHeight: POSITION;
-    float3 viewDirection: TEXCOORD2;
+    float3 viewDirection: DIR;
 };
-
-float3 mysmoothstep(float3 p1, float3 p2, float t)
-{
-    t = max(min(t, 1), 0);
-    return lerp(p1, p2, 3 * t * t - 2 * t * t * t);
-}
 
 float4 blend(float4 texture1, float a1, float4 texture2, float a2)
 {
@@ -69,8 +62,6 @@ float4 blend(float4 texture1, float a1, float4 texture2, float a2)
 
     float b1 = max(texture1.a + a1 - ma, 0);
     float b2 = max(texture2.a + a2 - ma, 0);
-
-    //return float4(mysmoothstep(texture1.rgb, texture2.rgb, c1 / (c1 + c2)), 1.0f);
 
     return float4((texture1.rgb * b1 + texture2.rgb * b2) / (b1 + b2), 1.0f);
 }
@@ -108,7 +99,8 @@ float3 D(float alpha, float3 N, float3 H) {
     float numerator = alpha * alpha;
 
     float NdotH = max(dot(N, H), 0.0f);
-    float denominator = PI * pow(NdotH * NdotH * (alpha * alpha - 1) + 1, 2.0f);
+    float denominator = NdotH * NdotH * (alpha * alpha - 1.0f) + 1.0f;
+    denominator *= denominator * PI;
     denominator = max(denominator, 0.00001f);
     return numerator / denominator;
 }
@@ -146,15 +138,15 @@ float4 CalculateColor(Texture2D diffuseTexture, Texture2D normalTexture, Texture
     float4 detailBumpMap = SampleTriplanar(detailNormalMap, pos, normal, 1 / detailScale, SampleType) * 2.0f - 1.0f;
     bumpMap.x += detailBumpMap.x;
     bumpMap.y += detailBumpMap.y;
-    float rough = SampleTriplanar(roughTexture, pos, normal, scale, SampleType).r;
-    float ao = SampleTriplanar(aoTexture, pos, normal, scale, SampleType).r;
+    float rough = roughTexture.Sample(SampleType, pos.yz * scale);// SampleTriplanar(roughTexture, pos, normal, scale, SampleType).r;
+    float ao = aoTexture.Sample(SampleType, pos.yz * scale);// SampleTriplanar(aoTexture, pos, normal, scale, SampleType).r;
     float3 N = (bumpMap.x * tangent) + (bumpMap.y * binormal) + (bumpMap.z * normal);
     N = normalize(N);
     float3 H = normalize(V + L);
     return float4(CalculatePBR(N, L, V, H, rough, albedo.xyz, float3(0.04f, 0.04f, 0.04f), ao), 1.0f);
 }
 
-
+[earlydepthstencil]
 float4 main(PS_INPUT input) : SV_TARGET
 {
     float blendAmount;
@@ -167,11 +159,10 @@ float4 main(PS_INPUT input) : SV_TARGET
     input.binormal = normalize(input.binormal);
 
     // Setup the grass material
-    float4 grassTexture2 = CalculateColor(grassDiffuseTexture, grassNormalTexture, grassRoughTexture, grassAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, grassScale / 2);// /2
-    float4 grassTexture = CalculateColor(grassDiffuse2Texture, grassNormal2Texture, grassRough2Texture, grassAo2Texture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, grassScale * 2);//*2
-    float alpha = noise.Sample(SampleType, input.tex2).r;
+    float4 grassTexture2 = CalculateColor(grassDiffuseTexture, grassNormalTexture, grassRoughTexture, grassAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, grassScale / 2);// /2;
+    float4 grassTexture = CalculateColor(grassDiffuse2Texture, grassNormal2Texture, grassRough2Texture, grassAo2Texture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, grassScale * 1.5);//*2
+    float alpha = noise.Sample(SampleType, input.tex).r;
     grassTexture = (alpha * grassTexture) + ((1.0 - alpha) * grassTexture2);
-
 
     // Setup the rock material
     float4 rockTexture = CalculateColor(rockDiffuseTexture, rockNormalTexture, rockRoughTexture, rockAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, rockScale);
@@ -188,7 +179,7 @@ float4 main(PS_INPUT input) : SV_TARGET
         baseColor = grassTexture;
     }
     else if (input.pixelHeight >= 200.0f && input.pixelHeight < 300.0f) {
-        blendAmount = (300 -input.pixelHeight) / (300.0f - 200.0f);
+        blendAmount = (300 - input.pixelHeight) / (300.0f - 200.0f);
         baseColor = blend(snowTexture, 1 - blendAmount, grassTexture, blendAmount);
     }
     else if (input.pixelHeight >= 300.0f) {

@@ -4,8 +4,8 @@
 // Function to initialize aplication instanc and window class
 bool System::Initialize() {
     // Initialize the width and height of the screen to zero before sending the variables into the function.
-    int screenWidth = 0;
-    int screenHeight = 0;
+    int screenWidth = 1920;
+    int screenHeight = 1080;
 
     // Initialize the windows api.
     InitializeWindows(screenWidth, screenHeight);
@@ -103,7 +103,7 @@ void System::InitializeWindows(int& screenWidth, int& screenHeight) {
     wc.hIcon = LoadIcon(NULL, IDI_WINLOGO);
     wc.hIconSm = wc.hIcon;
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wc.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+    wc.hbrBackground = NULL;
     wc.lpszMenuName = NULL;
     wc.lpszClassName = m_applicationName;
     wc.cbSize = sizeof(WNDCLASSEX);
@@ -134,9 +134,6 @@ void System::InitializeWindows(int& screenWidth, int& screenHeight) {
         posX = posY = 0;
     }
     else {
-        screenWidth = 1920;
-        screenHeight = 1080;
-
         // Place the window in the middle of the screen.
         posX = (GetSystemMetrics(SM_CXSCREEN) - screenWidth) / 2;
         posY = (GetSystemMetrics(SM_CYSCREEN) - screenHeight) / 2;
@@ -144,13 +141,32 @@ void System::InitializeWindows(int& screenWidth, int& screenHeight) {
 
     // Create the window with the screen settings and get the handle to it.
     m_hwnd = CreateWindowEx(WS_EX_APPWINDOW, m_applicationName, m_applicationName,
-        WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX,
-        posX, posY, screenWidth, screenHeight, NULL, NULL, m_hinstance, NULL);
+        WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr,
+        nullptr, m_hinstance, nullptr);
 
-    // Bring the window up on the screen and set it as main focus.
     ShowWindow(m_hwnd, SW_SHOW);
     SetForegroundWindow(m_hwnd);
     SetFocus(m_hwnd);
+    UpdateWindow(m_hwnd);
+
+    {
+        RECT rc;
+        rc.left = 0;
+        rc.right = screenWidth;
+        rc.top = 0;
+        rc.bottom = screenHeight;
+
+        AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, TRUE);
+
+        MoveWindow(m_hwnd, 0, 0, rc.right - rc.left, rc.bottom - rc.top, TRUE);
+    }
+}
+
+
+void System::Resize(int width, int height) {
+    if (m_Application != nullptr) {
+        m_Application->Resize(width, height);
+    }
 }
 
 // Function to clear all window data
@@ -185,7 +201,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
             PostQuitMessage(0);
             return 0;
         // Check if the window is being closed.
-       case WM_CLOSE:
+        case WM_SIZE:
+            if (ApplicationHandle != nullptr) {
+                RECT rc;
+                GetClientRect(hwnd, &rc);
+                ApplicationHandle->Resize(rc.right - rc.left, rc.bottom - rc.top);
+            }
+            break;
+        case WM_CLOSE:
            PostQuitMessage(0);
            return 0;
 
