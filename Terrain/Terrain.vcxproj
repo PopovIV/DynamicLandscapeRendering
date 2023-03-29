@@ -189,9 +189,12 @@
     <ClInclude Include="application.h" />
     <ClInclude Include="averageLuminance.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="CBScene.h" />
     <ClInclude Include="colorShader.h" />
     <ClInclude Include="d3dclass.h" />
+    <ClInclude Include="D3DInclude.h" />
     <ClInclude Include="DDSTextureLoader.h" />
+    <ClInclude Include="defines.h" />
     <ClInclude Include="fps.h" />
     <ClInclude Include="frustum.h" />
     <ClInclude Include="gpuprofiler.h" />
@@ -211,7 +214,6 @@
     <ClInclude Include="stringConverter.h" />
     <ClInclude Include="system.h" />
     <ClInclude Include="terrain.h" />
-    <ClInclude Include="terrainCell.h" />
     <ClInclude Include="terrainShader.h" />
     <ClInclude Include="texture.h" />
     <ClInclude Include="textureManager.h" />
@@ -225,6 +227,7 @@
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="colorShader.cpp" />
     <ClCompile Include="d3dclass.cpp" />
+    <ClCompile Include="D3DInclude.cpp" />
     <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="fps.cpp" />
     <ClCompile Include="frustum.cpp" />
@@ -248,7 +251,6 @@
     <ClCompile Include="stringConverter.cpp" />
     <ClCompile Include="system.cpp" />
     <ClCompile Include="terrain.cpp" />
-    <ClCompile Include="terrainCell.cpp" />
     <ClCompile Include="terrainShader.cpp" />
     <ClCompile Include="texture.cpp" />
     <ClCompile Include="textureManager.cpp" />

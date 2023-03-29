@@ -45,8 +45,8 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     }
 
     // Set the initial position and rotation.
-    m_Position->SetPosition(230.51f, 218.17f, 222.842f);
-    m_Position->SetRotation(1.58f, 288.344f, 0.0f);
+    m_Position->SetPosition(0.51f, 400.17f, 0.842f);
+    m_Position->SetRotation(0.58f, 0.344f, 0.0f);
 
     // Create the frustum object.
     m_Frustum = new Frustum;
@@ -88,7 +88,7 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     }
 
     // Initialize the terrain object.
-    result = m_Terrain->Initialize(Direct3D->GetDevice(), (char*)"data/setup.txt");
+    result = m_Terrain->Initialize(Direct3D->GetDevice());
     if (!result) {
         MessageBox(hwnd, L"Could not initialize the terrain object.", L"Error", MB_OK);
         return false;
@@ -192,18 +192,18 @@ bool Zone::Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager,
     this->detailScale = detailScale;
     m_Light->SetDirection(lightDir.x, lightDir.y, lightDir.z);
 
-    m_Terrain->Frame();
+    //m_Terrain->Frame();
 
-    // If the height is locked to the terrain then position the camera on top of it.
-    if (m_heightLocked) {
-        // Get the height of the triangle that is directly underneath the given camera position.
-        bool foundHeight = m_Terrain->GetHeightAtPosition(posX, posZ, height);
-        if (foundHeight) {
-            // If there was a triangle under the camera then position the camera just above it by one meter.
-            m_Position->SetPosition(posX, height + 5.0f, posZ);
-            m_Camera->SetPosition(posX, height + 5.0f, posZ);
-        }
-    }
+    //// If the height is locked to the terrain then position the camera on top of it.
+    //if (m_heightLocked) {
+    //    // Get the height of the triangle that is directly underneath the given camera position.
+    //    bool foundHeight = m_Terrain->GetHeightAtPosition(posX, posZ, height);
+    //    if (foundHeight) {
+    //        // If there was a triangle under the camera then position the camera just above it by one meter.
+    //        m_Position->SetPosition(posX, height + 5.0f, posZ);
+    //        m_Camera->SetPosition(posX, height + 5.0f, posZ);
+    //    }
+    //}
 
     // Render the graphics.
     bool result = Render(Direct3D, ShaderManager, TextureManager);
@@ -269,16 +269,16 @@ void Zone::HandleMovementInput(Input* Input, float frameTime) {
     }
 }
 
-void Zone::GetCulling(float& polygons, float& rendered, float& culled) {
-    polygons = (float)m_Terrain->GetRenderCount();
-    rendered = (float)m_Terrain->GetCellsDrawn();
-    culled = (float)m_Terrain->GetCellsCulled();
-};
+//void Zone::GetCulling(float& polygons, float& rendered, float& culled) {
+//    polygons = (float)m_Terrain->GetRenderCount();
+//    rendered = (float)m_Terrain->GetCellsDrawn();
+//    culled = (float)m_Terrain->GetCellsCulled();
+//};
 
 // Render function
 bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManager* TextureManager) {
     m_RenderTexture->SetRenderTarget(Direct3D->GetDeviceContext(), Direct3D->GetDepthStencilView());
-    m_RenderTexture->ClearRenderTarget(Direct3D->GetDeviceContext(), Direct3D->GetDepthStencilView(), 0.0f, 0.0f, 1.0f, 1.0f);
+    m_RenderTexture->ClearRenderTarget(Direct3D->GetDeviceContext(), Direct3D->GetDepthStencilView(), 0.0f, 0.0f, 0.0f, 1.0f);
 
     // Generate the view matrix based on the camera's position.
     m_Camera->Render();
@@ -311,6 +311,7 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
     if (!result)
         return false;
 
+
     // Reset the world matrix.
     Direct3D->GetWorldMatrix(worldMatrix);
 
@@ -329,7 +330,7 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
     //m_Terrain->Render(Direct3D->GetDeviceContext());
     ID3D11ShaderResourceView* textures[] = { TextureManager->GetTexture(0), TextureManager->GetTexture(4), TextureManager->GetTexture(8), TextureManager->GetTexture(12), TextureManager->GetTexture(16), TextureManager->GetTexture(20) };
     ID3D11ShaderResourceView* normalMaps[] = { TextureManager->GetTexture(1), TextureManager->GetTexture(5), TextureManager->GetTexture(9), TextureManager->GetTexture(13), TextureManager->GetTexture(17), TextureManager->GetTexture(21) };
-    ID3D11ShaderResourceView* roughMaps[] = { TextureManager->GetTexture(2), TextureManager->GetTexture(6), TextureManager->GetTexture(10), TextureManager->GetTexture(14), TextureManager->GetTexture(18) };
+    ID3D11ShaderResourceView* roughMaps[] = { TextureManager->GetTexture(2), TextureManager->GetTexture(6), TextureManager->GetTexture(10), TextureManager->GetTexture(14), TextureManager->GetTexture(18), TextureManager->GetTexture(22) };
     ID3D11ShaderResourceView* aoMaps[] = { TextureManager->GetTexture(3), TextureManager->GetTexture(7), TextureManager->GetTexture(11), TextureManager->GetTexture(15), TextureManager->GetTexture(19) };
 
     // Update our time
@@ -354,45 +355,48 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
         lightDir = m_Light->GetDirection();
     }
 
-    std::vector<int> Indexies;
-    // Render the terrain cells (and cell lines if needed) without pixel shader
-    for (int i = 0; i < m_Terrain->GetCellCount(); i++) {
-        // Put the terrain cell buffers on the pipeline.
-        m_Frustum->SetLockView(m_lockView);
-        result = m_Terrain->RenderCell(Direct3D->GetDeviceContext(), i, m_Frustum, m_culling);
-        if (result) {
-            Indexies.push_back(i);
-            // Render the cell buffers using the terrain shader without pixel shader
-            result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetCellIndexCount(i), worldMatrix, viewMatrix,
-                projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps, roughMaps, aoMaps, m_Light, scales, detailScale, false);
-            if (!result) {
-                return false;
-            }
+    m_Terrain->Render(Direct3D->GetDeviceContext());
+    result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, viewMatrix,
+                    projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps, roughMaps, aoMaps, m_Light, scales, detailScale);
+    //std::vector<int> Indexies;
+    //// Render the terrain cells (and cell lines if needed) without pixel shader
+    //for (int i = 0; i < m_Terrain->GetCellCount(); i++) {
+    //    // Put the terrain cell buffers on the pipeline.
+    //    m_Frustum->SetLockView(m_lockView);
+    //    result = m_Terrain->RenderCell(Direct3D->GetDeviceContext(), i, m_Frustum, m_culling);
+    //    if (result) {
+    //        Indexies.push_back(i);
+    //        // Render the cell buffers using the terrain shader without pixel shader
+    //        result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetCellIndexCount(i), worldMatrix, viewMatrix,
+    //            projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps, roughMaps, aoMaps, m_Light, scales, detailScale, false);
+    //        if (!result) {
+    //            return false;
+    //        }
 
-            // If needed then render the bounding box around this terrain cell using the color shader. 
-            if (m_cellLines) {
-                m_Terrain->RenderCellLines(Direct3D->GetDeviceContext(), i);
-                ShaderManager->RenderColorShader(Direct3D->GetDeviceContext(), m_Terrain->GetCellLinesIndexCount(i), worldMatrix, viewMatrix, projectionMatrix);
-                if (!result) {
-                    return false;
-                }
-            }
-        }
-    }
+    //        // If needed then render the bounding box around this terrain cell using the color shader. 
+    //        if (m_cellLines) {
+    //            m_Terrain->RenderCellLines(Direct3D->GetDeviceContext(), i);
+    //            ShaderManager->RenderColorShader(Direct3D->GetDeviceContext(), m_Terrain->GetCellLinesIndexCount(i), worldMatrix, viewMatrix, projectionMatrix);
+    //            if (!result) {
+    //                return false;
+    //            }
+    //        }
+    //    }
+    //}
 
-    // normal pass
-    Direct3D->TurnDepthPrePass();
-    for (int i : Indexies) {
-        result = m_Terrain->RenderCell(Direct3D->GetDeviceContext(), i, m_Frustum, m_culling);
-        if (result) {
-            result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetCellIndexCount(i), worldMatrix, viewMatrix,
-                projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps, roughMaps, aoMaps, m_Light, scales, detailScale);
-        }
-        if (!result) {
-            return false;
-        }
-    }
-    Direct3D->TurnZBufferOn();
+    //// normal pass
+    //Direct3D->TurnDepthPrePass();
+    //for (int i : Indexies) {
+    //    result = m_Terrain->RenderCell(Direct3D->GetDeviceContext(), i, m_Frustum, m_culling);
+    //    if (result) {
+    //        result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetCellIndexCount(i), worldMatrix, viewMatrix,
+    //            projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps, roughMaps, aoMaps, m_Light, scales, detailScale);
+    //    }
+    //    if (!result) {
+    //        return false;
+    //    }
+    //}
+    //Direct3D->TurnZBufferOn();
 
     // Determine if the terrain should be rendered in wireframe or not.
     if (m_wireFrame) {

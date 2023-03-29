@@ -152,6 +152,10 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
     if (!result) {
         return false;
     }
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/HM.r32", 22, Texture::R32);
+    if (!result) {
+        return false;
+    }
 
     // Create the timer object.
     m_Timer = new Timer;
@@ -433,7 +437,7 @@ bool Application::Frame() {
         str += std::to_string(z);
         ImGui::Text(str.c_str());
 
-        m_Zone->GetCulling(x, y, z);
+        //m_Zone->GetCulling(x, y, z);
         str = "\nPolygons: ";
         str += std::to_string((int)x);
         ImGui::Text(str.c_str());

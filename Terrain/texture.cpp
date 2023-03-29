@@ -1,4 +1,5 @@
 #include "texture.h"
+#include "stringConverter.h"
 
 // Function to initialize texture
 bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* filename, TextureType type, bool sRGB) {
@@ -8,9 +9,75 @@ bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
     unsigned int rowPitch;
     D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
     bool result;
+    FILE* F;
+    size_t Size = 0;
+    float* data = nullptr;
     memset(&srvDesc, 0, sizeof(srvDesc));
     // Load the targa image data into memory.
     switch (type) {
+      case Texture::R32:
+        fopen_s(&F, StringConverter::wstr2str(filename).c_str(), "rb");
+        if (F == NULL)
+            return false;
+        fseek(F, 0, SEEK_END);
+        Size = ftell(F) / sizeof(float);
+        rewind(F);
+        width = sqrt(Size);
+        height = Size / sqrt(Size);
+        data = new float[Size];
+        fread_s(data, Size * sizeof(float), sizeof(float), Size, F);
+        fclose(F);
+
+        // Setup the description of the texture.
+        textureDesc.Height = height;
+        textureDesc.Width = width;
+        textureDesc.MipLevels = 0;
+        textureDesc.ArraySize = 1;
+        textureDesc.Format = DXGI_FORMAT_R32_FLOAT;
+        textureDesc.SampleDesc.Count = 1;
+        textureDesc.SampleDesc.Quality = 0;
+        textureDesc.Usage = D3D11_USAGE_DEFAULT;
+        textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+        textureDesc.CPUAccessFlags = 0;
+        textureDesc.MiscFlags = D3D11_RESOURCE_MISC_GENERATE_MIPS;
+
+        // Create the empty texture.
+        hResult = device->CreateTexture2D(&textureDesc, NULL, &m_texture);
+        if (FAILED(hResult)) {
+            delete[] data;
+            return false;
+        }
+
+        // Create the empty texture.
+        hResult = device->CreateTexture2D(&textureDesc, NULL, &m_texture);
+        if (FAILED(hResult)) {
+            delete[] data;
+            return false;
+        }
+
+        // Set the row pitch of the r32 data.
+        rowPitch = width * sizeof(float);
+
+        // Copy the targa image data into the texture.
+        deviceContext->UpdateSubresource(m_texture, 0, NULL, data, rowPitch, 0);
+
+        // Setup the shader resource view description.
+        srvDesc.Format = textureDesc.Format;
+        srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+        srvDesc.Texture2D.MostDetailedMip = 0;
+        srvDesc.Texture2D.MipLevels = -1;
+
+        // Create the shader resource view for the texture.
+        hResult = device->CreateShaderResourceView(m_texture, &srvDesc, &m_textureView);
+        if (FAILED(hResult)) {
+            delete[] data;
+            return false;
+        }
+
+        // Generate mipmaps for this texture.
+        deviceContext->GenerateMips(m_textureView);
+        delete[] data;
+        return true;
       case Texture::Targa:
         result = LoadTarga(filename, height, width);
         if (!result) {

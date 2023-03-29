@@ -46,13 +46,14 @@ cbuffer scaleBuffer : register(b1)
 struct PS_INPUT
 {
     float4 position : SV_POSITION;
+    float2 tex: TEXCOORD;
     float4 worldPosition : WORLD;
-    float2 tex : TEXCOORD;
     float3 normal : NORMAL;
-    float3 tangent : TANGENT;
-    float3 binormal : BINORMAL;
-    float pixelHeight: POSITION;
+    float3 tangent: TANGENT;
+    float3 bitangent : BITANGENT;
+    float pixelHeight : POSITION;
     float3 viewDirection: DIR;
+    nointerpolation uint instanceId : INST_ID;
 };
 
 float4 blend(float4 texture1, float a1, float4 texture2, float a2)
@@ -153,50 +154,44 @@ float4 main(PS_INPUT input) : SV_TARGET
     float4 color;
     float3 L = -normalize(lightDirection);
     float3 V = normalize(input.viewDirection);
-
     input.normal = normalize(input.normal);
     input.tangent = normalize(input.tangent);
-    input.binormal = normalize(input.binormal);
-
+    input.bitangent = normalize(input.bitangent);
     // Setup the grass material
-    float4 grassTexture2 = CalculateColor(grassDiffuseTexture, grassNormalTexture, grassRoughTexture, grassAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, grassScale / 2);// /2;
-    float4 grassTexture = CalculateColor(grassDiffuse2Texture, grassNormal2Texture, grassRough2Texture, grassAo2Texture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, grassScale * 1.5);//*2
+    float4 grassTexture2 = CalculateColor(grassDiffuseTexture, grassNormalTexture, grassRoughTexture, grassAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.bitangent, L, V, grassScale / 2);// /2;
+    float4 grassTexture = CalculateColor(grassDiffuse2Texture, grassNormal2Texture, grassRough2Texture, grassAo2Texture, input.worldPosition.xyz, input.normal, input.tangent, input.bitangent, L, V, grassScale * 1.5);//*2
     float alpha = noise.Sample(SampleType, input.tex).r;
     grassTexture = (alpha * grassTexture) + ((1.0 - alpha) * grassTexture2);
-
     // Setup the rock material
-    float4 rockTexture = CalculateColor(rockDiffuseTexture, rockNormalTexture, rockRoughTexture, rockAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, rockScale);
-
+    float4 rockTexture = CalculateColor(rockDiffuseTexture, rockNormalTexture, rockRoughTexture, rockAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.bitangent, L, V, rockScale);
     // Setup the slope material
-    float4 slopeTexture = CalculateColor(slopeDiffuseTexture, slopeNormalTexture, slopeRoughTexture, slopeAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, slopeScale);
-
+    float4 slopeTexture = CalculateColor(slopeDiffuseTexture, slopeNormalTexture, slopeRoughTexture, slopeAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.bitangent, L, V, slopeScale);
     // Setup the grass material
-    float4 snowTexture = CalculateColor(snowDiffuseTexture, snowNormalTexture, snowRoughTexture, snowAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.binormal, L, V, snowScale);
-
+    float4 snowTexture = CalculateColor(snowDiffuseTexture, snowNormalTexture, snowRoughTexture, snowAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.bitangent, L, V, snowScale);
     // Determine which material to use based on slope.
     float4 baseColor;
     if (input.pixelHeight < 200.0f) {
         baseColor = grassTexture;
     }
     else if (input.pixelHeight >= 200.0f && input.pixelHeight < 300.0f) {
-        blendAmount = (300 - input.pixelHeight) / (300.0f - 200.0f);
+        blendAmount = (300.0f - input.pixelHeight) / (300.0f - 200.0f);
         baseColor = blend(snowTexture, 1 - blendAmount, grassTexture, blendAmount);
     }
     else if (input.pixelHeight >= 300.0f) {
         baseColor = snowTexture;
     }
-    
+
     float slope = 1.0f - input.normal.y;
-    if (slope < 0.4f)
+    if (slope < 0.6f)
     {
-        blendAmount = slope / 0.4f;
+        blendAmount = slope / 0.6f;
         color = blend(baseColor, 1 - blendAmount, rockTexture, blendAmount);
     }
-    else if (slope >= 0.4 && slope < 0.7) {
-        blendAmount = (slope - 0.4f) * (1.0f / (0.7f - 0.4f));
+    else if (slope >= 0.6 && slope < 0.8) {
+        blendAmount = (slope - 0.6f) * (1.0f / (0.8f - 0.6f));
         color = blend(rockTexture, 1 - blendAmount, slopeTexture, blendAmount);
     }
-    else if (slope >= 0.7) {
+    else if (slope >= 0.8) {
         color = slopeTexture;
     }
 

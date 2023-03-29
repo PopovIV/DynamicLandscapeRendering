@@ -120,9 +120,6 @@
     <ClInclude Include="skydomeShader.h">
       <Filter>Файлы заголовков\Shaders</Filter>
     </ClInclude>
-    <ClInclude Include="terrainCell.h">
-      <Filter>Файлы заголовков\Terrain</Filter>
-    </ClInclude>
     <ClInclude Include="averageLuminance.h">
       <Filter>Файлы заголовков\Shaders</Filter>
     </ClInclude>
@@ -164,6 +161,15 @@
     </ClInclude>
     <ClInclude Include="gpuprofiler.h">
       <Filter>Файлы заголовков\Other</Filter>
+    </ClInclude>
+    <ClInclude Include="CBScene.h">
+      <Filter>Файлы заголовков\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="D3DInclude.h">
+      <Filter>Файлы заголовков\Utility</Filter>
+    </ClInclude>
+    <ClInclude Include="defines.h">
+      <Filter>Файлы заголовков\Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -227,9 +233,6 @@
     <ClCompile Include="skydomeShader.cpp">
       <Filter>Исходные файлы\Shaders</Filter>
     </ClCompile>
-    <ClCompile Include="terrainCell.cpp">
-      <Filter>Исходные файлы\Terrain</Filter>
-    </ClCompile>
     <ClCompile Include="averageLuminance.cpp">
       <Filter>Исходные файлы\Shaders</Filter>
     </ClCompile>
@@ -271,6 +274,9 @@
     </ClCompile>
     <ClCompile Include="gpuprofiler.cpp">
       <Filter>Исходные файлы\Other</Filter>
+    </ClCompile>
+    <ClCompile Include="D3DInclude.cpp">
+      <Filter>Исходные файлы\Utility</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

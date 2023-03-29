@@ -9,6 +9,8 @@
 #include <directxmath.h>
 #include <fstream>
 #include "light.h"
+#include "D3DInclude.h"
+#include "defines.h"
 
 using namespace DirectX;
 using namespace std;
@@ -16,9 +18,11 @@ using namespace std;
 class TerrainShader {
   private:
     struct MatrixBufferType {
-        XMMATRIX world;
-        XMMATRIX view;
-        XMMATRIX projection;
+        XMMATRIX worldMatrix;
+    };
+
+    struct SceneProjectionBufferType {
+        XMMATRIX viewProjectionMatrix;
         XMFLOAT3 cameraPos;
     };
 
@@ -40,7 +44,6 @@ class TerrainShader {
     };
 
   public:
-
     // Function to initialize shader
     bool Initialize(ID3D11Device* device, HWND hwnd);
     // Function to realese shader
@@ -65,7 +68,8 @@ class TerrainShader {
     ID3D11HullShader* m_hullShader = nullptr;
     ID3D11DomainShader* m_domainShader = nullptr;
     ID3D11InputLayout* m_layout = nullptr;
-    ID3D11Buffer* m_matrixBuffer = nullptr;
+    ID3D11Buffer* m_worldMatrixBuffer = nullptr;
+    ID3D11Buffer* m_viewProjectionMatrixBuffer = nullptr;
     ID3D11SamplerState* m_samplerState = nullptr;
     ID3D11SamplerState* m_samplerStateNoMips = nullptr;
     ID3D11Buffer* m_lightBuffer = nullptr;

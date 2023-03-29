@@ -38,8 +38,11 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wcha
 #ifdef _DEBUG
     flags = D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
 #endif
+
+    D3DInclude includeObj;
+
     // Compile the vertex shader code.
-    HRESULT result = D3DCompileFromFile(vsFilename, NULL, NULL, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage);
+    HRESULT result = D3DCompileFromFile(vsFilename, NULL, &includeObj, "main", "vs_5_0", flags, 0, &vertexShaderBuffer, &errorMessage);
     if (FAILED(result)) {
         // If the shader failed to compile it should have writen something to the error message.
         if (errorMessage) {
@@ -53,7 +56,7 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wcha
     }
 
     // Compile the hull shader code.
-    result = D3DCompileFromFile(hsFilename, NULL, NULL, "main", "hs_5_0", flags, 0, &hullShaderBuffer, &errorMessage);
+    result = D3DCompileFromFile(hsFilename, NULL, &includeObj, "main", "hs_5_0", flags, 0, &hullShaderBuffer, &errorMessage);
     if (FAILED(result)) {
         // If the shader failed to compile it should have writen something to the error message.
         if (errorMessage) {
@@ -67,7 +70,7 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wcha
     }
 
     // Compile the domain shader code.
-    result = D3DCompileFromFile(dsFilename, NULL, NULL, "main", "ds_5_0", flags, 0, &domainShaderBuffer, &errorMessage);
+    result = D3DCompileFromFile(dsFilename, NULL, &includeObj, "main", "ds_5_0", flags, 0, &domainShaderBuffer, &errorMessage);
     if (FAILED(result)) {
         // If the shader failed to compile it should have writen something to the error message.
         if (errorMessage) {
@@ -81,7 +84,7 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wcha
     }
 
     // Compile the pixel shader code.
-    result = D3DCompileFromFile(psFilename, NULL, NULL, "main", "ps_5_0", flags, 0, &pixelShaderBuffer, &errorMessage);
+    result = D3DCompileFromFile(psFilename, NULL, &includeObj, "main", "ps_5_0", flags, 0, &pixelShaderBuffer, &errorMessage);
     if (FAILED(result)) {
         // If the shader failed to compile it should have writen something to the error message.
         if (errorMessage) {
@@ -119,7 +122,7 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wcha
     }
 
     // Create the vertex input layout description.
-    D3D11_INPUT_ELEMENT_DESC polygonLayout[5];
+    D3D11_INPUT_ELEMENT_DESC polygonLayout[1];
     polygonLayout[0].SemanticName = "POSITION";
     polygonLayout[0].SemanticIndex = 0;
     polygonLayout[0].Format = DXGI_FORMAT_R32G32B32_FLOAT;
@@ -127,38 +130,6 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wcha
     polygonLayout[0].AlignedByteOffset = 0;
     polygonLayout[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
     polygonLayout[0].InstanceDataStepRate = 0;
-
-    polygonLayout[1].SemanticName = "TEXCOORD";
-    polygonLayout[1].SemanticIndex = 0;
-    polygonLayout[1].Format = DXGI_FORMAT_R32G32_FLOAT;
-    polygonLayout[1].InputSlot = 0;
-    polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-    polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-    polygonLayout[1].InstanceDataStepRate = 0;
-
-    polygonLayout[2].SemanticName = "NORMAL";
-    polygonLayout[2].SemanticIndex = 0;
-    polygonLayout[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-    polygonLayout[2].InputSlot = 0;
-    polygonLayout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-    polygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-    polygonLayout[2].InstanceDataStepRate = 0;
-
-    polygonLayout[3].SemanticName = "TANGENT";
-    polygonLayout[3].SemanticIndex = 0;
-    polygonLayout[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-    polygonLayout[3].InputSlot = 0;
-    polygonLayout[3].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-    polygonLayout[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-    polygonLayout[3].InstanceDataStepRate = 0;
-
-    polygonLayout[4].SemanticName = "BINORMAL";
-    polygonLayout[4].SemanticIndex = 0;
-    polygonLayout[4].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-    polygonLayout[4].InputSlot = 0;
-    polygonLayout[4].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
-    polygonLayout[4].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-    polygonLayout[4].InstanceDataStepRate = 0;
 
     // Get a count of the elements in the layout.
     unsigned int numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);
@@ -185,15 +156,48 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wcha
     matrixBufferDesc.MiscFlags = 0;
     matrixBufferDesc.StructureByteStride = 0;
 
-    // Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
-    result = device->CreateBuffer(&matrixBufferDesc, NULL, &m_matrixBuffer);
-    if (FAILED(result)) {
-        return false;
+    // Set constant buffers
+    if (SUCCEEDED(result)) {
+        D3D11_BUFFER_DESC desc = {};
+        desc.ByteWidth = sizeof(MatrixBufferType) * TERRAIN_CHUNK_COUNT_WIDTH * TERRAIN_CHUNK_COUNT_HEIGHT;
+        desc.Usage = D3D11_USAGE_DEFAULT;
+        desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        desc.CPUAccessFlags = 0;
+        desc.MiscFlags = 0;
+        desc.StructureByteStride = 0;
+
+        int index = 0;
+        MatrixBufferType MatrixBufferInst[TERRAIN_CHUNK_COUNT_WIDTH * TERRAIN_CHUNK_COUNT_HEIGHT];
+        for (int j = 0; j < TERRAIN_CHUNK_COUNT_WIDTH; j++) {
+            for (int i = 0; i < TERRAIN_CHUNK_COUNT_HEIGHT; i++) {
+                MatrixBufferInst[index++].worldMatrix = XMMatrixTranspose(XMMatrixTranslation(i * (TERRAIN_CHUNK_WIDTH - 1), 0, j * (TERRAIN_CHUNK_HEIGHT - 1)));
+            }
+        }
+
+        D3D11_SUBRESOURCE_DATA data;
+        data.pSysMem = &MatrixBufferInst;
+        data.SysMemPitch = sizeof(MatrixBufferInst);
+        data.SysMemSlicePitch = 0;
+
+        result = device->CreateBuffer(&desc, &data, &m_worldMatrixBuffer);
+        assert(SUCCEEDED(result));
+    }
+    if (SUCCEEDED(result)) {
+        D3D11_BUFFER_DESC desc = {};
+        desc.ByteWidth = sizeof(SceneProjectionBufferType);
+        desc.Usage = D3D11_USAGE_DYNAMIC;
+        desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+        desc.MiscFlags = 0;
+        desc.StructureByteStride = 0;
+
+        result = device->CreateBuffer(&desc, nullptr, &m_viewProjectionMatrixBuffer);
+        assert(SUCCEEDED(result));
     }
 
     // Create a texture sampler state description.
     D3D11_SAMPLER_DESC samplerDesc;
-    samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+    samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
     samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
     samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
     samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
@@ -293,9 +297,14 @@ void TerrainShader::ShutdownShader() {
     }
 
     // Release the matrix constant buffer.
-    if (m_matrixBuffer) {
-        m_matrixBuffer->Release();
-        m_matrixBuffer = nullptr;
+    if (m_worldMatrixBuffer) {
+        m_worldMatrixBuffer->Release();
+        m_worldMatrixBuffer = nullptr;
+    }
+
+    if (m_viewProjectionMatrixBuffer) {
+        m_viewProjectionMatrixBuffer->Release();
+        m_viewProjectionMatrixBuffer = nullptr;
     }
 
     // Release the layout.
@@ -366,29 +375,34 @@ bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
 
     // Lock the constant buffer so it can be written to.
     D3D11_MAPPED_SUBRESOURCE mappedResource;
-    HRESULT result = deviceContext->Map(m_matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+    HRESULT result = deviceContext->Map(m_viewProjectionMatrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
     if (FAILED(result)) {
         return false;
     }
 
     // Get a pointer to the data in the constant buffer.
-    MatrixBufferType* dataPtr = (MatrixBufferType*)mappedResource.pData;
+    SceneProjectionBufferType* dataPtr = (SceneProjectionBufferType*)mappedResource.pData;
 
     // Copy the matrices into the constant buffer.
-    dataPtr->world = worldMatrix;
-    dataPtr->view = viewMatrix;
-    dataPtr->projection = projectionMatrix;
+    dataPtr->viewProjectionMatrix = XMMatrixMultiply(projectionMatrix, viewMatrix);
     dataPtr->cameraPos = cameraPos;
 
     // Unlock the constant buffer.
-    deviceContext->Unmap(m_matrixBuffer, 0);
-
-    // Set the position of the constant buffer in the vertex shader.
-    unsigned int bufferNumber = 0;
+    deviceContext->Unmap(m_viewProjectionMatrixBuffer, 0);
 
     // Finanly set the constant buffer in the vertex shader with the updated values.
-    deviceContext->DSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
-    deviceContext->HSSetConstantBuffers(bufferNumber, 1, &m_matrixBuffer);
+    deviceContext->DSSetConstantBuffers(0, 1, &m_worldMatrixBuffer);
+    deviceContext->DSSetConstantBuffers(1, 1, &m_viewProjectionMatrixBuffer);
+    deviceContext->HSSetConstantBuffers(0, 1, &m_worldMatrixBuffer);
+    deviceContext->HSSetConstantBuffers(1, 1, &m_viewProjectionMatrixBuffer);
+    deviceContext->VSSetConstantBuffers(0, 1, &m_worldMatrixBuffer);
+    deviceContext->VSSetConstantBuffers(1, 1, &m_viewProjectionMatrixBuffer);
+
+    deviceContext->VSSetShaderResources(0, 1, &roughMaps[5]);
+    deviceContext->VSSetSamplers(0, 1, &m_samplerStateNoMips);
+
+    deviceContext->DSSetShaderResources(0, 1, &roughMaps[5]);
+    deviceContext->DSSetSamplers(0, 1, &m_samplerStateNoMips);
 
     // Set shader texture resource in the pixel shader.
     deviceContext->PSSetShaderResources(0, 1, &textures[0]);
@@ -452,12 +466,9 @@ bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
     // Unlock the light constant buffer.
     deviceContext->Unmap(m_scaleBuffer, 0);
 
-    // Set the position of the light constant buffer in the pixel shader.
-    bufferNumber = 0;
-
     // Finally set the light constant buffer in the pixel shader with the updated values.
-    deviceContext->PSSetConstantBuffers(bufferNumber++, 1, &m_lightBuffer);
-    deviceContext->PSSetConstantBuffers(bufferNumber, 1, &m_scaleBuffer);
+    deviceContext->PSSetConstantBuffers(0, 1, &m_lightBuffer);
+    deviceContext->PSSetConstantBuffers(1, 1, &m_scaleBuffer);
 
     return true;
 }
@@ -482,5 +493,5 @@ void TerrainShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCo
     }
 
     // Render the triangle.
-    deviceContext->DrawIndexed(indexCount, 0, 0);
+    deviceContext->DrawIndexedInstanced(indexCount, TERRAIN_CHUNK_COUNT_WIDTH * TERRAIN_CHUNK_COUNT_HEIGHT, 0, 0, 0);
 }

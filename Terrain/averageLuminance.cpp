@@ -22,10 +22,7 @@ void AverageLuminance::Resize(ID3D11Device* device, int width, int height) {
         delete t;
     }
     m_renderTextures.clear();
-    if (m_luminanceTexture) {
-        m_luminanceTexture->Release();
-        m_luminanceTexture = nullptr;
-    }
+
     CreateTextures(device, width, height);
 }
 

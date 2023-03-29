@@ -34,7 +34,7 @@ class Zone {
     void GetRotation(float& x, float& y, float& z) { m_Position->GetRotation(x, y, z); };
     void SetPosition(float x, float y, float z) { m_Position->SetPosition(x, y, z); };
     void SetRotation(float x, float y, float z) { m_Position->SetRotation(x, y, z); };
-    void GetCulling(float& polygons, float& rendered, float& culled);
+    //void GetCulling(float& polygons, float& rendered, float& culled);
     XMFLOAT3 GetLighDirection(void) { return lightDir; };
     void ToggleWireFrame() { m_wireFrame = !m_wireFrame; };
     void ToggleDayNight() { m_dayNightCycle = !m_dayNightCycle; };

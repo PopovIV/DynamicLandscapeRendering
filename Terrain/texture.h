@@ -21,6 +21,7 @@ class Texture {
   public:
     enum TextureType {
         Targa,
+        R32,
         DDS,
         ANY,
     };
