@@ -173,11 +173,11 @@ float4 main(PS_INPUT input) : SV_TARGET
     if (input.pixelHeight < 200.0f) {
         baseColor = grassTexture;
     }
-    else if (input.pixelHeight >= 200.0f && input.pixelHeight < 300.0f) {
-        blendAmount = (300.0f - input.pixelHeight) / (300.0f - 200.0f);
+    else if (input.pixelHeight >= 200.0f && input.pixelHeight < 350.0f) {
+        blendAmount = (350.0f - input.pixelHeight) / (350.0f - 200.0f);
         baseColor = blend(snowTexture, 1 - blendAmount, grassTexture, blendAmount);
     }
-    else if (input.pixelHeight >= 300.0f) {
+    else if (input.pixelHeight >= 350.0f) {
         baseColor = snowTexture;
     }
 
@@ -187,11 +187,11 @@ float4 main(PS_INPUT input) : SV_TARGET
         blendAmount = slope / 0.6f;
         color = blend(baseColor, 1 - blendAmount, rockTexture, blendAmount);
     }
-    else if (slope >= 0.6 && slope < 0.8) {
-        blendAmount = (slope - 0.6f) * (1.0f / (0.8f - 0.6f));
+    else if (slope >= 0.6 && slope < 0.9) {
+        blendAmount = (slope - 0.6f) * (1.0f / (0.9f - 0.6f));
         color = blend(rockTexture, 1 - blendAmount, slopeTexture, blendAmount);
     }
-    else if (slope >= 0.8) {
+    else if (slope >= 0.9) {
         color = slopeTexture;
     }
 

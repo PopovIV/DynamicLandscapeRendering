@@ -330,7 +330,7 @@ bool Application::Frame() {
     static int grassScale = 40;
     static int rockScale = 32;
     static int slopeScale = 32;
-    static int snowScale = 15;
+    static int snowScale = 32;
     static int detailScale = 4;
     static int lightX = (int)m_Zone->GetLighDirection().x;
     static int lightY = (int)m_Zone->GetLighDirection().y;

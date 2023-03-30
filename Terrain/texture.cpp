@@ -48,13 +48,6 @@ bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
             return false;
         }
 
-        // Create the empty texture.
-        hResult = device->CreateTexture2D(&textureDesc, NULL, &m_texture);
-        if (FAILED(hResult)) {
-            delete[] data;
-            return false;
-        }
-
         // Set the row pitch of the r32 data.
         rowPitch = width * sizeof(float);
 
