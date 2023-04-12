@@ -171,7 +171,7 @@ bool AverageLuminance::CreateTextures(ID3D11Device* device, int width, int heigh
     {
         for (int i = 0; i <= numTextures; i++) {
             int texture_size = 1 << (numTextures - i);
-            m_renderTextures.emplace_back(new RenderTexture(device, texture_size, texture_size));
+            m_renderTextures.emplace_back(new RenderTexture(device, texture_size, texture_size, DXGI_FORMAT_R32G32B32A32_FLOAT));
         }
     }
     catch (...)

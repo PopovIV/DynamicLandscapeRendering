@@ -28,13 +28,8 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     m_Light->SetSpecularColor(1.0f, 1.0f, 1.0f, 1.0f);
     m_Light->SetSpecularPower(300.0f);
 
-    m_RenderTexture = new RenderTexture();
+    m_RenderTexture = new RenderTexture(Direct3D->GetDevice(), screenWidth, screenHeight, DXGI_FORMAT_R32G32B32A32_FLOAT);
     if (!m_RenderTexture) {
-        return false;
-    }
-
-    bool result = m_RenderTexture->Initialize(Direct3D->GetDevice(), screenWidth, screenHeight);
-    if (!result) {
         return false;
     }
 
@@ -64,7 +59,7 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     }
 
     // Initialize the sky dome object.
-    result = m_SkyDome->Initialize(Direct3D->GetDevice());
+    bool result = m_SkyDome->Initialize(Direct3D->GetDevice());
     if (!result) {
         MessageBox(hwnd, L"Could not initialize the sky dome object.", L"Error", MB_OK);
         return false;

@@ -7,13 +7,13 @@
   </ProjectOutputs>
   <ContentFiles>
     <ContentFile>
-      <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\ColorPixelShader.cso</FullPath>
-    </ContentFile>
-    <ContentFile>
-      <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\ColorVertexShader.cso</FullPath>
+      <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\ConvertPixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
       <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\CopyPixelShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
+      <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\HeightMapPixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
       <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\LightPixelShader.cso</FullPath>
@@ -43,16 +43,10 @@
       <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\TerrainVertexShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
-      <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\TextureVertexShader.cso</FullPath>
-    </ContentFile>
-    <ContentFile>
       <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\ToneMapPixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
       <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\ToneMapVertexShader.cso</FullPath>
-    </ContentFile>
-    <ContentFile>
-      <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\TexturePixelShader.cso</FullPath>
     </ContentFile>
   </ContentFiles>
   <SatelliteDlls />

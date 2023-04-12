@@ -1,10 +1,8 @@
 #include "rendertexture.h"
 
-RenderTexture::RenderTexture() {
-    m_renderTargetTexture = nullptr;
-    m_renderTargetView = nullptr;
-    m_shaderResourceView = nullptr;
-    ZeroMemory(&m_viewport, sizeof(D3D11_VIEWPORT));
+RenderTexture::RenderTexture(ID3D11Device* device, int textureWidth, int textureHeight, DXGI_FORMAT format) {
+    m_format = format;
+    Initialize(device, textureWidth, textureHeight);
 }
 
 // Function to initialize render texture class
@@ -18,7 +16,7 @@ bool RenderTexture::Initialize(ID3D11Device* device, int textureWidth, int textu
     textureDesc.Height = textureHeight;
     textureDesc.MipLevels = 1;
     textureDesc.ArraySize = 1;
-    textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
+    textureDesc.Format = m_format;
     textureDesc.SampleDesc.Count = 1;
     textureDesc.Usage = D3D11_USAGE_DEFAULT;
     textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
