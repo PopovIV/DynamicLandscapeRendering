@@ -4,7 +4,7 @@
 bool HeightMap::Initialize(ID3D11Device* device, HWND hwnd) {
     bool result;
     // Initialize the vertex and pixel shaders.
-    result = InitializeShader(device, hwnd, L"ToneMapVertexShader.hlsl", L"ConvertPixelShader.hlsl", L"HeighMapPixelShader.hlsl");
+    result = InitializeShader(device, hwnd, L"ToneMapVertexShader.hlsl", L"ConvertPixelShader.hlsl", L"HeightMapPixelShader.hlsl");
     if (!result) {
         return false;
     }
@@ -154,7 +154,7 @@ void HeightMap::CopyTexture(ID3D11DeviceContext* deviceContext, ID3D11ShaderReso
     deviceContext->PSSetShader(pixelShader, nullptr, 0);
     deviceContext->PSSetShaderResources(0, 1, &sourceTexture);
 
-    deviceContext->Draw(3, 0);
+    deviceContext->Draw(4, 0);
 
     ID3D11ShaderResourceView* nullsrv[] = { nullptr };
     deviceContext->PSSetShaderResources(0, 1, nullsrv);
@@ -180,17 +180,12 @@ bool HeightMap::Process(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 
     int minSize = (min(width, height));
     int minTerrainSize = min(TERRAIN_CHUNK_COUNT_HEIGHT, TERRAIN_CHUNK_COUNT_WIDTH);
-    int numTextures = 0;
-    while (minSize != minTerrainSize) {
-        numTextures++;
-        minSize /= 2;
-    }
 
     try
     {
-        for (int i = 0; i <= numTextures; i++) {
-            int texture_size = 1 << (numTextures - i);
-            renderTextures.emplace_back(new RenderTexture(device, texture_size, texture_size, DXGI_FORMAT_R32G32_FLOAT));
+        while (minSize >= minTerrainSize) {
+            renderTextures.emplace_back(new RenderTexture(device, minSize, minSize, DXGI_FORMAT_R32G32_FLOAT));
+            minSize /= 2;
         }
     }
     catch (...)
@@ -200,7 +195,7 @@ bool HeightMap::Process(ID3D11Device* device, ID3D11DeviceContext* deviceContext
 
     // First thing to do is convert our height map from R32 to R32G32
     deviceContext->IASetInputLayout(nullptr);
-    deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
     deviceContext->VSSetShader(m_vertexShader, nullptr, 0);
     deviceContext->HSSetShader(nullptr, nullptr, 0);
@@ -213,7 +208,7 @@ bool HeightMap::Process(ID3D11Device* device, ID3D11DeviceContext* deviceContext
     deviceContext->PSSetSamplers(0, 1, &m_samplerMinState);
     deviceContext->PSSetSamplers(1, 1, &m_samplerMaxState);
     // Now get AABB's height from that texture
-    for (int i = 2; i < renderTextures.size(); i++) {
+    for (int i = 1; i < renderTextures.size(); i++) {
         CopyTexture(deviceContext, renderTextures[i - 1]->GetShaderResourceView(), *renderTextures[i], m_pixelShader);
     }
 

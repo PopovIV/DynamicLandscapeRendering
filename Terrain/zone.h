@@ -18,12 +18,13 @@
 #include "terrain.h"
 #include "renderTexture.h"
 #include "toneMap.h"
+#include "heightMap.h"
 #include "gpuprofiler.h"
 
 class Zone {
   public:
     // Function to initialize user interface, camera, position and grid
-    bool Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screenHeight, float screenDepth);
+    bool Initialize(D3DClass* Direct3D, HWND hwnd, TextureManager* TextureManager, int screenWidth, int screenHeight, float screenDepth);
     // Function to clear all stuff that was created in initialize function
     void Shutdown();
     // Function to update frame each second
@@ -67,6 +68,7 @@ class Zone {
     ToneMap* m_ToneMap = nullptr;
     Frustum* m_Frustum = nullptr;
     CGpuProfiler* m_Profiler = nullptr;
+    HeightMap* m_HeightMap = nullptr;
     XMFLOAT3 lightDir = XMFLOAT3(0.0f, 0.0f, 0.0f);
     XMFLOAT4 scales = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     float detailScale;

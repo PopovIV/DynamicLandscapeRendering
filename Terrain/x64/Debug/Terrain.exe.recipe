@@ -13,6 +13,9 @@
       <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\CopyPixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>
+      <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\CullShader.cso</FullPath>
+    </ContentFile>
+    <ContentFile>
       <FullPath>A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\HeightMapPixelShader.cso</FullPath>
     </ContentFile>
     <ContentFile>

@@ -17,7 +17,6 @@ bool ToneMap::Initialize(ID3D11Device* device, HWND hwnd, int textureWidth, int 
     return true;
 }
 
-
 void ToneMap::Resize(ID3D11Device* device, int width, int height) {
     m_averageLuminance->Resize(device, width, height);
 }

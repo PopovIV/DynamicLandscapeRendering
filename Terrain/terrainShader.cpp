@@ -3,7 +3,7 @@
 // Function to initialize shader
 bool TerrainShader::Initialize(ID3D11Device* device, HWND hwnd) {
     // Initialize the vertex and pixel shaders.
-    bool result = InitializeShader(device, hwnd, L"TerrainVertexShader.hlsl", L"TerrainPixelShader.hlsl", L"TerrainHullShader.hlsl", L"TerrainDomainShader.hlsl");
+    bool result = InitializeShader(device, hwnd, L"TerrainVertexShader.hlsl", L"TerrainPixelShader.hlsl", L"TerrainHullShader.hlsl", L"TerrainDomainShader.hlsl", L"CullShader.hlsl");
     if (!result) {
         return false;
     }
@@ -12,9 +12,9 @@ bool TerrainShader::Initialize(ID3D11Device* device, HWND hwnd) {
 }
 
 // Render function
-bool TerrainShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], ID3D11ShaderResourceView* roughMaps[], ID3D11ShaderResourceView* aoMaps[], Light* light, XMFLOAT4 scales, float detailScale, bool normalPass) {
+bool TerrainShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMFLOAT4* frustumPlanes, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], ID3D11ShaderResourceView* roughMaps[], ID3D11ShaderResourceView* aoMaps[], Light* light, XMFLOAT4 scales, float detailScale, bool normalPass) {
     // Set the shader parameters that it will use for rendering.
-    bool result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix, cameraPos, textures, normalMaps, roughMaps, aoMaps, light, scales, detailScale);
+    bool result = SetShaderParameters(deviceContext, frustumPlanes, worldMatrix, viewMatrix, projectionMatrix, cameraPos, textures, normalMaps, roughMaps, aoMaps, light, scales, detailScale);
     if (!result) {
         return false;
     }
@@ -26,13 +26,14 @@ bool TerrainShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, X
 }
 
 // Function to initialize shader
-bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wchar_t* vsFilename, const wchar_t* psFilename, const wchar_t* hsFilename, const wchar_t* dsFilename) {
+bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wchar_t* vsFilename, const wchar_t* psFilename, const wchar_t* hsFilename, const wchar_t* dsFilename, const wchar_t* csFilename) {
     // Initialize the pointers this function will use to null.
     ID3D10Blob* errorMessage = nullptr;
     ID3D10Blob* vertexShaderBuffer = nullptr;
     ID3D10Blob* hullShaderBuffer = nullptr;
     ID3D10Blob* domainShaderBuffer = nullptr;
     ID3D10Blob* pixelShaderBuffer = nullptr;
+    ID3D10Blob* computeShaderBuffer = nullptr;
 
     int flags = 0;
 #ifdef _DEBUG
@@ -97,6 +98,20 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wcha
         return false;
     }
 
+    // Compile the compute shader code.
+    result = D3DCompileFromFile(csFilename, NULL, &includeObj, "main", "cs_5_0", flags, 0, &computeShaderBuffer, &errorMessage);
+    if (FAILED(result)) {
+        // If the shader failed to compile it should have writen something to the error message.
+        if (errorMessage) {
+            OutputShaderErrorMessage(errorMessage, hwnd, csFilename);
+        }
+        // If there was nothing in the error message then it simply could not find the file itself.
+        else {
+            MessageBox(hwnd, csFilename, L"Missing Shader File", MB_OK);
+        }
+        return false;
+    }
+
     // Create the vertex shader from the buffer.
     result = device->CreateVertexShader(vertexShaderBuffer->GetBufferPointer(), vertexShaderBuffer->GetBufferSize(), NULL, &m_vertexShader);
     if (FAILED(result)) {
@@ -117,6 +132,11 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wcha
 
     // Create the pixel shader from the buffer.
     result = device->CreatePixelShader(pixelShaderBuffer->GetBufferPointer(), pixelShaderBuffer->GetBufferSize(), NULL, &m_pixelShader);
+    if (FAILED(result)) {
+        return false;
+    }
+
+    result = device->CreateComputeShader(computeShaderBuffer->GetBufferPointer(), computeShaderBuffer->GetBufferSize(), NULL, &m_pCullShader);
     if (FAILED(result)) {
         return false;
     }
@@ -142,10 +162,19 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wcha
 
     // Release the vertex shader buffer and pixel shader buffer since they are no longer needed.
     vertexShaderBuffer->Release();
-    vertexShaderBuffer = 0;
+    vertexShaderBuffer = nullptr;
 
     pixelShaderBuffer->Release();
-    pixelShaderBuffer = 0;
+    pixelShaderBuffer = nullptr;
+
+    hullShaderBuffer->Release();
+    hullShaderBuffer = nullptr;
+
+    domainShaderBuffer->Release();
+    domainShaderBuffer = nullptr;
+
+    computeShaderBuffer->Release();
+    computeShaderBuffer = nullptr;
 
     // Setup the description of the dynamic matrix constant buffer that is in the vertex shader.
     D3D11_BUFFER_DESC matrixBufferDesc;
@@ -194,13 +223,69 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wcha
         result = device->CreateBuffer(&desc, nullptr, &m_viewProjectionMatrixBuffer);
         assert(SUCCEEDED(result));
     }
+    if (SUCCEEDED(result)) {
+        D3D11_BUFFER_DESC desc = {};
+        desc.ByteWidth = sizeof(D3D11_DRAW_INDEXED_INSTANCED_INDIRECT_ARGS);
+        desc.Usage = D3D11_USAGE_DEFAULT;
+        desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
+        desc.CPUAccessFlags = 0;
+        desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+        desc.StructureByteStride = sizeof(UINT);
+
+        result = device->CreateBuffer(&desc, nullptr, &m_pInderectArgsSrc);
+        if (SUCCEEDED(result)) {
+            result = device->CreateUnorderedAccessView(m_pInderectArgsSrc, nullptr, &m_pInderectArgsUAV);
+        }
+        assert(SUCCEEDED(result));
+    }
+    if (SUCCEEDED(result)) {
+        D3D11_BUFFER_DESC desc = {};
+        desc.ByteWidth = sizeof(D3D11_DRAW_INDEXED_INSTANCED_INDIRECT_ARGS);
+        desc.Usage = D3D11_USAGE_DEFAULT;
+        desc.BindFlags = 0;
+        desc.CPUAccessFlags = 0;
+        desc.MiscFlags = D3D11_RESOURCE_MISC_DRAWINDIRECT_ARGS;
+        desc.StructureByteStride = 0;
+
+        result = device->CreateBuffer(&desc, nullptr, &m_pInderectArgs);
+        assert(SUCCEEDED(result));
+    }
+
+    if (SUCCEEDED(result)) {
+        D3D11_BUFFER_DESC desc = {};
+        desc.ByteWidth = sizeof(XMINT4) * TERRAIN_CHUNK_COUNT_HEIGHT * TERRAIN_CHUNK_COUNT_WIDTH;
+        desc.Usage = D3D11_USAGE_DEFAULT;
+        desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS;
+        desc.CPUAccessFlags = 0;
+        desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
+        desc.StructureByteStride = sizeof(XMINT4);
+
+        result = device->CreateBuffer(&desc, nullptr, &m_pGeomBufferInstVisGpu);
+        if (SUCCEEDED(result)) {
+            result = device->CreateUnorderedAccessView(m_pGeomBufferInstVisGpu, nullptr, &m_pGeomBufferInstVisGpu_UAV);
+        }
+        assert(SUCCEEDED(result));
+    }
+
+    if (SUCCEEDED(result)) {
+        D3D11_BUFFER_DESC desc = {};
+        desc.ByteWidth = sizeof(XMINT4) * TERRAIN_CHUNK_COUNT_HEIGHT * TERRAIN_CHUNK_COUNT_WIDTH;
+        desc.Usage = D3D11_USAGE_DEFAULT;
+        desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        desc.CPUAccessFlags = 0;
+        desc.MiscFlags = 0;
+        desc.StructureByteStride = 0;
+
+        result = device->CreateBuffer(&desc, nullptr, &m_pGeomBufferInstVis);
+        assert(SUCCEEDED(result));
+    }
 
     // Create a texture sampler state description.
     D3D11_SAMPLER_DESC samplerDesc;
     samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+    samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+    samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+    samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
     samplerDesc.MipLODBias = 0.0f;
     samplerDesc.MaxAnisotropy = 1;
     samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
@@ -336,6 +421,46 @@ void TerrainShader::ShutdownShader() {
         m_vertexShader->Release();
         m_vertexShader = nullptr;
     }
+
+    if (m_pCullParams) {
+        m_pCullParams->Release();
+        m_pCullParams = nullptr;
+    }
+
+    if (m_pCullShader) {
+        m_pCullShader->Release();
+        m_pCullShader = nullptr;
+    }
+
+    if (m_pInderectArgsSrc) {
+        m_pInderectArgsSrc->Release();
+        m_pInderectArgsSrc = nullptr;
+    }
+
+    if (m_pInderectArgs) {
+        m_pInderectArgs->Release();
+        m_pInderectArgs = nullptr;
+    }
+
+    if (m_pGeomBufferInstVisGpu) {
+        m_pGeomBufferInstVisGpu->Release();
+        m_pGeomBufferInstVisGpu = nullptr;
+    }
+
+    if (m_pGeomBufferInstVisGpu_UAV) {
+        m_pGeomBufferInstVisGpu_UAV->Release();
+        m_pGeomBufferInstVisGpu_UAV = nullptr;
+    }
+
+    if (m_pGeomBufferInstVis) {
+        m_pGeomBufferInstVis->Release();
+        m_pGeomBufferInstVis = nullptr;
+    }
+
+    if (m_pInderectArgsUAV) {
+        m_pInderectArgsUAV->Release();
+        m_pInderectArgsUAV = nullptr;
+    }
 }
 
 // Function to print errors to file
@@ -367,7 +492,7 @@ void TerrainShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd
 }
 
 // Function to fill shader buffers and params
-bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], ID3D11ShaderResourceView* roughMaps[], ID3D11ShaderResourceView* aoMaps[], Light* light, XMFLOAT4 scales, float detailScale) {
+bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMFLOAT4* frustumPlanes, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], ID3D11ShaderResourceView* roughMaps[], ID3D11ShaderResourceView* aoMaps[], Light* light, XMFLOAT4 scales, float detailScale) {
     // Transpose the matrices to prepare them for the shader.
     worldMatrix = XMMatrixTranspose(worldMatrix);
     viewMatrix = XMMatrixTranspose(viewMatrix);
@@ -385,6 +510,9 @@ bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
 
     // Copy the matrices into the constant buffer.
     dataPtr->viewProjectionMatrix = XMMatrixMultiply(projectionMatrix, viewMatrix);
+    for (int i = 0; i < 6; i++) {
+        dataPtr->planes[i] = frustumPlanes[i];
+    }
     dataPtr->cameraPos = cameraPos;
 
     // Unlock the constant buffer.
@@ -397,6 +525,7 @@ bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
     deviceContext->HSSetConstantBuffers(1, 1, &m_viewProjectionMatrixBuffer);
     deviceContext->VSSetConstantBuffers(0, 1, &m_worldMatrixBuffer);
     deviceContext->VSSetConstantBuffers(1, 1, &m_viewProjectionMatrixBuffer);
+    deviceContext->VSSetConstantBuffers(2, 1, &m_pGeomBufferInstVis);
 
     deviceContext->VSSetShaderResources(0, 1, &roughMaps[5]);
     deviceContext->VSSetSamplers(0, 1, &m_samplerStateNoMips);
@@ -427,6 +556,27 @@ bool TerrainShader::SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMA
     deviceContext->PSSetShaderResources(19, 1, &aoMaps[4]);
     deviceContext->PSSetShaderResources(20, 1, &textures[5]);
     deviceContext->PSSetShaderResources(21, 1, &normalMaps[5]);
+
+    // GPU CULLING
+    D3D11_DRAW_INDEXED_INSTANCED_INDIRECT_ARGS args;
+    args.IndexCountPerInstance = (TERRAIN_CHUNK_WIDTH - 1) * (TERRAIN_CHUNK_HEIGHT - 1) * 6;;
+    args.InstanceCount = 0;
+    args.StartInstanceLocation = 0;
+    args.BaseVertexLocation = 0;
+    args.StartIndexLocation = 0;
+    deviceContext->UpdateSubresource(m_pInderectArgsSrc, 0, nullptr, &args, 0, 0);
+    UINT groupNumber = TERRAIN_CHUNK_COUNT_WIDTH * TERRAIN_CHUNK_COUNT_HEIGHT / 64u + !!(TERRAIN_CHUNK_COUNT_WIDTH * TERRAIN_CHUNK_COUNT_HEIGHT % 64u);
+    deviceContext->CSSetConstantBuffers(0, 1, &m_worldMatrixBuffer);
+    deviceContext->CSSetConstantBuffers(1, 1, &m_viewProjectionMatrixBuffer);
+    deviceContext->CSSetUnorderedAccessViews(0, 1, &m_pInderectArgsUAV, nullptr);
+    deviceContext->CSSetUnorderedAccessViews(1, 1, &m_pGeomBufferInstVisGpu_UAV, nullptr);
+    deviceContext->CSSetShader(m_pCullShader, nullptr, 0);
+    deviceContext->Dispatch(groupNumber, 1, 1);
+
+    deviceContext->CopyResource(m_pGeomBufferInstVis, m_pGeomBufferInstVisGpu);
+    deviceContext->CopyResource(m_pInderectArgs, m_pInderectArgsSrc);
+    deviceContext->CSSetShaderResources(0, 1, &roughMaps[5]);
+    deviceContext->CSSetSamplers(0, 1, &m_samplerStateNoMips);
 
     // Lock the light constant buffer so it can be written to.
     result = deviceContext->Map(m_lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -493,5 +643,6 @@ void TerrainShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCo
     }
 
     // Render the triangle.
-    deviceContext->DrawIndexedInstanced(indexCount, TERRAIN_CHUNK_COUNT_WIDTH * TERRAIN_CHUNK_COUNT_HEIGHT, 0, 0, 0);
+    deviceContext->DrawIndexedInstancedIndirect(m_pInderectArgs, 0);
+    //deviceContext->DrawIndexedInstanced(indexCount, TERRAIN_CHUNK_COUNT_WIDTH * TERRAIN_CHUNK_COUNT_HEIGHT, 0, 0, 0);
 }

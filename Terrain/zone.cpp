@@ -3,7 +3,7 @@
 #include "imgui_impl_dx11.h"
 
 // Function to initialize user interface, camera, position and grid
-bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screenHeight, float screenDepth) {
+bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, TextureManager* TextureManager, int screenWidth, int screenHeight, float screenDepth) {
     // Create the camera object.
     m_Camera = new Camera;
     if (!m_Camera) {
@@ -40,7 +40,7 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
     }
 
     // Set the initial position and rotation.
-    m_Position->SetPosition(641.51f, 180.17f, 871.842f);
+    m_Position->SetPosition(600.51f, 432.17f, 600.842f);
     m_Position->SetRotation(0.58f, 0.344f, 0.0f);
 
     // Create the frustum object.
@@ -104,6 +104,18 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screen
 
     lightDir = m_Light->GetDirection();
     
+
+    m_HeightMap = new HeightMap();
+    if (!m_HeightMap) {
+        return false;
+    }
+    result = m_HeightMap->Initialize(Direct3D->GetDevice(), hwnd);
+    if (!result) {
+        MessageBox(hwnd, L"Could not initialize the height map object.", L"Error", MB_OK);
+        return false;
+    }
+
+    m_HeightMap->Process(Direct3D->GetDevice(), Direct3D->GetDeviceContext(), TextureManager->GetTexture(22));
     // Set the UI to display by default.
     m_displayUI = false;
     m_wireFrame = false;
@@ -171,6 +183,12 @@ void Zone::Shutdown() {
         m_Profiler->Shutdown();
         delete m_Profiler;
         m_Profiler = nullptr;
+    }
+
+    if (m_HeightMap) {
+        m_HeightMap->Shutdown();
+        delete m_HeightMap;
+        m_HeightMap = nullptr;
     }
 }
 
@@ -290,7 +308,7 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
     XMFLOAT3 cameraPosition = m_Camera->GetPosition();
 
     // Construct the frustum.
-    m_Frustum->ConstructFrustum(projectionMatrix, viewMatrix);
+    m_Frustum->ConstructFrustum(viewMatrix, projectionMatrix);
 
     // SKYDOME
     // Turn off back face culling and turn off the Z buffer.
@@ -326,7 +344,7 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
     ID3D11ShaderResourceView* textures[] = { TextureManager->GetTexture(0), TextureManager->GetTexture(4), TextureManager->GetTexture(8), TextureManager->GetTexture(12), TextureManager->GetTexture(16), TextureManager->GetTexture(20) };
     ID3D11ShaderResourceView* normalMaps[] = { TextureManager->GetTexture(1), TextureManager->GetTexture(5), TextureManager->GetTexture(9), TextureManager->GetTexture(13), TextureManager->GetTexture(17), TextureManager->GetTexture(21) };
     ID3D11ShaderResourceView* roughMaps[] = { TextureManager->GetTexture(2), TextureManager->GetTexture(6), TextureManager->GetTexture(10), TextureManager->GetTexture(14), TextureManager->GetTexture(18), TextureManager->GetTexture(22) };
-    ID3D11ShaderResourceView* aoMaps[] = { TextureManager->GetTexture(3), TextureManager->GetTexture(7), TextureManager->GetTexture(11), TextureManager->GetTexture(15), TextureManager->GetTexture(19) };
+    ID3D11ShaderResourceView* aoMaps[] = { TextureManager->GetTexture(3), TextureManager->GetTexture(7), TextureManager->GetTexture(11), TextureManager->GetTexture(15), TextureManager->GetTexture(19), m_HeightMap->GetHeightMapTexture() };
 
     // Update our time
     static float t = 0.0f;
@@ -359,7 +377,7 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
     //    return false;
     //}
     //Direct3D->TurnDepthPrePass();
-    result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, viewMatrix,
+    result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetIndexCount(), m_Frustum->GetPlanes(), worldMatrix, viewMatrix,
         projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps, roughMaps, aoMaps, m_Light, scales, detailScale, true);
     //Direct3D->TurnZBufferOn();
 

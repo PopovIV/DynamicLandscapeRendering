@@ -23,6 +23,7 @@ class TerrainShader {
 
     struct SceneProjectionBufferType {
         XMMATRIX viewProjectionMatrix;
+        XMFLOAT4 planes[6];
         XMFLOAT3 cameraPos;
     };
 
@@ -49,17 +50,17 @@ class TerrainShader {
     // Function to realese shader
     void Shutdown() { ShutdownShader(); }
     // Render function
-    bool Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], ID3D11ShaderResourceView* roughMaps[], ID3D11ShaderResourceView* aoMaps[], Light* light, XMFLOAT4 scales, float detailScale, bool normalPass);
+    bool Render(ID3D11DeviceContext* deviceContext, int indexCount, XMFLOAT4* frustumPlanes, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], ID3D11ShaderResourceView* roughMaps[], ID3D11ShaderResourceView* aoMaps[], Light* light, XMFLOAT4 scales, float detailScale, bool normalPass);
 
   private:
     // Function to initialize shader
-    bool InitializeShader(ID3D11Device* device, HWND hwnd, const wchar_t* vsFilename, const wchar_t* psFilename, const wchar_t* hsFilename, const wchar_t* dsFilename);
+    bool InitializeShader(ID3D11Device* device, HWND hwnd, const wchar_t* vsFilename, const wchar_t* psFilename, const wchar_t* hsFilename, const wchar_t* dsFilename, const wchar_t* csFilename);
     // Function to release shader
     void ShutdownShader();
     // Function to print errors to file
     void OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, const wchar_t* shaderFilename);
     // Function to fill shader buffers and params
-    bool SetShaderParameters(ID3D11DeviceContext* deviceContext, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], ID3D11ShaderResourceView* roughMaps[], ID3D11ShaderResourceView* aoMaps[], Light* light, XMFLOAT4 scales, float detailScale);
+    bool SetShaderParameters(ID3D11DeviceContext* deviceContext, XMFLOAT4* frustumPlanes, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], ID3D11ShaderResourceView* roughMaps[], ID3D11ShaderResourceView* aoMaps[], Light* light, XMFLOAT4 scales, float detailScale);
     // Render function
     void RenderShader(ID3D11DeviceContext* deviceContext, int indexCount, bool normalPass);
 
@@ -67,13 +68,22 @@ class TerrainShader {
     ID3D11PixelShader* m_pixelShader = nullptr;
     ID3D11HullShader* m_hullShader = nullptr;
     ID3D11DomainShader* m_domainShader = nullptr;
+    ID3D11ComputeShader* m_pCullShader = nullptr;
     ID3D11InputLayout* m_layout = nullptr;
     ID3D11Buffer* m_worldMatrixBuffer = nullptr;
+    ID3D11Buffer* m_pCullParams = nullptr;
     ID3D11Buffer* m_viewProjectionMatrixBuffer = nullptr;
     ID3D11SamplerState* m_samplerState = nullptr;
     ID3D11SamplerState* m_samplerStateNoMips = nullptr;
     ID3D11Buffer* m_lightBuffer = nullptr;
     ID3D11Buffer* m_scaleBuffer = nullptr;
+
+    ID3D11Buffer* m_pInderectArgsSrc = nullptr;
+    ID3D11Buffer* m_pInderectArgs = nullptr;
+    ID3D11UnorderedAccessView* m_pInderectArgsUAV = nullptr;
+    ID3D11Buffer* m_pGeomBufferInstVis = nullptr;
+    ID3D11Buffer* m_pGeomBufferInstVisGpu = nullptr;
+    ID3D11UnorderedAccessView* m_pGeomBufferInstVisGpu_UAV = nullptr;
 };
 
 #endif

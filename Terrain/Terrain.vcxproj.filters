@@ -294,5 +294,6 @@
     <FxCompile Include="LuminancePixelShader.hlsl" />
     <FxCompile Include="ConvertPixelShader.hlsl" />
     <FxCompile Include="HeightMapPixelShader.hlsl" />
+    <FxCompile Include="CullShader.hlsl" />
   </ItemGroup>
 </Project>

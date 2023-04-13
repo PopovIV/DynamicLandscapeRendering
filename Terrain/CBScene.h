@@ -12,5 +12,11 @@ cbuffer GeomBufferInst : register (b0)
 cbuffer SceneMatrixBuffer : register (b1)
 {
     matrix viewProjectionMatrix;
+    float4 planes[6];
     float3 cameraPos;
 };
+
+cbuffer IndexBuffer : register(b2)
+{
+    uint4 objectIDs[TERRAIN_CHUNK_COUNT_WIDTH * TERRAIN_CHUNK_COUNT_HEIGHT];
+}

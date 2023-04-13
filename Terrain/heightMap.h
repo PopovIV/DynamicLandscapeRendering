@@ -23,6 +23,8 @@ public:
     void Shutdown();
     // Render function
     bool Process(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* sourceTexture);
+    // Return texture for culling height map
+    ID3D11ShaderResourceView* GetHeightMapTexture() { return m_resTextureView; };
 private:
     void CopyTexture(ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* sourceTexture, RenderTexture& dst, ID3D11PixelShader* pixelShader);
 
