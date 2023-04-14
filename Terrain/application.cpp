@@ -437,15 +437,11 @@ bool Application::Frame() {
         str += std::to_string(z);
         ImGui::Text(str.c_str());
 
-        //m_Zone->GetCulling(x, y, z);
-        str = "\nPolygons: ";
-        str += std::to_string((int)x);
-        ImGui::Text(str.c_str());
         str = "\nRendered: ";
-        str += std::to_string((int)y);
+        str += std::to_string((int)m_Zone->GetNumRendered());
         ImGui::Text(str.c_str());
         str = "\nCulled: ";
-        str += std::to_string((int)z);
+        str += std::to_string((int)m_Zone->GetNumCulled());
         ImGui::Text(str.c_str());
 
         str = "\nDraw To Texture Time: ";

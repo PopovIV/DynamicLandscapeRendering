@@ -21,6 +21,8 @@
 #include "heightMap.h"
 #include "gpuprofiler.h"
 
+#define MAX_QUERY 20
+
 class Zone {
   public:
     // Function to initialize user interface, camera, position and grid
@@ -47,6 +49,9 @@ class Zone {
     bool GetHeightLocked() { return m_heightLocked; };
     bool GetLockView() { return m_lockView; };
 
+    unsigned int GetNumCulled() { return (TERRAIN_CHUNK_COUNT_WIDTH * TERRAIN_CHUNK_COUNT_HEIGHT) - m_chunksRendered; };
+    unsigned int GetNumRendered() { return m_chunksRendered; };
+
     float GetDrawTime() { return m_drawTime; };
     float GetDrawToTextureTime() { return m_drawToTextureTime; };
     float GetToneMappingTime() { return m_toneMappingTime; };
@@ -58,6 +63,14 @@ class Zone {
     void HandleMovementInput(Input* Input, float frameTime);
     // Render function
     bool Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManager* TextureManager);
+
+    // Function to get info from Queries
+    void ReadQueries(ID3D11DeviceContext* context);
+
+    ID3D11Query* m_queries[MAX_QUERY];
+    unsigned int m_curFrame = 0;
+    unsigned int m_lastCompletedFrame = 0;
+    unsigned int m_chunksRendered = 0;
 
     RenderTexture* m_RenderTexture = nullptr;
     Camera* m_Camera = nullptr;

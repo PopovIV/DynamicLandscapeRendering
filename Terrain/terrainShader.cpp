@@ -642,7 +642,7 @@ void TerrainShader::RenderShader(ID3D11DeviceContext* deviceContext, int indexCo
         deviceContext->PSSetShader(NULL, NULL, 0);
     }
 
-    // Render the triangle.
+    // Render the triangle
     deviceContext->DrawIndexedInstancedIndirect(m_pInderectArgs, 0);
     //deviceContext->DrawIndexedInstanced(indexCount, TERRAIN_CHUNK_COUNT_WIDTH * TERRAIN_CHUNK_COUNT_HEIGHT, 0, 0, 0);
 }

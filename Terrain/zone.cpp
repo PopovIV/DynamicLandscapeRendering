@@ -10,6 +10,15 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, TextureManager* TextureMana
         return false;
     }
 
+    HRESULT hr = S_OK;
+
+    D3D11_QUERY_DESC desc;
+    desc.Query = D3D11_QUERY_PIPELINE_STATISTICS;
+    desc.MiscFlags = 0;
+    for (int i = 0; i < MAX_QUERY && SUCCEEDED(hr); i++) {
+        HRESULT hr = Direct3D->GetDevice()->CreateQuery(&desc, &m_queries[i]);
+    }
+
     // Set the initial position of the camera and build the matrices needed for rendering.
     m_Camera->SetPosition(0.0f, 0.0f, -10.0f);
     m_Camera->Render();
@@ -189,6 +198,10 @@ void Zone::Shutdown() {
         m_HeightMap->Shutdown();
         delete m_HeightMap;
         m_HeightMap = nullptr;
+    }
+
+    for (auto& q : m_queries) {
+        q->Release();
     }
 }
 
@@ -370,16 +383,16 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
 
 
     m_Terrain->Render(Direct3D->GetDeviceContext());
-    //result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetIndexCount(), worldMatrix, viewMatrix,
-    //                projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps, roughMaps, aoMaps, m_Light, scales, detailScale, false);
+    result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetIndexCount(), m_Frustum->GetPlanes(), worldMatrix, viewMatrix,
+                    projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps, roughMaps, aoMaps, m_Light, scales, detailScale, false);
 
-    //if (!result) {
-    //    return false;
-    //}
-    //Direct3D->TurnDepthPrePass();
+    if (!result) {
+        return false;
+    }
+    Direct3D->TurnDepthPrePass();
     result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetIndexCount(), m_Frustum->GetPlanes(), worldMatrix, viewMatrix,
         projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps, roughMaps, aoMaps, m_Light, scales, detailScale, true);
-    //Direct3D->TurnZBufferOn();
+    Direct3D->TurnZBufferOn();
 
     // Determine if the terrain should be rendered in wireframe or not.
     if (m_wireFrame) {
@@ -403,10 +416,13 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
     LARGE_INTEGER fr, t1, t2;
     QueryPerformanceCounter(&t1);
 
+    Direct3D->GetDeviceContext()->Begin(m_queries[m_curFrame % MAX_QUERY]);
     bool result = RenderToTexture(Direct3D, ShaderManager, TextureManager);
     if (!result) {
         return false;
     }
+    Direct3D->GetDeviceContext()->End(m_queries[m_curFrame % MAX_QUERY]);
+    m_curFrame++;
     m_Profiler->Timestamp(Direct3D->GetDeviceContext(), GTS_DrawToTexture);
 
     Direct3D->BeginScene(0.30f, 0.59f, 0.71f, 1.0f);
@@ -435,6 +451,22 @@ bool Zone::Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManag
     Direct3D->EndScene();
 
     m_Profiler->EndFrame(Direct3D->GetDeviceContext());
+    ReadQueries(Direct3D->GetDeviceContext());
 
     return true;
+}
+
+// Function to get info from Queries
+void Zone::ReadQueries(ID3D11DeviceContext* context) {
+    D3D11_QUERY_DATA_PIPELINE_STATISTICS stats;
+    while (m_lastCompletedFrame < m_curFrame) {
+        HRESULT hr = context->GetData(m_queries[m_lastCompletedFrame % MAX_QUERY], &stats, sizeof(D3D11_QUERY_DATA_PIPELINE_STATISTICS), 0);
+        if (hr == S_OK) {
+            m_chunksRendered = int(stats.IAPrimitives / ((TERRAIN_CHUNK_WIDTH - 1) * (TERRAIN_CHUNK_HEIGHT - 1) * 6));
+            m_lastCompletedFrame++;
+        }
+        else {
+            break;
+        }
+    }
 }
