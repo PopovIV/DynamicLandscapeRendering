@@ -136,12 +136,12 @@ float4 CalculateColor(Texture2D diffuseTexture, Texture2D normalTexture, Texture
     float3 pos, float3 normal, float3 tangent, float3 binormal, float3 L, float3 V, float scale) {
     float4 albedo = SampleTriplanar(diffuseTexture, pos, normal, scale, SampleType);
     float4 bumpMap = SampleTriplanar(normalTexture, pos, normal, scale, SampleType) * 2.0f - 1.0f;
-    float4 detailBumpMap = SampleTriplanar(detailNormalMap, pos, normal, 1 / detailScale, SampleType) * 2.0f - 1.0f;
-    //bumpMap.x += detailBumpMap.x;
+    float4 detailBumpMap = detailNormalMap.Sample(SampleType, pos.xz * detailScale) * 2.0f - 1.0f;
+    bumpMap.x += detailBumpMap.x;
     bumpMap.y += detailBumpMap.y;
-    //bumpMap.z += detailBumpMap.z;
-    float rough = roughTexture.Sample(SampleType, pos.yz * scale);// SampleTriplanar(roughTexture, pos, normal, scale, SampleType).r;
-    float ao = aoTexture.Sample(SampleType, pos.yz * scale);// SampleTriplanar(aoTexture, pos, normal, scale, SampleType).r;
+    bumpMap.z += detailBumpMap.z;
+    float rough = roughTexture.Sample(SampleType, pos.xz / scale);// SampleTriplanar(roughTexture, pos, normal, scale, SampleType).r;
+    float ao = aoTexture.Sample(SampleType, pos.xz / scale);// SampleTriplanar(aoTexture, pos, normal, scale, SampleType).r;
     float3 N = (bumpMap.x * tangent) + (bumpMap.y * binormal) + (bumpMap.z * normal);
     N = normalize(N);
     float3 H = normalize(V + L);
@@ -171,6 +171,7 @@ float4 main(PS_INPUT input) : SV_TARGET
     float4 snowTexture = CalculateColor(snowDiffuseTexture, snowNormalTexture, snowRoughTexture, snowAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.bitangent, L, V, snowScale);
     // Determine which material to use based on slope.
     float4 baseColor;
+
     if (input.pixelHeight < 200.0f) {
         baseColor = grassTexture;
     }

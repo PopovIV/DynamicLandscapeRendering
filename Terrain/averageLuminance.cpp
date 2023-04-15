@@ -136,9 +136,11 @@ bool AverageLuminance::InitializeShader(ID3D11Device* device, HWND hwnd, const w
         D3D11_CPU_ACCESS_READ
     );
 
-    result = device->CreateTexture2D(&ltd, nullptr, &m_luminanceTexture);
-    if (FAILED(result)) {
-        return false;
+    for (int i = 0; i < ARRAY_SIZE; i++) {
+        result = device->CreateTexture2D(&ltd, nullptr, &(m_luminanceTextureArray[i]));
+        if (FAILED(result)) {
+            return false;
+        }
     }
 
     return true;
@@ -213,11 +215,12 @@ float AverageLuminance::Process(ID3D11DeviceContext* deviceContext, ID3D11Shader
     double delta = (double)(timeDelta) / m_qpcFrequency.QuadPart;
 
     D3D11_MAPPED_SUBRESOURCE luminanceAccessor;
-    deviceContext->CopyResource(m_luminanceTexture, m_renderTextures.back()->GetRenderTarget());
-    deviceContext->Map(m_luminanceTexture, 0, D3D11_MAP_READ, 0, &luminanceAccessor);
+    deviceContext->CopyResource(m_luminanceTextureArray[(m_curFrame) % ARRAY_SIZE], m_renderTextures.back()->GetRenderTarget());
+    deviceContext->Map(m_luminanceTextureArray[m_curFrame % ARRAY_SIZE], 0, D3D11_MAP_READ, 0, &luminanceAccessor);
     float luminance = *(float*)luminanceAccessor.pData;
-    deviceContext->Unmap(m_luminanceTexture, 0);
+    deviceContext->Unmap(m_luminanceTextureArray[m_curFrame % ARRAY_SIZE], 0);
 
+    m_curFrame++;
     float sigma = 0.04f / (0.04f + luminance);
     float tau = sigma * 0.4f + (1 - sigma) * 0.1f;
     m_adaptedLuminance += (luminance - m_adaptedLuminance) * (float)(1 - std::exp(-delta * tau));
@@ -284,9 +287,10 @@ void AverageLuminance::Shutdown() {
     }
     m_renderTextures.clear();
     
-
-    if (m_luminanceTexture) {
-        m_luminanceTexture->Release();
-        m_luminanceTexture = nullptr;
+    for (int i = 0; i < ARRAY_SIZE; i++) {
+        if (m_luminanceTextureArray[i]) {
+            m_luminanceTextureArray[i]->Release();
+            m_luminanceTextureArray[i] = nullptr;
+        }
     }
 }

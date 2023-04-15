@@ -43,8 +43,8 @@ void main(uint3 globalThreadId : SV_DispatchThreadID)
     bbMin.y += height.r * 500.0f;
     bbMax.y += height.g * 500.0f;
 
-    bbMin -= float4(100.0f, 100.0f, 100.0f, 0.0f);
-    bbMax += float4(100.0f, 100.0f, 100.0f, 0.0f);
+    bbMin -= float4(1000.0f, 1000.0f, 1000.0f, 0.0f);
+    bbMax += float4(1000.0f, 1000.0f, 1000.0f, 0.0f);
 
     if (IsBoxInside(planes, bbMin.xyz, bbMax.xyz)) {
         uint id = 0;

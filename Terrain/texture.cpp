@@ -116,7 +116,7 @@ bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
             int mip = 0;
             float* tmp_data = data;
 
-            while (tmp_w != 0)
+            while (tmp_w != 0 && mip < 10)
             {
                 deviceContext->UpdateSubresource(m_texture, mip, NULL, tmp_data, rowPitch, 0);
                 tmp_data += tmp_w * tmp_h * 2;

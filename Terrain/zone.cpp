@@ -321,7 +321,9 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
     XMFLOAT3 cameraPosition = m_Camera->GetPosition();
 
     // Construct the frustum.
-    m_Frustum->ConstructFrustum(viewMatrix, projectionMatrix);
+    if (!m_lockView) {
+        m_Frustum->ConstructFrustum(viewMatrix, projectionMatrix);
+    }
 
     // SKYDOME
     // Turn off back face culling and turn off the Z buffer.
