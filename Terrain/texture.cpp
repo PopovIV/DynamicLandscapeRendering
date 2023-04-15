@@ -1,4 +1,5 @@
 #include "texture.h"
+#include "stringConverter.h"
 
 // Function to initialize texture
 bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const wchar_t* filename, TextureType type, bool sRGB) {
@@ -8,9 +9,140 @@ bool Texture::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContex
     unsigned int rowPitch;
     D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
     bool result;
+    FILE* F;
+    size_t Size = 0;
+    float* data = nullptr;
     memset(&srvDesc, 0, sizeof(srvDesc));
+    int numOfMips = 0;
     // Load the targa image data into memory.
     switch (type) {
+      case Texture::R32:
+        fopen_s(&F, StringConverter::wstr2str(filename).c_str(), "rb");
+        if (F == NULL)
+            return false;
+        fseek(F, 0, SEEK_END);
+        Size = ftell(F) / sizeof(float);
+        rewind(F);
+        width = sqrt(Size);
+        height = Size / sqrt(Size);
+        data = new float[Size];
+        fread_s(data, Size * sizeof(float), sizeof(float), Size, F);
+        fclose(F);
+
+        {
+            size_t data_size = 0;
+            int tmp_w = width, tmp_h = height;
+            while (tmp_w != 0)
+            {
+                data_size += tmp_w * tmp_h * sizeof(float) * 2;
+                numOfMips++;
+                tmp_w /= 2;
+                tmp_h /= 2;
+            }
+
+            float* new_data = new float[data_size / sizeof(float)];
+            memset(new_data, 0, data_size);
+
+            tmp_w = width;
+            tmp_h = height;
+            size_t offset = 0;
+            size_t prev_offset = 0;
+            // fill first mip
+            for (int i = 0; i < tmp_h; i++)
+                for (int j = 0; j < tmp_w; j++)
+                {
+                    new_data[i * tmp_w * 2 + j * 2 + 0] = data[i * tmp_w + j]; 
+                    new_data[i * tmp_w * 2 + j * 2 + 1] = data[i * tmp_w + j];
+                }
+            prev_offset = 0;
+            offset += tmp_w * tmp_h * 2;
+            tmp_w /= 2;
+            tmp_h /= 2;
+            
+            // fill other mip
+            while (tmp_w != 0)
+            {
+                for (int i = 0; i < tmp_h; i++)
+                    for (int j = 0; j < tmp_w; j++)
+                    {
+                        new_data[offset + i * tmp_w * 2 + j * 2 + 0] = min(
+                            min(new_data[prev_offset + (2 * i + 0) * (tmp_w * 2)* 2 + (2 * j + 0) * 2 + 0],
+                                new_data[prev_offset + (2 * i + 0) * (tmp_w * 2) * 2 + (2 * j + 1) * 2 + 0]),
+                            min(new_data[prev_offset + (2 * i + 1) * (tmp_w * 2) * 2 + (2 * j + 0) * 2 + 0],
+                                new_data[prev_offset + (2 * i + 1) * (tmp_w * 2) * 2 + (2 * j + 1) * 2 + 0]));
+                        new_data[offset + i * tmp_w * 2 + j * 2 + 1] = max(
+                            max(new_data[prev_offset + (2 * i + 0) * (tmp_w * 2) * 2 + (2 * j + 0) * 2 + 1],
+                                new_data[prev_offset + (2 * i + 0) * (tmp_w * 2) * 2 + (2 * j + 1) * 2 + 1]),
+                            max(new_data[prev_offset + (2 * i + 1) * (tmp_w * 2) * 2 + (2 * j + 0) * 2 + 1],
+                                new_data[prev_offset + (2 * i + 1) * (tmp_w * 2) * 2 + (2 * j + 1) * 2 + 1]));
+                    }
+                prev_offset = offset;
+                offset += tmp_w * tmp_h * 2;
+                tmp_w /= 2;
+                tmp_h /= 2;
+            }
+
+            delete[] data;
+            data = new_data;
+        }
+
+        // Setup the description of the texture.
+        textureDesc.Height = height;
+        textureDesc.Width = width;
+        textureDesc.MipLevels = numOfMips - 1;
+        textureDesc.ArraySize = 1;
+        textureDesc.Format = DXGI_FORMAT_R32G32_FLOAT;
+        textureDesc.SampleDesc.Count = 1;
+        textureDesc.SampleDesc.Quality = 0;
+        textureDesc.Usage = D3D11_USAGE_DEFAULT;
+        textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_RENDER_TARGET;
+        textureDesc.CPUAccessFlags = 0;
+        textureDesc.MiscFlags = 0;
+
+        // Create the empty texture.
+        hResult = device->CreateTexture2D(&textureDesc, NULL, &m_texture);
+        if (FAILED(hResult)) {
+            delete[] data;
+            return false;
+        }
+
+        // Set the row pitch of the r32g32 data.
+        rowPitch = width * sizeof(float) * 2;
+
+        // Copy the targa image data into the texture. 
+
+        {
+            int tmp_w = width, tmp_h = height;
+            int mip = 0;
+            float* tmp_data = data;
+
+            while (tmp_w != 0 && mip < 10)
+            {
+                deviceContext->UpdateSubresource(m_texture, mip, NULL, tmp_data, rowPitch, 0);
+                tmp_data += tmp_w * tmp_h * 2;
+                rowPitch /= 2;
+                tmp_h /= 2;
+                tmp_w /= 2;
+                mip++;
+            }
+        }
+        // Setup the shader resource view description.
+        srvDesc.Format = textureDesc.Format;
+        srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+        srvDesc.Texture2D.MostDetailedMip = 0;
+        srvDesc.Texture2D.MipLevels = -1;
+
+        // Create the shader resource view for the texture.
+        hResult = device->CreateShaderResourceView(m_texture, &srvDesc, &m_textureView);
+        if (FAILED(hResult)) {
+            delete[] data;
+            return false;
+        }
+
+        // Generate mipmaps for this texture.
+        //deviceContext->GenerateMips(m_textureView);
+        delete[] data;
+        return true;
       case Texture::Targa:
         result = LoadTarga(filename, height, width);
         if (!result) {

@@ -18,12 +18,15 @@
 #include "terrain.h"
 #include "renderTexture.h"
 #include "toneMap.h"
+#include "heightMap.h"
 #include "gpuprofiler.h"
+
+#define MAX_QUERY 20
 
 class Zone {
   public:
     // Function to initialize user interface, camera, position and grid
-    bool Initialize(D3DClass* Direct3D, HWND hwnd, int screenWidth, int screenHeight, float screenDepth);
+    bool Initialize(D3DClass* Direct3D, HWND hwnd, TextureManager* TextureManager, int screenWidth, int screenHeight, float screenDepth);
     // Function to clear all stuff that was created in initialize function
     void Shutdown();
     // Function to update frame each second
@@ -34,7 +37,7 @@ class Zone {
     void GetRotation(float& x, float& y, float& z) { m_Position->GetRotation(x, y, z); };
     void SetPosition(float x, float y, float z) { m_Position->SetPosition(x, y, z); };
     void SetRotation(float x, float y, float z) { m_Position->SetRotation(x, y, z); };
-    void GetCulling(float& polygons, float& rendered, float& culled);
+    //void GetCulling(float& polygons, float& rendered, float& culled);
     XMFLOAT3 GetLighDirection(void) { return lightDir; };
     void ToggleWireFrame() { m_wireFrame = !m_wireFrame; };
     void ToggleDayNight() { m_dayNightCycle = !m_dayNightCycle; };
@@ -45,6 +48,9 @@ class Zone {
     bool GetDayNight() { return m_dayNightCycle; };
     bool GetHeightLocked() { return m_heightLocked; };
     bool GetLockView() { return m_lockView; };
+
+    unsigned int GetNumCulled() { return (TERRAIN_CHUNK_COUNT_WIDTH * TERRAIN_CHUNK_COUNT_HEIGHT) - m_chunksRendered; };
+    unsigned int GetNumRendered() { return m_chunksRendered; };
 
     float GetDrawTime() { return m_drawTime; };
     float GetDrawToTextureTime() { return m_drawToTextureTime; };
@@ -58,6 +64,14 @@ class Zone {
     // Render function
     bool Render(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManager* TextureManager);
 
+    // Function to get info from Queries
+    void ReadQueries(ID3D11DeviceContext* context);
+
+    ID3D11Query* m_queries[MAX_QUERY];
+    unsigned int m_curFrame = 0;
+    unsigned int m_lastCompletedFrame = 0;
+    unsigned int m_chunksRendered = 0;
+
     RenderTexture* m_RenderTexture = nullptr;
     Camera* m_Camera = nullptr;
     Light* m_Light = nullptr;
@@ -67,6 +81,7 @@ class Zone {
     ToneMap* m_ToneMap = nullptr;
     Frustum* m_Frustum = nullptr;
     CGpuProfiler* m_Profiler = nullptr;
+    HeightMap* m_HeightMap = nullptr;
     XMFLOAT3 lightDir = XMFLOAT3(0.0f, 0.0f, 0.0f);
     XMFLOAT4 scales = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
     float detailScale;

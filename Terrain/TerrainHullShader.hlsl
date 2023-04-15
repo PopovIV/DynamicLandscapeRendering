@@ -1,29 +1,25 @@
-#define NUM_CONTROL_POINTS 3
+#include "CBScene.h"
 
-cbuffer MatrixBuffer
-{
-    matrix worldMatrix;
-    matrix viewMatrix;
-    matrix projectionMatrix;
-    float3 cameraPos;
-};
+#define NUM_CONTROL_POINTS 3
 
 struct HS_INPUT
 {
     float4 position : POSITION;
-    float2 tex : TEXCOORD;
     float3 normal : NORMAL;
-    float3 tangent : TANGENT;
-    float3 binormal : BINORMAL;
+    float3 tangent: TANGENT;
+    float3 bitangent : BITANGENT;
+    float2 tex : TEXCOORD;
+    uint instanceId : INST_ID;
 };
 
 struct DS_INPUT
 {
     float4 position : POSITION;
-    float2 tex : TEXCOORD;
     float3 normal : NORMAL;
-    float3 tangent : TANGENT;
-    float3 binormal : BINORMAL;
+    float3 tangent: TANGENT;
+    float3 bitangent : BITANGENT;
+    float2 tex : TEXCOORD;
+    nointerpolation uint instanceId : INST_ID;
 };
 
 struct HS_CONSTANT_DATA_OUTPUT
@@ -32,10 +28,7 @@ struct HS_CONSTANT_DATA_OUTPUT
     float InsideFactor : SV_InsideTessFactor;
 };
 
-float calculateEdgeFactor(float4 p0, float4 p1)
-{
-    p0 = mul(p0, worldMatrix);
-    p1 = mul(p1, worldMatrix);
+float calculateEdgeFactor(float4 p0, float4 p1, matrix worldMatrix) {
     float edgeLength = distance(p0, p1);
     float4 edgeCenter = (p0 + p1) * 0.5;
     float viewDistance = distance(edgeCenter, cameraPos);
@@ -47,9 +40,9 @@ HS_CONSTANT_DATA_OUTPUT constantsHullShader(InputPatch<HS_INPUT, NUM_CONTROL_POI
     HS_CONSTANT_DATA_OUTPUT output;
 
     // Calculate tessFactor
-    float p0factor = calculateEdgeFactor(patch[1].position, patch[2].position);
-    float p1factor = calculateEdgeFactor(patch[2].position, patch[0].position);
-    float p2factor = calculateEdgeFactor(patch[0].position, patch[1].position);
+    float p0factor = calculateEdgeFactor(patch[1].position, patch[2].position, geomBuffer[patch[0].instanceId].worldMatrix);
+    float p1factor = calculateEdgeFactor(patch[2].position, patch[0].position, geomBuffer[patch[0].instanceId].worldMatrix);
+    float p2factor = calculateEdgeFactor(patch[0].position, patch[1].position, geomBuffer[patch[0].instanceId].worldMatrix);
 
     // Assign tessellation levels (constant for now)
     output.EdgeFactors[0] = p0factor;
@@ -65,17 +58,18 @@ HS_CONSTANT_DATA_OUTPUT constantsHullShader(InputPatch<HS_INPUT, NUM_CONTROL_POI
 [outputtopology("triangle_cw")]
 [outputcontrolpoints(NUM_CONTROL_POINTS)]
 [patchconstantfunc("constantsHullShader")]
-[maxtessfactor(16.0)]
+[maxtessfactor(64.0)]
 DS_INPUT main(InputPatch<HS_INPUT, NUM_CONTROL_POINTS> patch, uint patchID : SV_OutputControlPointID)
 {
     DS_INPUT output;
 
     // Copy inputs to outputs
     output.position = patch[patchID].position;
-    output.normal = patch[patchID].normal;
-    output.tangent = patch[patchID].tangent;
-    output.binormal = patch[patchID].binormal;
     output.tex = patch[patchID].tex;
+    output.normal = patch[patchID].normal;
+    output.bitangent = patch[patchID].bitangent;
+    output.tangent = patch[patchID].tangent;
+    output.instanceId = patch[patchID].instanceId;
 
     return output;
 }

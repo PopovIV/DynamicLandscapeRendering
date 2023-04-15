@@ -14,6 +14,8 @@
 using namespace DirectX;
 using namespace std;
 
+#define ARRAY_SIZE 20
+
 class AverageLuminance {
   public:
     // Function to initialize
@@ -39,7 +41,8 @@ class AverageLuminance {
     ID3D11PixelShader* m_copyPixelShader = nullptr;
     ID3D11PixelShader* m_pixelShader = nullptr;
     ID3D11SamplerState* m_sampleState = nullptr;
-    ID3D11Texture2D* m_luminanceTexture = nullptr;
+    ID3D11Texture2D* m_luminanceTextureArray[ARRAY_SIZE];
+    unsigned int m_curFrame = 0;
 
     float m_adaptedLuminance = 0.0f;
 

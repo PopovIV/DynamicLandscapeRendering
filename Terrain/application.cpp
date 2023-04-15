@@ -152,6 +152,10 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
     if (!result) {
         return false;
     }
+    result = m_TextureManager->LoadTexture(m_Direct3D->GetDevice(), m_Direct3D->GetDeviceContext(), L"data/textures/HM.r32", 22, Texture::R32);
+    if (!result) {
+        return false;
+    }
 
     // Create the timer object.
     m_Timer = new Timer;
@@ -182,7 +186,7 @@ bool Application::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, in
     }
 
     // Initialize the zone object.
-    result = m_Zone->Initialize(m_Direct3D, hwnd, screenWidth, screenHeight, SCREEN_NEAR);
+    result = m_Zone->Initialize(m_Direct3D, hwnd, m_TextureManager, screenWidth, screenHeight, SCREEN_NEAR);
     if (!result) {
         MessageBox(hwnd, L"Could not initialize the zone object.", L"Error", MB_OK);
         return false;
@@ -326,7 +330,7 @@ bool Application::Frame() {
     static int grassScale = 40;
     static int rockScale = 32;
     static int slopeScale = 32;
-    static int snowScale = 15;
+    static int snowScale = 32;
     static int detailScale = 4;
     static int lightX = (int)m_Zone->GetLighDirection().x;
     static int lightY = (int)m_Zone->GetLighDirection().y;
@@ -433,15 +437,11 @@ bool Application::Frame() {
         str += std::to_string(z);
         ImGui::Text(str.c_str());
 
-        m_Zone->GetCulling(x, y, z);
-        str = "\nPolygons: ";
-        str += std::to_string((int)x);
-        ImGui::Text(str.c_str());
         str = "\nRendered: ";
-        str += std::to_string((int)y);
+        str += std::to_string((int)m_Zone->GetNumRendered());
         ImGui::Text(str.c_str());
         str = "\nCulled: ";
-        str += std::to_string((int)z);
+        str += std::to_string((int)m_Zone->GetNumCulled());
         ImGui::Text(str.c_str());
 
         str = "\nDraw To Texture Time: ";

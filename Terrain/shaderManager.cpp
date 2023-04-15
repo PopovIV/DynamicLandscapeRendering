@@ -2,18 +2,6 @@
 
 // Function to initialize ShaderManager
 bool ShaderManager::Initialize(ID3D11Device* device, HWND hwnd) {
-    // Create the color shader object.
-    m_ColorShader = new ColorShader;
-    if (!m_ColorShader) {
-        return false;
-    }
-
-    // Initialize the color shader object.
-    bool result = m_ColorShader->Initialize(device, hwnd);
-    if (!result) {
-        return false;
-    }
-
     // Create the sky dome shader object.
     m_SkyDomeShader = new SkyDomeShader;
     if (!m_SkyDomeShader) {
@@ -21,7 +9,7 @@ bool ShaderManager::Initialize(ID3D11Device* device, HWND hwnd) {
     }
 
     // Initialize the sky dome shader object.
-    result = m_SkyDomeShader->Initialize(device, hwnd);
+    HRESULT result = m_SkyDomeShader->Initialize(device, hwnd);
     if (!result) {
         return false;
     }
@@ -57,17 +45,6 @@ void ShaderManager::Shutdown() {
         m_SkyDomeShader = nullptr;
     }
 
-    // Release the color shader object.
-    if (m_ColorShader) {
-        m_ColorShader->Shutdown();
-        delete m_ColorShader;
-        m_ColorShader = nullptr;
-    }
-}
-
-// Function to render for Color shader
-bool ShaderManager::RenderColorShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix) {
-    return m_ColorShader->Render(deviceContext, indexCount, worldMatrix, viewMatrix, projectionMatrix);
 }
 
 bool ShaderManager::RenderSkyDomeShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT4 apexColor, XMFLOAT4 centerColor) {
@@ -75,6 +52,6 @@ bool ShaderManager::RenderSkyDomeShader(ID3D11DeviceContext* deviceContext, int 
 }
 
 // Function to render for Terrain shader
-bool ShaderManager::RenderTerrainShader(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], ID3D11ShaderResourceView* roughMaps[], ID3D11ShaderResourceView* aoMaps[], Light* light, XMFLOAT4 scales, float detailScale, bool normalPass) {
-    return m_TerrainShader->Render(deviceContext, indexCount, worldMatrix, viewMatrix, projectionMatrix, cameraPos, textures, normalMaps, roughMaps, aoMaps, light, scales, detailScale, normalPass);
+bool ShaderManager::RenderTerrainShader(ID3D11DeviceContext* deviceContext, int indexCount, XMFLOAT4* frustumPlanes, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], ID3D11ShaderResourceView* roughMaps[], ID3D11ShaderResourceView* aoMaps[], Light* light, XMFLOAT4 scales, float detailScale, bool normalPass) {
+    return m_TerrainShader->Render(deviceContext, indexCount, frustumPlanes, worldMatrix, viewMatrix, projectionMatrix, cameraPos, textures, normalMaps, roughMaps, aoMaps, light, scales, detailScale, normalPass);
 }

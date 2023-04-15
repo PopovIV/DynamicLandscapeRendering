@@ -9,11 +9,8 @@
 class RenderTexture {
   public:
     // Constructors
-    RenderTexture();
-    RenderTexture(ID3D11Device* device, int textureWidth, int textureHeight) { Initialize(device, textureWidth, textureHeight); };
+    RenderTexture(ID3D11Device* device, int textureWidth, int textureHeight, DXGI_FORMAT format);
 
-    // Function to initialize render texture class
-    bool Initialize(ID3D11Device* device, int textureWidth, int textureHeight);
     // Function to realese render texture class
     void Shutdown();
     void Resize(ID3D11Device* device, int width, int height);
@@ -32,10 +29,14 @@ class RenderTexture {
     D3D11_VIEWPORT GetViewPort() { return m_viewport; };
 
   private:
+    // Function to initialize render texture class
+    bool Initialize(ID3D11Device* device, int textureWidth, int textureHeight);
+
     ID3D11Texture2D* m_renderTargetTexture = nullptr;
     ID3D11RenderTargetView* m_renderTargetView = nullptr;
     ID3D11ShaderResourceView* m_shaderResourceView = nullptr;
     D3D11_VIEWPORT m_viewport;
+    DXGI_FORMAT m_format;
 };
 
 #endif
