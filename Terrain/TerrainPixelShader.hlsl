@@ -35,12 +35,8 @@ cbuffer LightBuffer : register(b0)
 
 cbuffer scaleBuffer : register(b1)
 {
-    float grassScale;
-    float rockScale;
-    float slopeScale;
-    float snowScale;
-    float detailScale;
-    float3 padding;
+    int4 scales; // x - grass, y - rock, z - slope, w - snow
+    int4 detailScale; // x - detail normal scale
 };
 
 struct PS_INPUT
@@ -136,7 +132,7 @@ float4 CalculateColor(Texture2D diffuseTexture, Texture2D normalTexture, Texture
     float3 pos, float3 normal, float3 tangent, float3 binormal, float3 L, float3 V, float scale) {
     float4 albedo = SampleTriplanar(diffuseTexture, pos, normal, scale, SampleType);
     float4 bumpMap = SampleTriplanar(normalTexture, pos, normal, scale, SampleType) * 2.0f - 1.0f;
-    float4 detailBumpMap = detailNormalMap.Sample(SampleType, pos.xz * detailScale) * 2.0f - 1.0f;
+    float4 detailBumpMap = detailNormalMap.Sample(SampleType, pos.xz * detailScale.x) * 2.0f - 1.0f;
     bumpMap.x += detailBumpMap.x;
     bumpMap.y += detailBumpMap.y;
     bumpMap.z += detailBumpMap.z;
@@ -151,26 +147,26 @@ float4 CalculateColor(Texture2D diffuseTexture, Texture2D normalTexture, Texture
 [earlydepthstencil]
 float4 main(PS_INPUT input) : SV_TARGET
 {
-    float blendAmount;
-    float4 color;
+    float blendAmount = 0;
+    float4 color = float4(0, 0, 0, 0);;
     float3 L = -normalize(lightDirection);
     float3 V = normalize(input.viewDirection);
     input.normal = normalize(input.normal);
     input.tangent = normalize(input.tangent);
     input.bitangent = normalize(input.bitangent);
     // Setup the grass material
-    float4 grassTexture2 = CalculateColor(grassDiffuseTexture, grassNormalTexture, grassRoughTexture, grassAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.bitangent, L, V, grassScale / 2);// /2;
-    float4 grassTexture = CalculateColor(grassDiffuse2Texture, grassNormal2Texture, grassRough2Texture, grassAo2Texture, input.worldPosition.xyz, input.normal, input.tangent, input.bitangent, L, V, grassScale * 1.5);//*2
+    float4 grassTexture2 = CalculateColor(grassDiffuseTexture, grassNormalTexture, grassRoughTexture, grassAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.bitangent, L, V, 1.0f * scales.x / 2);
+    float4 grassTexture = CalculateColor(grassDiffuse2Texture, grassNormal2Texture, grassRough2Texture, grassAo2Texture, input.worldPosition.xyz, input.normal, input.tangent, input.bitangent, L, V, scales.x * 1.5);
     float alpha = noise.Sample(SampleType, input.tex).r;
     grassTexture = (alpha * grassTexture) + ((1.0 - alpha) * grassTexture2);
     // Setup the rock material
-    float4 rockTexture = CalculateColor(rockDiffuseTexture, rockNormalTexture, rockRoughTexture, rockAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.bitangent, L, V, rockScale);
+    float4 rockTexture = CalculateColor(rockDiffuseTexture, rockNormalTexture, rockRoughTexture, rockAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.bitangent, L, V, scales.y);
     // Setup the slope material
-    float4 slopeTexture = CalculateColor(slopeDiffuseTexture, slopeNormalTexture, slopeRoughTexture, slopeAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.bitangent, L, V, slopeScale);
+    float4 slopeTexture = CalculateColor(slopeDiffuseTexture, slopeNormalTexture, slopeRoughTexture, slopeAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.bitangent, L, V, scales.z);
     // Setup the grass material
-    float4 snowTexture = CalculateColor(snowDiffuseTexture, snowNormalTexture, snowRoughTexture, snowAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.bitangent, L, V, snowScale);
+    float4 snowTexture = CalculateColor(snowDiffuseTexture, snowNormalTexture, snowRoughTexture, snowAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.bitangent, L, V, scales.w);
     // Determine which material to use based on slope.
-    float4 baseColor;
+    float4 baseColor = float4(0, 0, 0, 0);
 
     if (input.pixelHeight < 200.0f) {
         baseColor = grassTexture;

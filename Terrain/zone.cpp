@@ -111,7 +111,7 @@ bool Zone::Initialize(D3DClass* Direct3D, HWND hwnd, TextureManager* TextureMana
         return false;
     }
 
-    lightDir = m_Light->GetDirection();
+    m_lightDir = m_Light->GetDirection();
     
 
     m_HeightMap = new HeightMap();
@@ -206,7 +206,7 @@ void Zone::Shutdown() {
 }
 
 // Function to update frame each second
-bool Zone::Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager, TextureManager* TextureManager, float frameTime, int fps, XMFLOAT4 scales, float detailScale, XMFLOAT3 lightDir) {
+bool Zone::Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager, TextureManager* TextureManager, float frameTime, TerrainShader::ScaleBufferType scales, XMFLOAT3 lightDir) {
     // Do the frame input processing.
     HandleMovementInput(Input, frameTime);
 
@@ -214,22 +214,8 @@ bool Zone::Frame(D3DClass* Direct3D, Input* Input, ShaderManager* ShaderManager,
     float posX, posY, posZ, rotX, rotY, rotZ, height;
     m_Position->GetPosition(posX, posY, posZ);
     m_Position->GetRotation(rotX, rotY, rotZ);
-    this->scales = scales;
-    this->detailScale = detailScale;
+    this->m_scales = scales;
     m_Light->SetDirection(lightDir.x, lightDir.y, lightDir.z);
-
-    //m_Terrain->Frame();
-
-    //// If the height is locked to the terrain then position the camera on top of it.
-    //if (m_heightLocked) {
-    //    // Get the height of the triangle that is directly underneath the given camera position.
-    //    bool foundHeight = m_Terrain->GetHeightAtPosition(posX, posZ, height);
-    //    if (foundHeight) {
-    //        // If there was a triangle under the camera then position the camera just above it by one meter.
-    //        m_Position->SetPosition(posX, height + 5.0f, posZ);
-    //        m_Camera->SetPosition(posX, height + 5.0f, posZ);
-    //    }
-    //}
 
     // Render the graphics.
     bool result = Render(Direct3D, ShaderManager, TextureManager);
@@ -295,12 +281,6 @@ void Zone::HandleMovementInput(Input* Input, float frameTime) {
     }
 }
 
-//void Zone::GetCulling(float& polygons, float& rendered, float& culled) {
-//    polygons = (float)m_Terrain->GetRenderCount();
-//    rendered = (float)m_Terrain->GetCellsDrawn();
-//    culled = (float)m_Terrain->GetCellsCulled();
-//};
-
 // Render function
 bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, TextureManager* TextureManager) {
     m_RenderTexture->SetRenderTarget(Direct3D->GetDeviceContext(), Direct3D->GetDepthStencilView());
@@ -356,10 +336,13 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
     float posX, posY, posZ;
     m_Position->GetPosition(posX, posY, posZ);
     //m_Terrain->Render(Direct3D->GetDeviceContext());
-    ID3D11ShaderResourceView* textures[] = { TextureManager->GetTexture(0), TextureManager->GetTexture(4), TextureManager->GetTexture(8), TextureManager->GetTexture(12), TextureManager->GetTexture(16), TextureManager->GetTexture(20) };
-    ID3D11ShaderResourceView* normalMaps[] = { TextureManager->GetTexture(1), TextureManager->GetTexture(5), TextureManager->GetTexture(9), TextureManager->GetTexture(13), TextureManager->GetTexture(17), TextureManager->GetTexture(21) };
-    ID3D11ShaderResourceView* roughMaps[] = { TextureManager->GetTexture(2), TextureManager->GetTexture(6), TextureManager->GetTexture(10), TextureManager->GetTexture(14), TextureManager->GetTexture(18), TextureManager->GetTexture(22) };
-    ID3D11ShaderResourceView* aoMaps[] = { TextureManager->GetTexture(3), TextureManager->GetTexture(7), TextureManager->GetTexture(11), TextureManager->GetTexture(15), TextureManager->GetTexture(19), m_HeightMap->GetHeightMapTexture() };
+    ID3D11ShaderResourceView* textures[] = { TextureManager->GetTexture(0), TextureManager->GetTexture(1), TextureManager->GetTexture(2), TextureManager->GetTexture(3), // Grass material
+                                             TextureManager->GetTexture(4), TextureManager->GetTexture(5), TextureManager->GetTexture(6), TextureManager->GetTexture(7), // Grass 2 material
+                                             TextureManager->GetTexture(8), TextureManager->GetTexture(9), TextureManager->GetTexture(10), TextureManager->GetTexture(11), // Rock material
+                                             TextureManager->GetTexture(12), TextureManager->GetTexture(13), TextureManager->GetTexture(14), TextureManager->GetTexture(15), // Slope material
+                                             TextureManager->GetTexture(16), TextureManager->GetTexture(17), TextureManager->GetTexture(18), TextureManager->GetTexture(19), // Snow material
+                                             TextureManager->GetTexture(20), TextureManager->GetTexture(21), TextureManager->GetTexture(22), m_HeightMap->GetHeightMapTexture() }; // Height maps
+
 
     // Update our time
     static float t = 0.0f;
@@ -371,7 +354,7 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
         }
         t = (timeCur - timeStart) / 1000.0f;
 
-        XMVECTOR vec = XMLoadFloat3(&lightDir);
+        XMVECTOR vec = XMLoadFloat3(&m_lightDir);
         XMVECTOR direction = XMVector3Transform(vec, XMMatrixRotationZ(t));
         XMFLOAT3 fl = XMFLOAT3(1.0f, 1.0f, 1.0f);
         XMStoreFloat3(&fl, direction);
@@ -380,20 +363,20 @@ bool Zone::RenderToTexture(D3DClass* Direct3D, ShaderManager* ShaderManager, Tex
     else {
         t = 0;
         timeStart = 0;
-        lightDir = m_Light->GetDirection();
+        m_lightDir = m_Light->GetDirection();
     }
 
 
     m_Terrain->Render(Direct3D->GetDeviceContext());
     result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetIndexCount(), m_Frustum->GetPlanes(), worldMatrix, viewMatrix,
-                    projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps, roughMaps, aoMaps, m_Light, scales, detailScale, false);
+                    projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, m_Light, m_scales, false);
 
     if (!result) {
         return false;
     }
     Direct3D->TurnDepthPrePass();
     result = ShaderManager->RenderTerrainShader(Direct3D->GetDeviceContext(), m_Terrain->GetIndexCount(), m_Frustum->GetPlanes(), worldMatrix, viewMatrix,
-        projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, normalMaps, roughMaps, aoMaps, m_Light, scales, detailScale, true);
+        projectionMatrix, XMFLOAT3(posX, posY, posZ), textures, m_Light, m_scales, true);
     Direct3D->TurnZBufferOn();
 
     // Determine if the terrain should be rendered in wireframe or not.

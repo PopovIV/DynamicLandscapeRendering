@@ -327,11 +327,7 @@ bool Application::Frame() {
     static bool culling = true;
     static bool lockView = true;
     static bool myWindow = true;
-    static int grassScale = 40;
-    static int rockScale = 32;
-    static int slopeScale = 32;
-    static int snowScale = 32;
-    static int detailScale = 4;
+    static TerrainShader::ScaleBufferType scales = { {40, 32, 32, 32}, {4, 0, 0, 0} };
     static int lightX = (int)m_Zone->GetLighDirection().x;
     static int lightY = (int)m_Zone->GetLighDirection().y;
     static int lightZ = (int)m_Zone->GetLighDirection().z;
@@ -396,15 +392,11 @@ bool Application::Frame() {
             }
         }
         
-        ImGui::SliderInt("Grass scales", &grassScale, 1, 64, "%d", 0);
-        scales.x = (float)grassScale;
-        ImGui::SliderInt("Rock scales", &rockScale, 1, 64, "%d", 0);
-        scales.y = (float)rockScale;
-        ImGui::SliderInt("Slope scales", &slopeScale, 1, 64, "%d", 0);
-        scales.z = (float)slopeScale;
-        ImGui::SliderInt("Snow scales", &snowScale, 1, 64, "%d", 0);
-        scales.w = (float)snowScale;
-        ImGui::SliderInt("Detail scales", &detailScale, 1, 64, "%d", 0);
+        ImGui::SliderInt("Grass scales", &scales.scales.x, 1, 64, "%d", 0);
+        ImGui::SliderInt("Rock scales", &scales.scales.y, 1, 64, "%d", 0);
+        ImGui::SliderInt("Slope scales", &scales.scales.z, 1, 64, "%d", 0);
+        ImGui::SliderInt("Snow scales", &scales.scales.w, 1, 64, "%d", 0);
+        ImGui::SliderInt("Detail scales", &scales.detailScale.x, 1, 64, "%d", 0);
 
         ImGui::SliderInt("Light position X", &lightX, -100, 100, "%d", 0);
         ImGui::SliderInt("Light position Y", &lightY, -100, 100, "%d", 0);
@@ -474,7 +466,7 @@ bool Application::Frame() {
     ImGui::Render();
 
     // Do the zone frame processing.
-    result = m_Zone->Frame(m_Direct3D, m_Input, m_ShaderManager, m_TextureManager, m_Timer->GetTime(), m_Fps->GetFps(), scales, (float)detailScale, XMFLOAT3((float)lightX, (float)lightY, (float)lightZ));
+    result = m_Zone->Frame(m_Direct3D, m_Input, m_ShaderManager, m_TextureManager, m_Timer->GetTime(), scales, XMFLOAT3((float)lightX, (float)lightY, (float)lightZ));
     if (!result) {
         return false;
     }

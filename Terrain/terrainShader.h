@@ -35,22 +35,20 @@ class TerrainShader {
         float specularPower;
     };
 
-    struct ScaleBufferType {
-        float grassScale;
-        float rockScale;
-        float slopeScale;
-        float snowScale;
-        float detailScale;
-        XMFLOAT3 tmp;
-    };
 
   public:
+
+    struct ScaleBufferType {
+          XMINT4 scales; // x - grass, y - rock, z - slope, w - snow
+          XMINT4 detailScale; // x - detail texture scale
+    };
+
     // Function to initialize shader
     bool Initialize(ID3D11Device* device, HWND hwnd);
     // Function to realese shader
     void Shutdown() { ShutdownShader(); }
     // Render function
-    bool Render(ID3D11DeviceContext* deviceContext, int indexCount, XMFLOAT4* frustumPlanes, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], ID3D11ShaderResourceView* roughMaps[], ID3D11ShaderResourceView* aoMaps[], Light* light, XMFLOAT4 scales, float detailScale, bool normalPass);
+    bool Render(ID3D11DeviceContext* deviceContext, int indexCount, XMFLOAT4* frustumPlanes, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], Light* light, ScaleBufferType scaleBuffer, bool normalPass);
 
   private:
     // Function to initialize shader
@@ -60,7 +58,7 @@ class TerrainShader {
     // Function to print errors to file
     void OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, const wchar_t* shaderFilename);
     // Function to fill shader buffers and params
-    bool SetShaderParameters(ID3D11DeviceContext* deviceContext, XMFLOAT4* frustumPlanes, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], ID3D11ShaderResourceView* normalMaps[], ID3D11ShaderResourceView* roughMaps[], ID3D11ShaderResourceView* aoMaps[], Light* light, XMFLOAT4 scales, float detailScale);
+    bool SetShaderParameters(ID3D11DeviceContext* deviceContext, XMFLOAT4* frustumPlanes, XMMATRIX worldMatrix, XMMATRIX viewMatrix, XMMATRIX projectionMatrix, XMFLOAT3 cameraPos, ID3D11ShaderResourceView* textures[], Light* light, ScaleBufferType scaleBuffer);
     // Render function
     void RenderShader(ID3D11DeviceContext* deviceContext, int indexCount, bool normalPass);
 
