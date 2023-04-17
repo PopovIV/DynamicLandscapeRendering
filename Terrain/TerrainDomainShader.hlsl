@@ -41,9 +41,6 @@ PS_INPUT main(HS_CONSTANT_DATA_OUTPUT input, float3 uvwCoord : SV_DomainLocation
     PS_INPUT output;
     float3 vertexPos;
     float2 vertexTex;
-    float3 vertexNormal;
-    float3 vertexTangent;
-    float3 vertexBinormal;
 
     float3 position, projection0, projection1, projection2, projectedPosition;
     position = patch[0].position * uvwCoord.x + patch[1].position * uvwCoord.y + patch[2].position * uvwCoord.z;
@@ -57,9 +54,14 @@ PS_INPUT main(HS_CONSTANT_DATA_OUTPUT input, float3 uvwCoord : SV_DomainLocation
     projection2 = position - dot(position - patch[2].position, patch[2].normal) * patch[2].normal;
     projectedPosition = projection0 * uvwCoord.x + projection1 * uvwCoord.y + projection2 * uvwCoord.z;
     vertexPos = lerp(position, projectedPosition, 0.9);
+
+    output.normal = patch[0].normal * uvwCoord.x + patch[1].normal * uvwCoord.y + patch[2].normal * uvwCoord.z;
+
+    float h = HM.SampleLevel(SampleTypeNoMips, output.tex, 0.0f).x;
+    vertexPos += output.normal * h;
+
     output.position = mul(float4(vertexPos, 1.0f), viewProjectionMatrix);
     output.worldPosition = float4(vertexPos, 1.0f);
-    output.normal = patch[0].normal * uvwCoord.x + patch[1].normal * uvwCoord.y + patch[2].normal * uvwCoord.z;
     output.tangent = patch[0].tangent * uvwCoord.x + patch[1].tangent * uvwCoord.y + patch[2].tangent * uvwCoord.z;
     output.bitangent = patch[0].bitangent * uvwCoord.x + patch[1].bitangent * uvwCoord.y + patch[2].bitangent * uvwCoord.z;
     output.pixelHeight = output.worldPosition.y;
