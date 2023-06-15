@@ -166,31 +166,20 @@ float4 main(PS_INPUT input) : SV_TARGET
     // Setup the grass material
     float4 snowTexture = CalculateColor(snowDiffuseTexture, snowNormalTexture, snowRoughTexture, snowAoTexture, input.worldPosition.xyz, input.normal, input.tangent, input.bitangent, L, V, scales.w);
     // Determine which material to use based on slope.
-    float4 baseColor = float4(0, 0, 0, 0);
+    float4 baseColor1 = float4(0, 0, 0, 0);
+    float4 baseColor2 = float4(0, 0, 0, 0);
 
-    if (input.pixelHeight < 200.0f) {
-        baseColor = grassTexture;
-    }
-    else if (input.pixelHeight >= 200.0f && input.pixelHeight < 350.0f) {
-        blendAmount = (350.0f - input.pixelHeight) / (350.0f - 200.0f);
-        baseColor = blend(snowTexture, 1 - blendAmount, grassTexture, blendAmount);
-    }
-    else if (input.pixelHeight >= 350.0f) {
-        baseColor = snowTexture;
-    }
+    blendAmount = (350.0f - input.pixelHeight) / (350.0f - 200.0f);
+    blendAmount = clamp(blendAmount, 0.0f, 1.0f);
+    baseColor1 = blend(snowTexture, 1 - blendAmount, grassTexture, blendAmount);
 
     float slope = 1.0f - input.normal.y;
-    if (slope < 0.6f)
-    {
-        blendAmount = slope / 0.6f;
-        color = blend(baseColor, 1 - blendAmount, rockTexture, blendAmount);
-    }
-    else if (slope >= 0.6 && slope < 0.9) {
-        blendAmount = (slope - 0.6f) * (1.0f / (0.9f - 0.6f));
-        color = blend(rockTexture, 1 - blendAmount, slopeTexture, blendAmount);
-    }
-    else if (slope >= 0.9) {
-        color = slopeTexture;
-    }
+
+    blendAmount = (slope - 0.6f) * (1.0f / (0.9f - 0.6f));
+    blendAmount = clamp(blendAmount, 0.0f, 1.0f);
+    baseColor2 = blend(rockTexture, 1 - blendAmount, slopeTexture, blendAmount);
+
+
+    color = blend(baseColor2, slope, baseColor1, 1 - slope);
     return color;
 }

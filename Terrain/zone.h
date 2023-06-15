@@ -49,7 +49,7 @@ class Zone {
     bool GetHeightLocked() { return m_heightLocked; };
     bool GetLockView() { return m_lockView; };
 
-    unsigned int GetNumCulled() { return (TERRAIN_CHUNK_COUNT_WIDTH * TERRAIN_CHUNK_COUNT_HEIGHT) - m_chunksRendered; };
+    unsigned int GetNumCulled() { return ((TERRAIN_CHUNK_COUNT_WIDTH * TERRAIN_CHUNK_COUNT_HEIGHT) - m_chunksRendered); };
     unsigned int GetNumRendered() { return m_chunksRendered; };
 
     float GetDrawTime() { return m_drawTime; };

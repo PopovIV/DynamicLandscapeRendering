@@ -27,7 +27,7 @@ bool IsBoxInside(in float4 planes[6], in float3 bbMin, in float3 bbMax) {
 [numthreads(64, 1, 1)]
 void main(uint3 globalThreadId : SV_DispatchThreadID)
 {
-    if (globalThreadId.x >= TERRAIN_CHUNK_COUNT_HEIGHT * TERRAIN_CHUNK_COUNT_WIDTH) {
+    if (globalThreadId.x >= (TERRAIN_CHUNK_COUNT_HEIGHT * TERRAIN_CHUNK_COUNT_WIDTH)) {
         return;
     }
     float4 bbMin = float4(0, 0, 0, 1);
@@ -39,7 +39,7 @@ void main(uint3 globalThreadId : SV_DispatchThreadID)
     float v = TERRAIN_CHUNK_COUNT_HEIGHT - (1.0f * globalThreadId.x % TERRAIN_CHUNK_COUNT_HEIGHT) - 1;
     //float2 texCoord = float2(u, v);
 
-    float2 height = HM.Load(int3(u,v, 7));
+    float2 height = HM.Load(int3(u,v, 6));
     bbMin.y += height.r * 500.0f;
     bbMax.y += height.g * 500.0f;
 
