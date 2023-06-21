@@ -39,7 +39,6 @@ class Terrain {
   private:
     void ShutdownHeightMap();
     void SetTerrainCoordinates();
-    bool BuildTerrainModel();
     void ShutdownTerrainModel();
 
     // Function to initialize terrain vertex and index buffer

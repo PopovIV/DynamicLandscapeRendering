@@ -2,6 +2,12 @@
 
 #define NUM_CONTROL_POINTS 3
 
+cbuffer scaleBuffer : register(b3)
+{
+    int4 scales; // x - grass, y - rock, z - slope, w - snow
+    float4 detailScale; // x - detail normal scale, y - height scale, z - max tess 
+};
+
 struct HS_INPUT
 {
     float4 position : POSITION;
@@ -32,7 +38,7 @@ float calculateEdgeFactor(float4 p0, float4 p1, matrix worldMatrix) {
     float edgeLength = distance(p0, p1);
     float4 edgeCenter = (p0 + p1) * 0.5;
     float viewDistance = distance(edgeCenter, cameraPos);
-    return (edgeLength * 1080) / (10.0 * viewDistance);
+    return (edgeLength * 110) / (viewDistance);
 }
 
 HS_CONSTANT_DATA_OUTPUT constantsHullShader(InputPatch<HS_INPUT, NUM_CONTROL_POINTS> patch, uint patchID : SV_PrimitiveID)
@@ -45,9 +51,9 @@ HS_CONSTANT_DATA_OUTPUT constantsHullShader(InputPatch<HS_INPUT, NUM_CONTROL_POI
     float p2factor = calculateEdgeFactor(patch[0].position, patch[1].position, geomBuffer[patch[0].instanceId].worldMatrix);
 
     // Assign tessellation levels (constant for now)
-    output.EdgeFactors[0] = p0factor;
-    output.EdgeFactors[1] = p1factor;
-    output.EdgeFactors[2] = p2factor;
+    output.EdgeFactors[0] = clamp(p0factor, 1.0f, (float)detailScale.z);
+    output.EdgeFactors[1] = clamp(p1factor, 1.0f, (float)detailScale.z);
+    output.EdgeFactors[2] = clamp(p2factor, 1.0f, (float)detailScale.z);
     output.InsideFactor = (output.EdgeFactors[0] + output.EdgeFactors[1] + output.EdgeFactors[2]) / 3.0f;
  
     return output;

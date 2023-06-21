@@ -327,7 +327,7 @@ bool Application::Frame() {
     static bool culling = true;
     static bool lockView = true;
     static bool myWindow = true;
-    static TerrainShader::ScaleBufferType scales = { {40, 32, 32, 32}, {4, 0, 0, 0} };
+    static TerrainShader::ScaleBufferType scales = { {40, 32, 32, 32}, {4.0f, 500.0f, 63.0f, 0} };
     static int lightX = (int)m_Zone->GetLighDirection().x;
     static int lightY = (int)m_Zone->GetLighDirection().y;
     static int lightZ = (int)m_Zone->GetLighDirection().z;
@@ -396,8 +396,9 @@ bool Application::Frame() {
         ImGui::SliderInt("Rock scales", &scales.scales.y, 1, 64, "%d", 0);
         ImGui::SliderInt("Slope scales", &scales.scales.z, 1, 64, "%d", 0);
         ImGui::SliderInt("Snow scales", &scales.scales.w, 1, 64, "%d", 0);
-        ImGui::SliderInt("Detail scales", &scales.detailScale.x, 1, 64, "%d", 0);
-
+        ImGui::SliderFloat("Detail scales", &scales.detailScale.x, 1, 64, "%d", 0);
+        ImGui::SliderFloat("Height scale", &scales.detailScale.y, 1.0f, 1000.0f, "%f", 0);
+        ImGui::SliderFloat("Tess max", &scales.detailScale.z, 1.0f, 63.0f, "%.1f", 0);
         ImGui::SliderInt("Light position X", &lightX, -100, 100, "%d", 0);
         ImGui::SliderInt("Light position Y", &lightY, -100, 100, "%d", 0);
         ImGui::SliderInt("Light position Z", &lightZ, -100, 100, "%d", 0);

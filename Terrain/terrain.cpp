@@ -2,20 +2,15 @@
 
 // Function to initialize the vertex and index buffers
 bool Terrain::Initialize(ID3D11Device* device) {
-    m_heightMap = new HeightMapType[TERRAIN_CHUNK_WIDTH * TERRAIN_CHUNK_HEIGHT];
+    m_heightMap = new HeightMapType[TERRAIN_CHUNK_WIDTH * TERRAIN_CHUNK_HEIGHT / TERRAIN_CHUNK_OFFSET];
     if (!m_heightMap) {
         return false;
     }
 
     SetTerrainCoordinates();
 
-    bool result = BuildTerrainModel();
-    if (!result) {
-        return false;
-    }
-
     // Now build the 3D model of the terrain.
-    result = InitializeBuffers(device);
+    bool result = InitializeBuffers(device);
     if (!result) {
         return false;
     }
@@ -37,84 +32,22 @@ void Terrain::Shutdown() {
 
 void Terrain::SetTerrainCoordinates() {
     // Loop through all the elements in the height map array and adjust their coordinates correctly.
-    for (int j = 0; j < TERRAIN_CHUNK_HEIGHT; j++) {
-        for (int i = 0; i < TERRAIN_CHUNK_WIDTH; i++) {
-            int index = (TERRAIN_CHUNK_WIDTH * j) + i;
+    int index = 0;
+    for (int j = 0; j < TERRAIN_CHUNK_HEIGHT / TERRAIN_CHUNK_OFFSET; j++) {
+        for (int i = 0; i < TERRAIN_CHUNK_WIDTH / TERRAIN_CHUNK_OFFSET; i++) {
 
             // Set the X and Z coordinates.
-            m_heightMap[index].x = (float)i;
-            m_heightMap[index].z = -(float)j;
+            m_heightMap[index].x = (float)i * TERRAIN_CHUNK_OFFSET;
+            m_heightMap[index].z = (float)j * TERRAIN_CHUNK_OFFSET;
 
             // Move the terrain depth into the positive range.  For example from (0, -256) to (256, 0).
-            m_heightMap[index].z += (float)(TERRAIN_CHUNK_HEIGHT - 1);
+            //m_heightMap[index].z += (float)(TERRAIN_CHUNK_HEIGHT - 1);
+
+            index++;
         }
     }
 }
 
-bool Terrain::BuildTerrainModel() {
-    // Calculate the number of vertices in the 3D terrain model.
-    m_vertexCount = (TERRAIN_CHUNK_HEIGHT - 1) * (TERRAIN_CHUNK_WIDTH - 1) * 6;
-
-    // Create the 3D terrain model array.
-    m_terrainModel = new ModelType[m_vertexCount];
-    if (!m_terrainModel) {
-        return false;
-    }
-
-    // Initialize the index into the height map array.
-    int index = 0;
-
-    // Load the 3D terrain model with the height map terrain data.
-    // We will be creating 2 triangles for each of the four points in a quad.
-    for (int j = 0; j < (TERRAIN_CHUNK_HEIGHT - 1); j++) {
-        for (int i = 0; i < (TERRAIN_CHUNK_WIDTH - 1); i++) {
-            // Get the indexes to the four points of the quad.
-            int index1 = (TERRAIN_CHUNK_WIDTH * j) + i;          // Upper left.
-            int index2 = (TERRAIN_CHUNK_WIDTH * j) + (i + 1);      // Upper right.
-            int index3 = (TERRAIN_CHUNK_WIDTH * (j + 1)) + i;      // Bottom left.
-            int index4 = (TERRAIN_CHUNK_WIDTH * (j + 1)) + (i + 1);  // Bottom right.
-
-            // Now create two triangles for that quad.
-            // Triangle 1 - Upper left.
-            m_terrainModel[index].x = m_heightMap[index1].x;
-            m_terrainModel[index].y = 0;
-            m_terrainModel[index].z = m_heightMap[index1].z;
-            index++;
-
-            // Triangle 1 - Upper right.
-            m_terrainModel[index].x = m_heightMap[index2].x;
-            m_terrainModel[index].y = 0;
-            m_terrainModel[index].z = m_heightMap[index2].z;
-            index++;
-
-            // Triangle 1 - Bottom left.
-            m_terrainModel[index].x = m_heightMap[index3].x;
-            m_terrainModel[index].y = 0;
-            m_terrainModel[index].z = m_heightMap[index3].z;
-            index++;
-
-            // Triangle 2 - Bottom left.
-            m_terrainModel[index].x = m_heightMap[index3].x;
-            m_terrainModel[index].y = 0;
-            m_terrainModel[index].z = m_heightMap[index3].z;
-            index++;
-
-            // Triangle 2 - Upper right.
-            m_terrainModel[index].x = m_heightMap[index2].x;
-            m_terrainModel[index].y = 0;
-            m_terrainModel[index].z = m_heightMap[index2].z;
-            index++;
-
-            // Triangle 2 - Bottom right.
-            m_terrainModel[index].x = m_heightMap[index4].x;
-            m_terrainModel[index].y = 0;
-            m_terrainModel[index].z = m_heightMap[index4].z;
-            index++;
-        }
-    }
-
-    return true;
-}
 
 void Terrain::ShutdownHeightMap() {
     // Release the height map array.
@@ -136,9 +69,9 @@ void Terrain::ShutdownTerrainModel() {
 bool Terrain::InitializeBuffers(ID3D11Device* device) {
     HRESULT result = S_OK;
     // Calculate the number of vertices in the terrain.
-    m_vertexCount = (TERRAIN_CHUNK_WIDTH - 1) * (TERRAIN_CHUNK_HEIGHT - 1) * 6;
+    m_vertexCount = (TERRAIN_CHUNK_WIDTH / TERRAIN_CHUNK_OFFSET) * (TERRAIN_CHUNK_HEIGHT / TERRAIN_CHUNK_OFFSET);
     // Set the index count to the same as the vertex count.
-    m_indexCount = m_vertexCount;
+    m_indexCount = (TERRAIN_CHUNK_WIDTH / TERRAIN_CHUNK_OFFSET) * (TERRAIN_CHUNK_HEIGHT / TERRAIN_CHUNK_OFFSET) * 6;
 
     // Create the vertex array.
     VertexType* vertices;
@@ -155,9 +88,29 @@ bool Terrain::InitializeBuffers(ID3D11Device* device) {
     }
 
     // Load the vertex array and index array with 3D terrain model data.
-    for (int i = 0; i < m_vertexCount; i++) {
-        vertices[i].position = XMFLOAT3(m_terrainModel[i].x, m_terrainModel[i].y, m_terrainModel[i].z);
-        indices[i] = i;
+    int indexVertex = 0;
+    int indexIndex = 0;
+    for (int j = 0; j < TERRAIN_CHUNK_HEIGHT / TERRAIN_CHUNK_OFFSET; j++) {
+        for (int i = 0; i < TERRAIN_CHUNK_WIDTH / TERRAIN_CHUNK_OFFSET; i++) {
+            if (i == (TERRAIN_CHUNK_WIDTH / TERRAIN_CHUNK_OFFSET - 1) || j == (TERRAIN_CHUNK_HEIGHT / TERRAIN_CHUNK_OFFSET - 1)) {
+                int index = (TERRAIN_CHUNK_WIDTH / TERRAIN_CHUNK_OFFSET * j) + i;
+                vertices[indexVertex++].position = XMFLOAT3(m_heightMap[index].x, 0.0f, m_heightMap[index].z);
+                continue;
+            }
+            // Get the indexes to the four points of the quad.
+            int index1 = (TERRAIN_CHUNK_WIDTH / TERRAIN_CHUNK_OFFSET * j) + i;          // Left bottom.
+            int index2 = (TERRAIN_CHUNK_WIDTH / TERRAIN_CHUNK_OFFSET * (j + 1)) + i;      // Left up.
+            int index3 = (TERRAIN_CHUNK_WIDTH / TERRAIN_CHUNK_OFFSET * (j + 1)) + (i + 1);  // Right up.
+            int index4 = (TERRAIN_CHUNK_WIDTH / TERRAIN_CHUNK_OFFSET * j) + (i + 1);      // Right bottom.
+
+            vertices[indexVertex++].position = XMFLOAT3(m_heightMap[index1].x, 0.0f, m_heightMap[index1].z);
+            indices[indexIndex++] = index2;
+            indices[indexIndex++] = index3;
+            indices[indexIndex++] = index1;
+            indices[indexIndex++] = index1;
+            indices[indexIndex++] = index3;
+            indices[indexIndex++] = index4;
+        }
     }
 
     D3D11_BUFFER_DESC vertexBufferDesc;

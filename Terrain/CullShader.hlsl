@@ -6,6 +6,13 @@ Texture2D<float2> HM : register(t0);
 RWStructuredBuffer<uint> indirectArgs : register(u0);
 RWStructuredBuffer<uint4> objectsIds : register(u1);
 
+cbuffer scaleBuffer : register(b3)
+{
+    int4 scales; // x - grass, y - rock, z - slope, w - snow
+    float4 detailScale; // x - detail normal scale, y - height scale, z - max tess 
+};
+
+
 bool IsBoxInside(in float4 planes[6], in float3 bbMin, in float3 bbMax) {
     for (int i = 0; i < 6; i++) {
         float3 norm = planes[i].xyz;
@@ -31,7 +38,7 @@ void main(uint3 globalThreadId : SV_DispatchThreadID)
         return;
     }
     float4 bbMin = float4(0, 0, 0, 1);
-    float4 bbMax = float4(TERRAIN_CHUNK_WIDTH - 1, 0, TERRAIN_CHUNK_HEIGHT - 1, 1);
+    float4 bbMax = float4(TERRAIN_CHUNK_WIDTH - TERRAIN_CHUNK_OFFSET, 0, TERRAIN_CHUNK_HEIGHT - TERRAIN_CHUNK_OFFSET, 1);
     bbMin = mul(bbMin, geomBuffer[globalThreadId.x].worldMatrix);
     bbMax = mul(bbMax, geomBuffer[globalThreadId.x].worldMatrix);
 
@@ -39,12 +46,12 @@ void main(uint3 globalThreadId : SV_DispatchThreadID)
     float v = TERRAIN_CHUNK_COUNT_HEIGHT - (1.0f * globalThreadId.x % TERRAIN_CHUNK_COUNT_HEIGHT) - 1;
     //float2 texCoord = float2(u, v);
 
-    float2 height = HM.Load(int3(u,v, 6));
-    bbMin.y += height.r * 500.0f;
-    bbMax.y += height.g * 500.0f;
+    float2 height = HM.Load(int3(u,v, 7));
+    bbMin.y += height.r * detailScale.y;
+    bbMax.y += height.g * detailScale.y;
 
-    bbMin -= float4(100.0f, 100.0f, 100.0f, 0.0f);
-    bbMax += float4(100.0f, 100.0f, 100.0f, 0.0f);
+    bbMin -= float4(150.0f, 150.0f, 150.0f, 0.0f);
+    bbMax += float4(150.0f, 150.0f, 150.0f, 0.0f);
 
     if (IsBoxInside(planes, bbMin.xyz, bbMax.xyz)) {
         uint id = 0;

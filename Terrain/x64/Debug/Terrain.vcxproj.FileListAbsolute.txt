@@ -1,1 +1,2 @@
 A:\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\Terrain.exe
+C:\Users\Иван\Documents\GitHub\DynamicLandscapeRendering\Terrain\x64\Debug\Terrain.exe

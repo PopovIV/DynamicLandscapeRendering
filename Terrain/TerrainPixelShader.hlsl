@@ -36,7 +36,7 @@ cbuffer LightBuffer : register(b0)
 cbuffer scaleBuffer : register(b1)
 {
     int4 scales; // x - grass, y - rock, z - slope, w - snow
-    int4 detailScale; // x - detail normal scale
+    float4 detailScale; // x - detail normal scale, y - height scale, z - max tess 
 };
 
 struct PS_INPUT
@@ -132,7 +132,7 @@ float4 CalculateColor(Texture2D diffuseTexture, Texture2D normalTexture, Texture
     float3 pos, float3 normal, float3 tangent, float3 binormal, float3 L, float3 V, float scale) {
     float4 albedo = SampleTriplanar(diffuseTexture, pos, normal, scale, SampleType);
     float4 bumpMap = SampleTriplanar(normalTexture, pos, normal, scale, SampleType) * 2.0f - 1.0f;
-    float4 detailBumpMap = detailNormalMap.Sample(SampleType, pos.xz * detailScale.x) * 2.0f - 1.0f;
+    float4 detailBumpMap = detailNormalMap.Sample(SampleType, pos.xz * (int)detailScale.x) * 2.0f - 1.0f;
     bumpMap.x += detailBumpMap.x;
     bumpMap.y += detailBumpMap.y;
     bumpMap.z += detailBumpMap.z;

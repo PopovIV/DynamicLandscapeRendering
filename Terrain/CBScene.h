@@ -13,7 +13,7 @@ cbuffer SceneMatrixBuffer : register (b1)
 {
     matrix viewProjectionMatrix;
     float4 planes[6];
-    float3 cameraPos;
+    float4 cameraPos;
 };
 
 cbuffer IndexBuffer : register(b2)

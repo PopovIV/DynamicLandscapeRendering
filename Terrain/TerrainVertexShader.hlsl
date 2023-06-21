@@ -4,6 +4,12 @@ SamplerState SampleTypeNoMips : register(s0);
 
 Texture2D HM : register(t0);
 
+cbuffer scaleBuffer : register(b3)
+{
+    int4 scales; // x - grass, y - rock, z - slope, w - snow
+    float4 detailScale; // x - detail normal scale, y - height scale, z - max tess 
+};
+
 struct VS_INPUT
 {
     float4 position : POSITION;
@@ -28,7 +34,7 @@ HS_INPUT main(VS_INPUT input)
 
     output.position = mul(float4(input.position.xyz, 1.0), geomBuffer[idx].worldMatrix);
     output.tex = float2(1.0f * output.position.x / (TERRAIN_CHUNK_WIDTH * TERRAIN_CHUNK_COUNT_WIDTH), 1.0f * (output.position.z) / (TERRAIN_CHUNK_HEIGHT * TERRAIN_CHUNK_COUNT_HEIGHT));
-    output.position.y += HM.SampleLevel(SampleTypeNoMips, output.tex, 0.0f).x * 500.0;
+    output.position.y += HM.SampleLevel(SampleTypeNoMips, output.tex, 0.0f).x * detailScale.y;
     int H, W, dummy;
     HM.GetDimensions(0, H, W, dummy);
     float dX = 1.0f / W;
