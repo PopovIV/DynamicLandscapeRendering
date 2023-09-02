@@ -447,7 +447,7 @@ void Zone::ReadQueries(ID3D11DeviceContext* context) {
     while (m_lastCompletedFrame < m_curFrame) {
         HRESULT hr = context->GetData(m_queries[m_lastCompletedFrame % MAX_QUERY], &stats, sizeof(D3D11_QUERY_DATA_PIPELINE_STATISTICS), 0);
         if (hr == S_OK) {
-            m_chunksRendered = int(stats.IAPrimitives / ((TERRAIN_CHUNK_WIDTH / TERRAIN_CHUNK_OFFSET) * (TERRAIN_CHUNK_HEIGHT / TERRAIN_CHUNK_OFFSET) * 6));
+            m_chunksRendered = int(stats.CPrimitives);
             m_lastCompletedFrame++;
         }
         else {

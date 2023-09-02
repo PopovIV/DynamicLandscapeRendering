@@ -199,7 +199,7 @@ bool TerrainShader::InitializeShader(ID3D11Device* device, HWND hwnd, const wcha
         MatrixBufferType MatrixBufferInst[(TERRAIN_CHUNK_COUNT_WIDTH * TERRAIN_CHUNK_COUNT_HEIGHT)];
         for (int j = 0; j < TERRAIN_CHUNK_COUNT_WIDTH; j++) {
             for (int i = 0; i < TERRAIN_CHUNK_COUNT_HEIGHT; i++) {
-                MatrixBufferInst[index++].worldMatrix = XMMatrixTranspose(XMMatrixTranslation(j * (TERRAIN_CHUNK_WIDTH - TERRAIN_CHUNK_OFFSET), 0, i * (TERRAIN_CHUNK_HEIGHT - TERRAIN_CHUNK_OFFSET)));
+                MatrixBufferInst[index++].worldMatrix = XMMatrixTranspose(XMMatrixTranslation(j * (TERRAIN_CHUNK_WIDTH), 0, i * (TERRAIN_CHUNK_HEIGHT)));
             }
         }
 

@@ -38,7 +38,7 @@ void main(uint3 globalThreadId : SV_DispatchThreadID)
         return;
     }
     float4 bbMin = float4(0, 0, 0, 1);
-    float4 bbMax = float4(TERRAIN_CHUNK_WIDTH - TERRAIN_CHUNK_OFFSET, 0, TERRAIN_CHUNK_HEIGHT - TERRAIN_CHUNK_OFFSET, 1);
+    float4 bbMax = float4(TERRAIN_CHUNK_WIDTH, 0, TERRAIN_CHUNK_HEIGHT, 1);
     bbMin = mul(bbMin, geomBuffer[globalThreadId.x].worldMatrix);
     bbMax = mul(bbMax, geomBuffer[globalThreadId.x].worldMatrix);
 

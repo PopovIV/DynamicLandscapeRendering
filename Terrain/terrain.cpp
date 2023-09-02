@@ -1,8 +1,16 @@
 #include "terrain.h"
+#include <cstdlib>
 
 // Function to initialize the vertex and index buffers
+inline int div_ceil(int numerator, int denominator)
+{
+    std::div_t res = std::div(numerator, denominator);
+    return res.rem ? (res.quot + 1) : res.quot;
+}
+
 bool Terrain::Initialize(ID3D11Device* device) {
-    m_heightMap = new HeightMapType[TERRAIN_CHUNK_WIDTH * TERRAIN_CHUNK_HEIGHT / TERRAIN_CHUNK_OFFSET];
+    //(x + y - 1) / y
+    m_heightMap = new HeightMapType[div_ceil((TERRAIN_CHUNK_WIDTH + 1) * (TERRAIN_CHUNK_HEIGHT + 1), TERRAIN_CHUNK_OFFSET)];
     if (!m_heightMap) {
         return false;
     }
@@ -33,8 +41,8 @@ void Terrain::Shutdown() {
 void Terrain::SetTerrainCoordinates() {
     // Loop through all the elements in the height map array and adjust their coordinates correctly.
     int index = 0;
-    for (int j = 0; j < TERRAIN_CHUNK_HEIGHT / TERRAIN_CHUNK_OFFSET; j++) {
-        for (int i = 0; i < TERRAIN_CHUNK_WIDTH / TERRAIN_CHUNK_OFFSET; i++) {
+    for (int j = 0; j < div_ceil(TERRAIN_CHUNK_HEIGHT + 1, TERRAIN_CHUNK_OFFSET); j++) {
+        for (int i = 0; i < div_ceil(TERRAIN_CHUNK_WIDTH + 1, TERRAIN_CHUNK_OFFSET); i++) {
 
             // Set the X and Z coordinates.
             m_heightMap[index].x = (float)i * TERRAIN_CHUNK_OFFSET;
@@ -68,10 +76,13 @@ void Terrain::ShutdownTerrainModel() {
 // Function to initialize terrain vertex and index buffer
 bool Terrain::InitializeBuffers(ID3D11Device* device) {
     HRESULT result = S_OK;
+    int divChunkWidth = div_ceil(TERRAIN_CHUNK_WIDTH + 1, TERRAIN_CHUNK_OFFSET);
+    int divChunkHeight = div_ceil(TERRAIN_CHUNK_HEIGHT + 1, TERRAIN_CHUNK_OFFSET);
+
     // Calculate the number of vertices in the terrain.
-    m_vertexCount = (TERRAIN_CHUNK_WIDTH / TERRAIN_CHUNK_OFFSET) * (TERRAIN_CHUNK_HEIGHT / TERRAIN_CHUNK_OFFSET);
+    m_vertexCount = divChunkWidth * divChunkHeight;
     // Set the index count to the same as the vertex count.
-    m_indexCount = (TERRAIN_CHUNK_WIDTH / TERRAIN_CHUNK_OFFSET) * (TERRAIN_CHUNK_HEIGHT / TERRAIN_CHUNK_OFFSET) * 6;
+    m_indexCount = m_vertexCount  * 6;
 
     // Create the vertex array.
     VertexType* vertices;
@@ -90,18 +101,18 @@ bool Terrain::InitializeBuffers(ID3D11Device* device) {
     // Load the vertex array and index array with 3D terrain model data.
     int indexVertex = 0;
     int indexIndex = 0;
-    for (int j = 0; j < TERRAIN_CHUNK_HEIGHT / TERRAIN_CHUNK_OFFSET; j++) {
-        for (int i = 0; i < TERRAIN_CHUNK_WIDTH / TERRAIN_CHUNK_OFFSET; i++) {
-            if (i == (TERRAIN_CHUNK_WIDTH / TERRAIN_CHUNK_OFFSET - 1) || j == (TERRAIN_CHUNK_HEIGHT / TERRAIN_CHUNK_OFFSET - 1)) {
-                int index = (TERRAIN_CHUNK_WIDTH / TERRAIN_CHUNK_OFFSET * j) + i;
+    for (int j = 0; j < divChunkHeight; j++) {
+        for (int i = 0; i < divChunkWidth; i++) {
+            if (i == divChunkWidth - 1 || j == divChunkHeight - 1) {
+                int index = (divChunkWidth * j) + i;
                 vertices[indexVertex++].position = XMFLOAT3(m_heightMap[index].x, 0.0f, m_heightMap[index].z);
                 continue;
             }
             // Get the indexes to the four points of the quad.
-            int index1 = (TERRAIN_CHUNK_WIDTH / TERRAIN_CHUNK_OFFSET * j) + i;          // Left bottom.
-            int index2 = (TERRAIN_CHUNK_WIDTH / TERRAIN_CHUNK_OFFSET * (j + 1)) + i;      // Left up.
-            int index3 = (TERRAIN_CHUNK_WIDTH / TERRAIN_CHUNK_OFFSET * (j + 1)) + (i + 1);  // Right up.
-            int index4 = (TERRAIN_CHUNK_WIDTH / TERRAIN_CHUNK_OFFSET * j) + (i + 1);      // Right bottom.
+            int index1 = (divChunkWidth * j) + i;          // Left bottom.
+            int index2 = (divChunkWidth * (j + 1)) + i;      // Left up.
+            int index3 = (divChunkWidth * (j + 1)) + (i + 1);  // Right up.
+            int index4 = (divChunkWidth * j) + (i + 1);      // Right bottom.
 
             vertices[indexVertex++].position = XMFLOAT3(m_heightMap[index1].x, 0.0f, m_heightMap[index1].z);
             indices[indexIndex++] = index2;

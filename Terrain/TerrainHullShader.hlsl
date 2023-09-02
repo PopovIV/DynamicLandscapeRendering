@@ -38,7 +38,7 @@ float calculateEdgeFactor(float4 p0, float4 p1, matrix worldMatrix) {
     float edgeLength = distance(p0, p1);
     float4 edgeCenter = (p0 + p1) * 0.5;
     float viewDistance = distance(edgeCenter, cameraPos);
-    return (edgeLength * 110) / (viewDistance);
+    return (edgeLength * 100) / (viewDistance);
 }
 
 HS_CONSTANT_DATA_OUTPUT constantsHullShader(InputPatch<HS_INPUT, NUM_CONTROL_POINTS> patch, uint patchID : SV_PrimitiveID)
